@@ -1,0 +1,156 @@
+// app global css in SCSS form
+//side bar
+.q-drawer {
+    // background-color: #474b4e;
+    background-color: #363636;
+    color: white;
+}
+
+//side bar tite
+.q-drawer > .q-drawer__content > .q-item__label{
+    color: white;
+}
+
+//toolbar
+.q-toolbar
+{
+    background-color: #363636;
+}
+
+.q-field__control {
+    background-color: aliceblue !important;
+    min-height: 32px !important;
+    height: 32px !important;
+}
+
+//select box size
+.q-field__native
+{
+    min-height: 32px !important;
+    height: 32px !important;
+}
+
+//size box dropdown icon size
+.q-field__append
+{
+    min-height: 32px !important;
+    height: 32px !important;
+}
+
+table > thead
+{
+    background-color: white !important;
+}
+
+table > thead > tr > th
+{
+    border: 1px solid #0000001f !important;
+}
+
+table > tbody > tr > td
+{
+    border: 1px solid #0000001f !important;
+}
+
+// .q-expansion-item__content {
+//     background-color: #ebebeb80 !important;
+// }
+
+
+// .q-drawer > .q-drawer__content > .q-list > a > div > .q-item__section > .q-icon {
+//     color: red !important;
+// }
+
+// .q-drawer > .q-drawer__content > .q-list > a > div > .q-icon{
+//     color: white;
+// }
+
+
+// .q-drawer
+// {
+//     background-color: #212120;
+// }
+
+
+// .q-drawer__content
+// {
+//     color: white;
+// }
+
+
+//side bar main link
+.q-drawer > .q-drawer__content > .q-list > .q-item__label
+{
+    // color: white;
+    color: #5e5876;
+}
+
+//side bar icon and description
+.q-drawer > .q-drawer__content > .q-list > a{
+    // color: white !important;
+    color: #5e5876 !important;
+}
+
+//side bar most smaller string
+.q-drawer > .q-drawer__content > .q-list > a > div > .q-item__label{
+    // color: white;
+    color: #5e5876;
+}
+
+
+
+//footer text
+.footer_text
+{
+    font-size: 12px;
+}
+
+
+//component divider
+
+.component_div
+{
+    padding-top: 8px;
+    padding-right:8px;
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+.q-page-container
+{
+    background-color: #ededed;
+    background-color: rgba(203,203,210,.15);
+}
+
+.custom_font
+{
+    color:#51486c;
+}
+
+// @font-face
+// {
+//     font-family: myfont;
+//     src: url(../fonts/redressed/Redressed-Regular.ttf);
+// }
+
+//   // declare a class which applies it
+//   .my-font {
+//     font-family: 'myfont';
+//   }
+
+.filter_dropdown {
+    width: 100%!important;
+}
+
+/* button save color*/
+.button_save
+{
+    background-color: #094161;
+    color: white;
+}

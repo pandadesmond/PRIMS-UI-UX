@@ -1,0 +1,33 @@
+export default function () {
+  return {
+    // NEW
+    read_supcus_all: {},
+    itemmaster: [],
+    item_status: {},
+    all_code_list:[],
+    dept_list: [],
+    sub_dept_list: [],
+    category_list:[],
+    manufacturer_list:[],
+    brand_list:[],
+    origin_list:[],
+    item_color_list:[],
+    item_size_list:[],
+    item_type_list:[],
+    read_master_code_by_trans_type:[],
+    read_item:{},
+    read_barcode_by_itemcode:{},
+    read_po_by_refno: {},
+    pochild: [],
+    pochild_status: {},
+    read_location_list: {},
+    search_item_for_po: {},
+    get_item_by_itemcode_for_po: {},
+    barcode_status:{},
+    read_tax:[],
+    read_gst:[],
+    itemmaster_branch_stock:[],
+    supplier_item_list:[],
+    itemmastersupcode_status:{},
+ }
+}

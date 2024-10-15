@@ -1,0 +1,26 @@
+@font-face {
+    font-family: customfont;
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url(./fonts/open_sans.woff2) format('woff2');
+  }
+  
+
+@font-face
+{
+    font-family: myfont;
+    src: url(./fonts/redressed/Redressed-Regular.ttf);
+}
+
+
+// declare a class which applies it
+.my-font {
+font-family: 'myfont';
+}
+
+//make page body not small hwn no htmnl
+.q-page-container
+{
+  min-height: 100vh;
+}

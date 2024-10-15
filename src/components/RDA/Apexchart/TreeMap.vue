@@ -1,0 +1,386 @@
+<template>
+ <q-card class="my_card">
+  <q-card-section v-if="json_container.title">
+   <div class="row justify-between">
+    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 col-xl-10 text-h6 custom_font" style="font-size: 17px;">
+     <span @click="handleClickTitle" class="custom_title">{{json_container.title}}</span>
+    </div>
+
+    <div dir="rtl" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 q-pt-xs">
+     <q-icon v-if="json_container.info" class="info_icon" name="info" @click="goInfo">
+      <q-tooltip  anchor="top middle" self="bottom middle">
+       <span class="custom_tooltip">{{json_container.info}}</span>
+      </q-tooltip>
+     </q-icon>
+
+    <Button_icon
+      v-if="json_container.export"
+      tooltip_message="export"
+      :icon="'mdi-export'"
+       class="export_icon"
+      :flat="true"
+      :font_color="'#51486c'"
+      :color="'white'"
+      :outline="false"
+      :loading="loadings"
+      :readonly="disable"
+      size="11px"
+      v-on:receiveClick="goExport">
+    </Button_icon>
+
+    <q-icon v-if="json_container.filter" class="filter_icon" name="filter_list" @click="goFilter">
+     <q-tooltip  anchor="top middle" self="bottom middle">
+      <span class="custom_tooltip">{{json_container.filter}}</span>
+     </q-tooltip>
+    </q-icon>
+
+    <q-icon v-if="json_container.hide" class="hide_icon" name="expand_less" @click="goHide">
+     <q-tooltip  anchor="top middle" self="bottom middle">
+      <span class="custom_tooltip">{{json_container.hide}}</span>
+     </q-tooltip>
+    </q-icon>
+
+    <q-icon v-if="json_container.back == true" class="back_icon" name="fas fa-arrow-alt-circle-left" @click="goBack">
+     <q-tooltip  anchor="top middle" self="bottom middle">
+      <span class="custom_tooltip">back</span>
+     </q-tooltip>
+    </q-icon>
+
+    <!-- info -->
+    <div class="row" v-if="show_info == true">
+     <q-dialog v-model="show_info" persistent>
+      <q-card style="width: 700px; max-width: 80vw;">
+       <q-card-section style="background-color:#362e4b" class="row items-center q-pb-none">
+        <div class="text-h6 text-white">{{json_container.title1}}</div>
+        <q-space />
+        <q-btn class="text-white" icon="close" flat round dense v-close-popup /> 
+       </q-card-section>
+
+       <q-separator color="black" />
+
+       <q-card-section>
+
+       <!--info-->
+       <q-form ref="filter_form">
+        <div class="row">
+         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+         <!--message-->
+         <div class="row line_break">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" style="padding-top: 17px;">
+           <span v-html="json_container.message" />
+          </div>
+        </div>
+        <br/>
+       </div>
+      </div>
+     </q-form>
+    </q-card-section>
+   </q-card>
+  </q-dialog>
+ </div>
+ <!-- end of info -->
+
+ </div>
+ </div>
+ </q-card-section>
+
+ <q-separator/>
+
+ <div v-if="json_container.name == 'change_segment'" class="row">
+  <q-card-section  :style="$q.screen.width >= 1366 ? '' : 'padding-left: 0px; padding-right: 0px;'">
+   <div v-if="json_container.extra_title1" class="text-bold" style="color: #51486c; padding-left: 12px; padding-top: -50px;">
+    {{json_container.extra_title1}}
+   </div>
+   <apexchart ref="chart" style="cursor: pointer" @updated="animationEndhandler" @dataPointSelection="dataPointSelectionHandler" :height="json_container.chartOptions.chart.height" :width="json_container.chartOptions.chart.width" :options="json_container.chartOptions" :series="json_container.series"></apexchart>
+  </q-card-section>
+
+  <q-chip v-if="json_container.details == true" square icon="pan_tool_alt" style="margin-left: 520px; margin-top: 15px;">{{json_container.details}}</q-chip>
+  </div>
+
+  <div v-else class="row float-right">
+   <q-chip square icon="pan_tool_alt" >Click for next level</q-chip>
+  </div>
+  <br/>
+  <q-card-section :style="$q.screen.width >= 1366 ? '' : 'padding-left: 0px; padding-right: 0px;'">
+   <div v-if="json_container.extra_title" class="text-bold" style="color: #51486c; padding-left: 12px; padding-top: 20px;">
+    {{json_container.extra_title}}
+   </div>
+  <apexchart ref="chart" style="cursor: pointer" @updated="animationEndhandler" @dataPointSelection="dataPointSelectionHandler" :height="json_container.chartOptions.chart.height" :width="json_container.chartOptions.chart.width" :options="json_container.chartOptions" :series="json_container.series"></apexchart>
+ </q-card-section>
+
+ <Loading :loading="loading" />
+ </q-card>
+</template>
+
+<script>
+import { ref } from 'vue'
+import Loading from 'src/components/Base/Loading';
+import Button_icon from 'src/components/CRMDASH/Base/Button_icon';
+
+const currentdate = new Date();
+const year = currentdate.getFullYear();
+var month = ('0' + ('0' + (currentdate.getMonth()+1)).slice(-2)).slice(-2);
+const min_year = (year-3)+"/01";
+const max_year = year+"/"+month;
+
+export default {
+ name: 'TreeMap',
+ props: ["json", "hide_tree", "hide_loading",'forceLoading', 'forceLoading2', 'forceLoading3', 'forceLoading4', 'forceLoading5', 'forceLoading6', 'forceLoading7', 'forceLoading8','forceLoadings', 'disables'],
+ data(){
+  return{
+   json_container: this.json,
+   loading: true,
+   loadings: false, // show no loading at first time
+   disable: false,
+   show_info: false,
+   previous:'',
+   previous_row:'',
+   old_categories:'',
+   current_categories:''
+ }
+},
+components:{
+ Loading,
+ Button_icon
+},
+computed: {
+ dbComponentBehavior() {
+  return this.$store.getters['dbComponentBehavior/byLanguage']('crm')
+ },
+},
+methods: {
+ goFilter(){
+  this.$emit('Filter');
+ },
+ goExport(){
+  this.loadings = false
+  this.disable = false
+  this.$emit('Export');
+ },
+ goInfo(){
+  this.show_info = true
+  this.$emit('Info');
+ },
+ goHide(){
+  this.$emit('Hide');
+ },
+ goBack(){
+  this.$emit('Back');
+ },
+ dataPointSelectionHandler(event, chartContext, config){
+  var row_index = config.seriesIndex;
+  var column_index = config.dataPointIndex;
+  var parameter = '';
+  var row_data = chartContext.data.w.config.series;
+  var column_data = row_data[column_index];
+  var field = config.w.config.series[config.seriesIndex].data[config.dataPointIndex].x;
+  var color = chartContext.w.globals.colors;
+  var padding = chartContext.w.config.grid.padding;
+  // var table = config.w.config.states.active.allowMltipleDataPointsSelection;
+  var name = chartContext.data.w.config.series[row_index].name; // if need the name in Set, need to add extra in here to get newVal data
+  var active = chartContext.w.globals.selectedDataPoints // will show selected buttton without returning back after second click
+
+  if(active[0].length == 0){
+   this.$refs.chart.toggleDataPointSelection(row_index, this.previous) // 0 is seriesIndex, this.previous is dataPointIndex 
+  }else{
+    // when change in different selection parameter
+    // var x_categories = chartContext.w.globals.lastXAxis.categories
+    // this.current_categories = x_categories
+    // if(this.old_categories != this.current_categories){
+    //     this.previous = ''
+    //     this.previous_row = ''
+    // }
+    // when click the same bar, no trigger
+    // if (this.previous === column_index && this.previous_row === row_index)
+    // return
+    // this.old_categories = x_categories
+    this.previous = column_index
+    // this.previous_row = row_index
+
+    var json = {};
+    json.parameter = parameter;
+    json.series_data = row_data;
+    json.row_index = row_index;
+    json.column_index = column_index;
+    json.field = field;
+    json.value = column_data;
+    json.color = color;
+    json.padding = padding;
+    json.name = name; 
+
+    // json.table = table;
+    this.$emit('TreeMapClickHandle',json);           
+  }
+},
+
+animationEndhandler(){
+ var _this = this;
+ setTimeout(function(){
+  _this.$emit('TreeMapAnimationHandle');
+  _this.loading = false;
+},150);
+},
+
+handleClick(newVal){
+ this.$emit("receiveClick", newVal)
+}
+},
+watch: {
+ json(newVal){
+  this.json_container = newVal;
+  this.loading = false;
+ },
+ forceLoading(newVal){
+  if(newVal){
+   this.loading = true;
+  }
+},
+forceLoading2(newVal){
+ if(newVal){
+  this.loading = true;
+  this.$emit('edit_forceLoading2'); // change false then return back to true
+ }
+},
+forceLoading3(newVal){
+ if(newVal){
+  this.loading = true;
+  this.$emit('edit_forceLoading3'); // change false then return back to true
+ }
+},
+forceLoading4(newVal){
+ if(newVal){
+  this.loading = true;
+  this.$emit('edit_forceLoading4'); // change false then return back to true
+ }
+},
+forceLoading5(newVal){
+ if(newVal){
+  this.loading = true;
+  this.$emit('edit_forceLoading5'); // change false then return back to true
+ }
+},
+forceLoading6(newVal){
+ if(newVal){
+  this.loading = true;
+  this.$emit('edit_forceLoading6'); // change false then return back to true
+ }
+},
+forceLoading7(newVal){
+ if(newVal){
+  this.loading = true;
+  this.$emit('edit_forceLoading7'); // change false then return back to true
+ }
+},
+forceLoading8(newVal){
+ if(newVal){
+  this.loading = true;
+  this.$emit('edit_forceLoading8'); // change false then return back to true
+ }
+},
+forceLoadings(newVal){
+ if(newVal){
+  this.loadings = true;
+ }else{
+  this.loadings = false; // return false when done generating
+ }
+},
+disables(newVal){
+ if(newVal){
+  this.disable = true;
+ }else{
+  this.disable = false; // return false when done generating
+ }
+}
+}
+}
+</script>
+
+<style scoped>
+.custom_font
+{
+ display: flex;
+ align-items: center;
+}
+
+.custom_title
+{
+ cursor: grab;
+}
+
+.custom_title2
+{
+ cursor: pointer;
+}
+
+
+.filter_icon
+{
+ /* padding-left: 10px; */
+ color: #51486c;
+ cursor: pointer;
+ /* position: absolute; */
+ font-size: 18px;
+ /* right: 0;
+ padding-right: 75px; */
+}
+
+.export_icon
+{
+ /* padding-left: 10px; */
+ color: #51486c;
+ cursor: pointer;
+ margin-top: 3px;
+ margin-left: 2px;
+ /* position: absolute; */
+ /* font-size: 18px; */
+ /* right: 0;
+ padding-right: 35px; */
+}
+
+.info_icon
+{
+ /* padding-left: 10px; */
+ color: #51486c;
+ cursor: pointer;
+ /* position: absolute; */
+ font-size: 18px;
+ /* right: 0;
+ padding-right: 10px; */
+}
+
+.hide_icon
+{
+ /* padding-left: 10px; */
+ color: #51486c;
+ cursor: pointer;
+ /* position: absolute; */
+ font-size: 18px;
+ /* right: 0;
+ padding-right: 75px; */
+}
+
+.back_icon
+{
+ /* padding-left: 40px; */
+ color: #51486c;
+ cursor: pointer;
+ /* position: absolute; */
+ font-size: 18px;
+ /* right: 10%;
+ top: 25%; */
+ /* padding-right: 50px; */
+}
+
+.custom_tooltip
+{
+ font-size: 16px;
+}
+
+.line_break {
+ white-space: pre-wrap;
+}
+
+::v-deep .apexcharts-menu-item.exportCSV {
+ display: none;
+}
+</style>

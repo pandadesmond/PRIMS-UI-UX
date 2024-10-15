@@ -1,0 +1,263 @@
+// app global css in SCSS form
+.q-stepper__header--standard-labels .q-stepper__tab
+{
+  min-height: auto;
+}
+
+.fixed-full
+{
+  top: -20px !important;
+}
+
+.q-drawer {
+    // background-color: #474b4e;
+    background-color: #474b4e;
+}
+
+// .q-drawer > .q-drawer__content > .q-list > a > div > .q-item__section > .q-icon {
+//     color: red !important;
+// }
+
+// .q-drawer > .q-drawer__content > .q-list > a > div > .q-icon{
+//     color: white;
+// }
+
+//toolbar
+.q-toolbar
+{
+    // background-color: #094161;
+    background-color: #273655;
+    // background: linear-gradient(87deg,#11cdef,#1171ef);
+
+    // background: #ffffff;
+    // color: #888;
+    // border-bottom: 1px solid rgba(0,0,0,.1);
+}
+
+// .q-drawer
+// {
+//     background-color: #212120;
+// }
+
+//side bar tite
+.q-drawer > .q-drawer__content > .q-item__label{
+    // color: white;
+    color: white;
+}
+
+.q-drawer__content
+{
+    color: white;
+}
+
+
+//side bar main link
+.q-drawer > .q-drawer__content > .q-list > .q-item__label
+{
+    color: white;
+    // color: #5e5876;
+}
+
+//side bar icon and description
+.q-drawer > .q-drawer__content > .q-list > a{
+    color: white !important;
+    // color: #5e5876 !important;
+}
+
+//side bar most smaller string
+.q-drawer > .q-drawer__content > .q-list > a > div > .q-item__label{
+    color: white;
+    // color: #5e5876;
+}
+
+
+
+//footer text
+.footer_text
+{
+    font-size: 12px;
+}
+
+
+//component divider
+
+.component_div
+{
+    padding-top: 8px;
+    padding-right:8px;
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+.q-page-container
+{
+    background-color: #ededed;
+    background-color: rgba(203,203,210,.15);
+}
+
+
+// .q-layout {
+//   zoom: 90%;
+// }
+
+
+.custom_font
+{
+    color:#51486c;
+}
+
+// @font-face
+// {
+//     font-family: myfont;
+//     src: url(../fonts/redressed/Redressed-Regular.ttf);
+// }
+
+//   // declare a class which applies it
+//   .my-font {
+//     font-family: 'myfont';
+//   }
+
+.filter_dropdown {
+    width: 100%!important;
+}
+
+/* button save color*/
+.button_save
+{
+    background-color: #094161;
+    color: white;
+}
+
+/*overwrite index.html body css header*/
+body {
+    overflow-y: auto;
+}
+
+html {
+    touch-action: auto;
+}
+
+.theme_color
+{
+    // background-color: #183d84 !important;
+    background-color: #273655 !important;
+    color: white;
+}
+
+@media screen and (max-width: 599px) {
+  .q-field--filled .q-field__control
+  {
+    border-radius: 5px;
+  }
+  .q-field--square .q-field__control {
+    border-radius: 5px !important;
+  }
+
+  .q-field__control {
+    border-radius: 5px;
+    padding: 4px !important;
+    padding-top: 0px !important;
+    // background-color: aliceblue !important;
+    min-height: 35px !important;
+    height: 35px !important;
+  }
+  .q-field__inner {
+    border-radius: 5px;
+  }
+  .q-field {
+    border-radius: 5px;
+  }
+  .q-field__native
+  {
+      padding: 0px;
+      min-height: 35px !important;
+      overflow-y: scroll;
+  }
+
+  //size box dropdown icon size
+  .q-field__append
+  {
+      min-height: 35px !important;
+      height: 35px !important;
+  }
+
+  .q-select__dialog .q-field__native
+  {
+    padding-top: 10px !important;
+    min-height: 35px !important;
+    overflow-y: scroll;
+  }
+}
+
+@media screen and (min-width: 600px) {
+  /*make input field smaller*/
+  .q-field__control {
+      padding: 4px !important;
+      padding-top: 0px !important;
+      // background-color: aliceblue !important;
+      min-height: 26px !important;
+      height: 26px !important;
+  }
+
+  //select box size
+  .q-field__native
+  {
+      padding: 0px;
+      min-height: 26px !important;
+      height: 26px !important;
+  }
+
+  //size box dropdown icon size
+  .q-field__append
+  {
+      min-height: 26px !important;
+      height: 26px !important;
+  }
+}
+
+/*make input field smaller*/
+.q-field {
+  // background-color: aliceblue !important;
+  font-size: 13px !important
+}
+
+.q-field--float .q-field__label {
+  top: 7px !important;
+}
+
+.custom_label
+{
+    min-height: 28px !important;
+    height: 28px !important;
+}
+
+.dialog_font
+{
+  font-size: 13px !important;
+}
+
+.mobile_font
+{
+  font-size: 12px !important;
+  color: #928f8f;
+}
+
+.q-field--dense .q-field__label
+{
+  top: 5px !important;
+}
+
+.q-field--labeled.q-field--dense .q-field__native
+{
+  padding-bottom: 3px !important;
+}
+
+.q-select__dialog .q-field--auto-height.q-field--labeled .q-field__control-container {
+  padding-top: 5px !important;
+}
