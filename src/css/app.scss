@@ -14,13 +14,52 @@
 }
 
 
+@font-face {
+  font-family: InterfontRegular;
+  src: url(./fonts/Inter/ttf/Inter-Regular.ttf);
+}
+@font-face {
+  font-family: InterfontMedium;
+  src: url(./fonts/Inter/ttf/Inter-Medium.ttf);
+}
+@font-face {
+  font-family: InterfontSemiBold;
+  src: url(./fonts/Inter/ttf/Inter-SemiBold.ttf);
+}
+@font-face {
+  font-family: InterfontBold;
+  src: url(./fonts/Inter/ttf/Inter-Bold.ttf);
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url(./fonts/Poppins/Poppins-Regular.ttf);
+}
+
 // declare a class which applies it
 .my-font {
 font-family: 'myfont';
+}
+
+.inter-regular {
+  font-family: 'InterfontRegular';
+}
+.inter-medium {
+  font-family: 'InterfontMedium'
+}
+.inter-semibold {
+  font-family: 'InterfontSemiBold';
+}
+.inter-bold{
+  font-family: 'InterfontBold'
 }
 
 //make page body not small hwn no htmnl
 .q-page-container
 {
   min-height: 100vh;
+}
+
+body {
+  font-family: 'Poppins';
 }

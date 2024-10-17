@@ -36,9 +36,9 @@ export function trigger_read_supcus_all ({ commit }, payload) {
         .post('supcus/read_supcus_all', payload)
         .then((response) => {
             var json_table_data = response.data;
-            Object.keys(json_table_data).forEach(function(index, data) {
-                json_table_data[index].actions = "";
-            });
+            // Object.keys(json_table_data).forEach(function(index, data) {
+            //     json_table_data[index].actions = "";
+            // });
             var new_response = response;
             new_response.data = json_table_data;
             commit('update_read_supcus_all', new_response)
@@ -69,38 +69,66 @@ export function trigger_get_pomain ({ commit }, payload) {
         })
 }
 
+// export function trigger_create_pomain ({ commit,state }, payload) {
+//   return axios
+//       .post('/po/create_po/', payload)
+//       .then((response) => {
+//           var json = {};
+//           json.status = "success";
+//           json.response = response.data;
+//           commit('update_pomain_status', json)
+//       })
+//       .catch((error) => {
+//           var json = {};
+//           json.status = "failed";
+//           json.response = error.response.data;
+//           commit('update_pomain_status', json)
+//       })
+// }
+
 export function trigger_create_pomain ({ commit,state }, payload) {
-  return axios
-      .post('/po/create_po/', payload)
-      .then((response) => {
-          var json = {};
-          json.status = "success";
-          json.response = response.data;
-          commit('update_pomain_status', json)
-      })
-      .catch((error) => {
-          var json = {};
-          json.status = "failed";
-          json.response = error.response.data;
-          commit('update_pomain_status', json)
-      })
+  var object_pass = {
+      "url": '/po/create_po/',
+      "update_path": 'update_pomain_status',
+      "type": 'POST',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": payload.payload.pass_json
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
 }
 
+// export function trigger_update_pomain ({ commit,state }, payload) {
+//   return axios
+//       .post('/po/update_po/', payload)
+//       .then((response) => {
+//           var json = {};
+//           json.status = "success";
+//           json.response = response.data;
+//           commit('update_pomain_status', json)
+//       })
+//       .catch((error) => {
+//           var json = {};
+//           json.status = "failed";
+//           json.response = error.response.data;
+//           commit('update_pomain_status', json)
+//       })
+// }
+
 export function trigger_update_pomain ({ commit,state }, payload) {
-  return axios
-      .post('/po/update_po/', payload)
-      .then((response) => {
-          var json = {};
-          json.status = "success";
-          json.response = response.data;
-          commit('update_pomain_status', json)
-      })
-      .catch((error) => {
-          var json = {};
-          json.status = "failed";
-          json.response = error.response.data;
-          commit('update_pomain_status', json)
-      })
+  var object_pass = {
+      "url": '/po/update_po/',
+      "update_path": 'update_pomain_status',
+      "type": 'POST',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": payload.payload.pass_json
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
 }
 
 export function trigger_delete_pomain ({ commit,state }, payload) {
@@ -1560,21 +1588,6 @@ export function trigger_get_search_item_for_cn ({ commit,state }, payload) {
 
 }
 
-export function trigger_post_bulk_create_pochild ({ commit,state }, payload) {
-
-  var object_pass = {
-      url: 'po/bulk_create_pochild/',
-      update_path: 'update_bulk_create_pochild_status',
-      type: 'POST',
-      headers: {},
-      params: {},
-      body:  payload.payload.pass_json
-  };
-
-  return payload.app.$actions({ commit,state }, object_pass);
-
-}
-
 export function trigger_post_grn_item_tagging ({ commit,state }, payload) {
 
   var object_pass = {
@@ -1664,7 +1677,20 @@ export function trigger_post_delete_surcharge_discount ({ commit,state }, payloa
   return payload.app.$actions({ commit,state }, object_pass);
 
 }
+export function trigger_post_grn_read_grchild ({ commit,state }, payload) {
 
+    var object_pass = {
+        url: "grn/read_grchild/",
+        update_path: 'update_post_grn_grchild_status',
+        type: 'POST',
+        headers: {},
+        params: {},
+        body:  payload.payload.pass_json
+    };
+  
+    return payload.app.$actions({ commit,state }, object_pass);
+  
+  }
 export function trigger_post_grn_create_grchild ({ commit,state }, payload) {
 
   var object_pass = {
@@ -1724,3 +1750,275 @@ export function trigger_post_master_code_read_master_code_by_trans_type ({ commi
 
 }
 
+
+export function trigger_get_po_read_po ({ commit,state }, payload) {
+
+    var object_pass = {
+        "url": 'po/read_po/',  //api request url
+        "update_path": 'update_po_read_po', //function name use in store mutations.js to mutate state to store data in variable
+        "type": 'POST', //type of api request
+        "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+        "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+        "body": payload.payload.pass_json //field that used by api to create data
+    };
+
+    return payload.app.$actions({ commit,state }, object_pass);
+
+}
+
+export function trigger_post_read_pochild_general ({ commit,state }, payload) {
+
+  var object_pass = {
+      "url": 'po/read_pochild/',  //api request url
+      "update_path": 'update_pochild', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
+}
+
+export function trigger_create_pochild_general ({ commit,state }, payload) {
+  var object_pass = {
+      "url": 'po/create_pochild/',  //api request url
+      "update_path": 'update_pochild_status', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+export function trigger_update_pochild_general ({ commit,state }, payload) {
+  var object_pass = {
+      "url": 'po/update_pochild/',  //api request url
+      "update_path": 'update_pochild_status', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+export function trigger_get_po_ex ({ commit,state }, payload) {
+
+  var object_pass = {
+      "url": 'po_ex/get_po_ex/',  //api request url
+      "update_path": 'update_po_ex', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
+}
+
+export function trigger_post_get_price_change_req ({ commit,state }, payload) {
+
+  var object_pass = {
+      "url": 'price_change/get_price_change_req/',  //api request url
+      "update_path": 'update_price_change_req', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
+}
+
+export function trigger_create_price_change_req ({ commit,state }, payload) {
+  var object_pass = {
+      "url": 'price_change/create_price_change_req/',  //api request url
+      "update_path": 'update_price_change_req_status', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+export function trigger_update_price_change_req ({ commit,state }, payload) {
+  var object_pass = {
+      "url": 'price_change/update_price_change_req/',  //api request url
+      "update_path": 'update_price_change_req_status', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+export function trigger_post_get_price_change_req2item ({ commit,state }, payload) {
+
+  var object_pass = {
+      "url": 'price_change/get_price_change_req2item/',  //api request url
+      "update_path": 'update_price_change_req2item', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
+}
+
+export function trigger_post_search_item_for_po ({ commit,state }, payload) {
+
+  var object_pass = {
+      "url": 'itemmaster/search_item_for_po/',  //api request url
+      "update_path": 'update_search_item_for_po', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
+}
+
+export function trigger_post_read_po_supplier_list ({ commit,state }, payload) {
+
+  var object_pass = {
+      "url": 'itemmsater/read_po_supplier_itemlist/',  //api request url
+      "update_path": 'update_po_supplier_list', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
+}
+
+export function trigger_post_get_item_by_itemcode_for_po ({ commit,state }, payload) {
+
+  var object_pass = {
+      "url": 'itemmaster/get_item_by_itemcode_for_po/',  //api request url
+      "update_path": 'update_item_by_itemcode_for_po', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
+}
+
+export function trigger_post_read_barcode_by_itemcode ({ commit,state }, payload) {
+
+  var object_pass = {
+      "url": 'itemmaster/read_barcode_by_itemcode/',  //api request url
+      "update_path": 'update_barcode_by_itemcode', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
+}
+
+export function trigger_post_bulk_create_pochild ({ commit,state }, payload) {
+
+  var object_pass = {
+      "url": 'po/bulk_create_pochild/',  //api request url
+      "update_path": 'update_bulk_create_pochild_status', //function name use in store mutations.js to mutate state to store data in variable
+      "type": 'POST', //type of api request
+      "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+      "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+      "body": payload.payload.pass_json //field that used by api to create data
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+
+}
+export function trigger_post_read_gr_by_refno ({ commit,state }, payload) {
+
+    var object_pass = {
+        "url": 'grn/read_gr_by_refno/',  //api request url
+        "update_path": 'update_read_gr_by_refno', //function name use in store mutations.js to mutate state to store data in variable
+        "type": 'POST', //type of api request
+        "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+        "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+        "body": payload.payload.pass_json //field that used by api to create data
+    };
+
+    return payload.app.$actions({ commit,state }, object_pass);
+
+}
+export function trigger_post_get_read_grmain_new ({ commit,state }, payload) {
+
+    var object_pass = {
+        "url": 'grn/read_gr/',  //api request url
+        "update_path": 'update_grn_read_grmain', //function name use in store mutations.js to mutate state to store data in variable
+        "type": 'POST', //type of api request
+        "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+        "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+        "body": payload.payload.pass_json //field that used by api to create data
+    };
+
+    return payload.app.$actions({ commit,state }, object_pass);
+
+}
+export function trigger_post_create_grmain_new ({ commit,state }, payload) {
+
+    var object_pass = {
+        "url": 'grn/create_gr/',  //api request url
+        "update_path": 'update_grn_read_grmain', //function name use in store mutations.js to mutate state to store data in variable
+        "type": 'POST', //type of api request
+        "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+        "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+        "body": payload.payload.pass_json //field that used by api to create data
+    };
+
+    return payload.app.$actions({ commit,state }, object_pass);
+
+}
+export function trigger_post_update_grmain_new ({ commit,state }, payload) {
+
+    var object_pass = {
+        "url": 'grn/update_gr/',  //api request url
+        "update_path": 'update_grn_read_grmain', //function name use in store mutations.js to mutate state to store data in variable
+        "type": 'POST', //type of api request
+        "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+        "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+        "body": payload.payload.pass_json //field that used by api to create data
+    };
+
+    return payload.app.$actions({ commit,state }, object_pass);
+
+}
+export function trigger_post_delete_gr ({ commit,state }, payload) {
+
+    var object_pass = {
+        "url": 'grn/delete_gr/',  //api request url
+        "update_path": 'update_grn_read_grmain', //function name use in store mutations.js to mutate state to store data in variable
+        "type": 'POST', //type of api request
+        "headers": {},  // declare to define what data type used such as JSON or multipart/form-data
+        "params": payload.payload.params,  //params will auto convert as url request on url in ?parameter=first&parameter_second=second
+        "body": payload.payload.pass_json //field that used by api to create data
+    };
+
+    return payload.app.$actions({ commit,state }, object_pass);
+
+}

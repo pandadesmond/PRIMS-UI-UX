@@ -1,10 +1,10 @@
 <template>
-    <Textarea :readonly="readonly ? true : false" :id="id" :name="name"
-    :value="pass_value" :componentBehavior="dbComponentBehavior" :pass_label="pass_label"/>
+    <TextareaBase :readonly="readonly ? true : false" :id="id" :name="name"
+    :value="pass_value" :componentBehavior="dbComponentBehavior" :pass_label="pass_label" outline class="custom-textarea"/>
 </template>
 
 <script>
-import Textarea from 'src/components/Base/Textarea';
+import TextareaBase from 'src/components/ERP/Base/TextareaBase';
 
 export default {
     data() {
@@ -14,7 +14,7 @@ export default {
     },
     props: ['text', 'value', 'dbComponentBehavior', 'id', 'name', 'type','readonly','pass_label'],
     components: {
-        Textarea,
+        TextareaBase,
     },
     methods:{
     },
@@ -28,6 +28,9 @@ export default {
 </script>
 
 <style scoped>
+.q-field--outlined.q-field--readonly >>>.q-field__control:before {
+    border-style: solid;
+}
 /* For text input padding removal */
 .q-field
 {
@@ -43,10 +46,12 @@ export default {
     padding-bottom:20px;
 }
 
-* >>> .q-field__inner
+/* * >>> .q-field__inner
 {
-    border: 1px solid #d2d6de;
-}
+    border-radius: 8px;
+    border: 2px solid #E8E8E8;
+    background: #FFF;
+} */
 /* hide error message when no error validation*/
 .q-field >>> .q-field__bottom
 {
@@ -86,7 +91,11 @@ export default {
 * >>> .q-field__control {
   background-color: white !important;
   min-height: 77px !important;
-  height: 77px !important;
+  height: 90px !important;
+  padding: 16px 16px var(--Variant-2, 16px) 16px;
+}
+*>>>.q-field__prefix {
+    padding-right: 0px;
 }
 
 @media screen and (min-width: 600px) {
@@ -95,20 +104,50 @@ export default {
     margin-top: -10px;
     min-height: 60px !important;
     height: 60px !important;
+    padding-top: 10px !important;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 500;
+    font-family: InterfontMedium;
   }
+  * >>> .q-field__label
+{
+  /* top: 10px !important; */
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--Placeholder, #72777A);
+  font-family: InterfontMedium;
+}
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 599px) {
   * >>> .q-field__native{
     padding: 0px;
     min-height: 75px !important;
     height: 75px !important;
+    padding-top: 10px !important;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    font-family: InterfontMedium;
   }
+  * >>> .q-field__label
+{
+  /* top: 10px !important; */
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--Placeholder, #72777A);
+  font-family: InterfontMedium;
+}
 }
 
-* >>> .q-field__label
-{
-  top: 8px !important;
-  font-size: 14px;
+
+.custom-textarea >>> .q-field__control {
+  border-radius: 8px;
+  padding: 0px 16px !important;
+  /* background-color: antiquewhite; */
+  overflow: hidden;
+  background: white;
+  height: 56px;
 }
 </style>

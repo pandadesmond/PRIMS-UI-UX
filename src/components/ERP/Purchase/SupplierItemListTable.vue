@@ -453,7 +453,7 @@
 
   * >>> th
   {
-      padding: 2px !important;
+      padding: 10px !important;
   }
 
   * >>> tr, * >>> td
@@ -470,7 +470,27 @@
       font-size: 12px !important;
       height: 20px !important;
   }
-
+  *>>>.q-table th {
+    font-weight: 700;
+    font-size: 12px;
+    -webkit-user-select: none;
+    user-select: none;
+    font-family: InterfontBold;
+    color: black;
+    text-align: center !important;
+    background-color: #d7e2e9;
+}
+* >>> .q-table td
+  {
+      padding: 10px !important;
+      padding-left: 20px !important;
+      padding-right:  20px !important;
+      font-size: 12px !important;
+      height: 24px !important;
+       text-align: center !important;
+      font-family: InterfontMedium;
+      font-weight: 500;
+  }
   * >>> .q-table__container
   {
       padding: 0px;
@@ -483,7 +503,7 @@
   max-height: 380px
 
   thead tr:first-child th
-    background-color: #dee1e6
+    background-color: #d7e2e9
 
   thead tr th
     position: sticky

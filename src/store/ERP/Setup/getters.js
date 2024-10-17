@@ -1,3 +1,43 @@
+export function get_search_supcus (state) {
+  return state.search_supcus
+}
+
+export function get_read_supcus_all (state) {
+  return state.read_supcus_all
+}
+
+export function get_post_master_code_read_master_code_by_trans_type (state) {
+  return state.read_master_code_by_trans_type
+}
+
+export function get_read_location_list (state) {
+  return state.read_location_list
+}
+
+export function get_read_branch (state) {
+  return state.read_branch_list
+}
+
+export function get_surcharge_discount_list (state) {
+  return state.surcharge_discount_list
+}
+export function get_create_surcharge_discount_status (state) {
+  return state.surcharge_discount_status
+}
+export function get_edit_surcharge_discount_status (state) {
+  return state.surcharge_discount_status
+}
+export function get_surcharge_discount (state) {
+  return state.surcharge_discount
+}
+export function get_delete_surcharge_discount_status (state) {
+  return state.surcharge_discount_status
+}
+
+export function get_gst (state) {
+  return state.read_gst
+}
+
 export function banner_list (state) {
     return state.banner_list
 }
@@ -215,4 +255,112 @@ export function get_mc_weighing_type (state) {
 
 export function get_mc_weighing_type_status (state) {
   return state.mc_weighing_type_status
+}
+
+export function get_search_supcus_new (state) {
+  return state.search_supcus_new
+}
+export function get_update_supcus (state) {
+  return state.edit_supcus
+}
+
+export function get_new_supcus (state) {
+  return state.new_supcus
+}
+
+export function get_supcus_branch (state) {
+  return state.supcus_branch
+}
+
+export function get_supcus_branch_status (state) {
+  return state.supcus_branch_status
+}
+
+export function get_country (state) {
+  return state.country
+}
+
+export function get_itemmastersupcode (state) {
+  return state.itemmastersupcode
+}
+
+export function get_set_rep_freq (state) {
+  return state.set_rep_freq
+}
+
+export function get_sup_rep_site (state) {
+  return state.sup_rep_site
+}
+
+export function get_sup_ibt (state) {
+  return state.sup_ibt
+}
+
+export function get_sup_ibt_site (state) {
+  return state.sup_ibt_site
+}
+
+export function get_log (state) {
+  return state.log
+}
+
+export function get_read_department (state) {
+  return state.read_department
+}
+
+export function get_read_subdept (state) {
+  return state.read_subdept
+}
+
+export function get_read_category (state) {
+  return state.read_category
+}
+
+export function get_create_sup_rep_site_status (state) {
+  return state.create_sup_rep_site_status
+}
+
+export function get_update_sup_rep_site_status (state) {
+  return state.update_sup_rep_site_status
+}
+
+export function get_create_sup_ibt_status (state) {
+  return state.create_sup_ibt_status
+}
+
+export function get_update_sup_ibt_status (state) {
+  return state.update_sup_ibt_status
+}
+
+export function get_cp_set_branch (state) {
+  return state.cp_set_branch
+}
+
+export function get_get_set_concept_set_branch (state) {
+  return state.get_set_concept_set_branch
+}
+
+export function get_create_sup_ibt_site_status (state) {
+  return state.create_sup_ibt_site_status
+}
+
+export function get_get_supcusgroup (state) {
+  return state.get_supcusgroup
+}
+
+export function get_supcus_dropdown (state) {
+  return state.supcus_dropdown
+}
+
+export function get_update_sup_ibt_site_status (state) {
+  return state.update_sup_ibt_site_status
+}
+export function get_set_einv_msic (state) {
+  return state.set_einv_msic
+}
+export function get_pay_term (state) {
+  return state.set_pay_term
+}
+export function get_set_einv_state (state) {
+  return state.set_einv_state
 }

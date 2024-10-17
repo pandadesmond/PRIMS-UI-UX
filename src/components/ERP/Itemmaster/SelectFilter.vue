@@ -3,7 +3,7 @@
     ref="mySelect"
     :class="!no_padding_top ? 'space_on_top' : ''"
     :label="label"
-    filled
+    outlined
     v-model="bind_value"
     use-input
     input-debounce="0"
@@ -11,6 +11,7 @@
     @filter="filterFn"
     :rules="dbComponentBehavior.rules"
     @update:model-value ="handleChange"
+    class="custom-select"
   >
     <template v-slot:no-option>
       <q-item>
@@ -24,7 +25,8 @@
   <q-select v-else
     ref="mySelect"
     :class="!no_padding_top ? 'space_on_top' : ''"
-    filled
+    outlined
+    class="custom-select"
     v-model="bind_value"
     use-input
     input-debounce="0"
@@ -73,6 +75,15 @@ methods:{
             this.$emit('update:pass_value', newVal)
         }
 
+        // if (newVal && typeof newVal === 'object') {
+        // console.log('Emitting Selected Item:', newVal);
+        // this.$emit('receiveChange', {
+        //     value: newVal.value,
+        //     description: newVal.description
+        // });
+        // this.$emit('update:pass_value', newVal.value);
+        // }
+
         setTimeout(() => {
           this.$refs.mySelect.$el.querySelector('input').blur();
         }, 100);
@@ -114,6 +125,21 @@ watch:{
 </script>
 
 <style scoped>
+@media screen and (max-width: 599px) {
+  .q-field--auto-height >>>.q-field__control {
+    min-height: 32px;
+  }
+  .q-field--auto-height >>>.q-field__control {
+    height: 35px;
+}
+.q-field--auto-height.q-field--labeled >>>.q-field__native {
+  padding-top: 10px;
+}
+
+}
+.q-field--outlined.q-field--readonly >>>.q-field__control:before {
+    border-style: solid;
+}
 * >>> .q-field__native
 {
   flex-wrap: unset;
@@ -144,7 +170,7 @@ padding-bottom:20px;
 /* For text input border colour */
 * >>> .q-field__inner
 {
-border: 1px solid #d2d6de;
+/* border: 1px solid #d2d6de; */
 }
 
 .q-field--filled >>> .q-field__control {
@@ -152,7 +178,7 @@ background: white;
 }
 
 .q-field >>> .q-field__native {
-  max-height: 29px;
+  max-height: 42px;
   overflow-y: scroll !important;
 }
 
@@ -222,9 +248,27 @@ padding: 3px 0px 0;
 }
 
 @media screen and (min-width: 600px) {
+  *>>>.q-field__marginal {
+    height: 32px;
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 24px;
+}
+  .q-field--auto-height >>>.q-field__control {
+    min-height: 32px;
+}
+
+  .custom-select >>> .q-field__control {
+  /* border-radius: 8px; */
+  height: 32px;
+  /* background-color: antiquewhite; */
+}
   .space_on_top >>> .q-field__native  > span
   {
-    padding-top: 10px !important;
+    padding-top: 5px !important;
   }
+  .q-select >>>.q-field__input {
+    min-width: 0px !important;
+    cursor: text;
+}
 }
 </style>

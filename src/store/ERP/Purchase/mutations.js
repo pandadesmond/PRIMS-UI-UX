@@ -202,10 +202,6 @@ export const update_search_item_for_cn = (state, payload) => {
   state.search_item_for_cn = payload
 }
 
-export const update_bulk_create_pochild_status = (state, payload) => {
-  state.bulk_create_pochild_status = payload
-}
-
 export const update_grn_item_tagging_status = (state, payload) => {
   state.grn_item_tagging_status = payload
 }
@@ -240,4 +236,44 @@ export const update_post_gst_read_gst = (state, payload) => {
 
 export const update_post_master_code_read_master_code_by_trans_type = (state, payload) => {
   state.read_master_code_by_trans_type = payload
+}
+
+export const update_po_read_po = (state, payload) => {
+  state.po_read_po = payload
+}
+
+export const update_po_ex = (state, payload) => {
+  state.po_ex = payload
+}
+
+export const update_price_change_req = (state, payload) => {
+  state.price_change_req = payload
+}
+
+export const update_price_change_req_status = (state, payload) => {
+  state.price_change_req_status = payload
+}
+
+export const update_price_change_req2item = (state, payload) => {
+  state.price_change_req2item = payload
+}
+
+export const update_po_supplier_list = (state, payload) => {
+  state.po_supplier_list = payload
+}
+
+export const update_item_by_itemcode_for_po = (state, payload) => {
+  state.item_by_itemcode_for_po = payload
+}
+
+export const update_barcode_by_itemcode = (state, payload) => {
+  state.barcode_by_itemcode = payload
+}
+
+export const update_bulk_create_pochild_status = (state, payload) => {
+  state.bulk_create_pochild_status = payload
+}
+
+export const update_grn_read_grmain = (state, payload) => {
+  state.read_grmain = payload
 }

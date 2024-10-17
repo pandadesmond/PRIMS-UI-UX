@@ -1,15 +1,20 @@
 <template>
-  <div v-if="$q.screen.width > 599" class="row card_section card_section_second">
-    <Title v-if="page_function == 'PurchaseOrder'" :text="$language('D0010')" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
-    <Title v-if="page_function == 'GoodsReceivedNote'" :text="$language('D0123')" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
+  <div v-if="$q.screen.width > 599" class="row card_section card_section_second" style="padding-top:16px">
+    <!-- <Title v-if="page_function == 'PurchaseOrder'" :text="$language('D0010')" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" /> -->
+    <!-- <Title v-if="page_function == 'GoodsReceivedNote'" :text="$language('D0123')" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
     <Title v-if="page_function == 'DebitNote'" :text="$language('D0012')" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
     <Title v-if="page_function == 'SalesOrder'" :text="$language('D0015')" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
     <Title v-if="page_function == 'InterbranchTransfer'" :text="$language('D0013')" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
-    <Title v-if="page_function == 'CreditNote'" :text="'Credit Note'" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
+    <Title v-if="page_function == 'CreditNote'" :text="'Credit Note'" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" /> -->
+    <!-- <div class="chip-container">
+    <Chip v-if="page_function == 'PurchaseOrder'" :text="'Outlet'" v-on:receiveClick="handleNavigate('Outlet')" icon="fas fa-shopping-bag" color="grey-6" class="bold-font"/>
+    <i v-if="page_function == 'PurchaseOrder'" class="fas fa-chevron-right chip-icon"></i>
+    <Chip v-if="page_function == 'PurchaseOrder'" :text="$language('D0010')" icon="fas fa-shopping-bag" color="blue-grey-10" class="bold-font"/>
+    </div> -->
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
       <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 col-xl-10">
-          <div class="row">
+        <!-- <div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 col-xl-10"> -->
+          <!-- <div class="row"> -->
             <!-- <div class="col-xs-12 col-sm-12 col-md-11 col-lg-11 col-xl-11">
               <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
@@ -27,7 +32,7 @@
               </div>
             </div> -->
 
-            <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 col-xl-1">
+            <!-- <div class="col-xs-12 col-sm-12 col-md-1 col-lg-1 col-xl-1">
               <div class="input_wrapper input_wrapper_right">
                   <Button_icon
                   v-if="filter_options.length < select_options.length"
@@ -40,50 +45,53 @@
                   :outline="true"
                   size="13px"/>
               </div>
-            </div>
-          </div>
-        </div>
+            </div> -->
+          <!-- </div> -->
+        <!-- </div> -->
 
-        <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 col-xl-2"></div>
+        <!-- <div class=" col-xs-12 col-sm-12 col-md-2 col-lg-2 col-xl-2"></div> -->
 
-        <div class="card_section_two card_section_second_content col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-          <div class="q-pr-xs q-pt-xs q-pb-md row items-center">
-            <div class="row full-width">
-              <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 col-xl-4 q-pl-xs">
-                <LabelInputHorizontal
+        <div class="card_section_two col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+          <div class="q-pr-xs row items-center" style="padding-bottom: 24px">
+            <div class="input-container row col-12">
+              <div class="div-container col-xs-12 col-sm-4 col-md-4 col-lg-4 col-xl-4 q-pr-md">
+                <InputLabel
+                :icon_append="'search'"
                 :readonly="false"
                 :no_label="true"
                 :text="$language('D0030')"
                 v-model:pass_value="search"
-                :dbComponentBehavior="dbComponentBehavior.text"
+                :dbComponentBehavior="{ ...dbComponentBehavior.text, label: $language('D0030') }"
                 v-on:receiveChange="handleChangeOptions"
+                @iconClick="performSearch"
+                class="input_icon_custom"
                 />
               </div>
-
-              <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 col-xl-4 q-pl-xs">
+              <div class="div-container col-xs-12 col-sm-4 col-md-4 col-lg-4 col-xl-4 q-pl-md">
                 <LabelSelectFilterHorizontal
                 style="margin-left: 0px;"
                 :readonly="false"
                 :no_label="true"
-                :text="$language('D0025')"
+                :label="$language('D0025')"
                 v-model:pass_value="supcus"
                 :dbComponentBehavior="dbComponentBehavior.text"
                 :options="supcus_options"
                 v-on:receiveChange="handleChangeOptions"
+                class="label-font"
                 />
               </div>
 
-              <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 col-xl-4" align="right">
-                <Button_icon v-if="page_function != 'GoodsReceivedNote'" :flat="false" :font_color="'white'" :color="'#2F3A4D'" :text="page_function == 'PurchaseOrder' ? $language('D0027') :  page_function == 'InterbranchTransfer'  ? $language('D0124') :  page_function == 'DebitNote' ? $language('D0125'): 'New CN'" :outline="false" size="15px"
-                v-on:receiveClick="handleShowCreatePurchaseOrder"/>
+              <div class="div-container col-xs-12 col-sm-4 col-md-4 col-lg-4 col-xl-4 " align="right">
+                <Button_icon v-if="page_function != 'GoodsReceivedNote'" :flat="false" :font_color="'white'" :color="'#1E90FF'" :text="page_function == 'PurchaseOrder' ? $language('D0027') :  page_function == 'InterbranchTransfer'  ? $language('D0124') :  page_function == 'DebitNote' ? $language('D0125'): 'New CN'" :outline="false" size="16px"
+                v-on:receiveClick="handleShowCreatePurchaseOrder" icon="add" :border_radius="'8px'" :hoverColor="'linear-gradient(0deg, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.15) 100%), #1E90FF'" padding='6px' class="bold-font" style="width:120px;height:42px"/>
 
                 <!-- <Button_icon v-if="page_function == 'GoodsReceivedNote'" :flat="false" :font_color="'white'" :color="'#2F3A4D'" :text="$language('D0039')" :outline="false" size="15px"
                 v-on:receiveClick="handleConvert"/> -->
 
-
-                <q-btn-dropdown style="background-color: #2F3A4D; color: white; border-radius: 0px;" v-if="page_function == 'GoodsReceivedNote'" :flat="false" :outline="false" size="15px" label="Receive" dense>
-                  <q-list dense>
-                    <q-item clickable v-close-popup @click="handleConvert" style="background-color: #2F3A4D; color: white;">
+<!-- simple receive GRN -->
+                <q-btn-dropdown class="grn_receive_button"  v-if="page_function == 'GoodsReceivedNote'" :flat="false" :outline="false" size="16px" no-caps label="Receive" > <!--dense -->
+                  <q-list>
+                    <q-item clickable v-close-popup @click="handleConvert" class="qlist-font" style="border-radius:8px;background-color: white; color: black;">
                       <q-item-section>
                         <q-item-label>{{$language('D0215')}}</q-item-label>
                       </q-item-section>
@@ -139,9 +147,28 @@
   </div>
 
   <div v-else class="row card_section card_section_second">
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 q-px-md" >     <!-- :class="page_function == 'DebitNote' ? '' :'q-pb-sm'" -->
-      <div class="row">
-        <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
+    <div class="row col-12">
+    <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 col-xl-10 chip-container">
+    <!-- <Chip v-if="page_function == 'PurchaseOrder'" :text="'Outlet'" v-on:receiveClick="handleNavigate('Outlet')" icon='img:icons/outlet.svg' color="grey-6" class="bold-font custom-chip-padding"/> -->
+    <!-- <i v-if="page_function == 'PurchaseOrder'" class="fas fa-chevron-left chip-icon"></i>   icon="chevron_left" icon-right="img:/purchase.svg"-->
+    <Chip v-if="page_function == 'PurchaseOrder'" :text="$language('D0010')" icon="img:purchase.svg" color="#273655" class="chip_sty bold-font" v-on:receiveClick="handleNavigate('Outlet')"/>
+    <Chip v-if="page_function == 'GoodsReceivedNote'" :text="$language('D0123')" icon="img:purchase.svg" color="#273655" class="bold-font chip_sty" v-on:receiveClick="handleNavigate('Outlet')"/>
+    <Chip v-if="page_function == 'DebitNote'" :text="$language('D0012')" icon="img:purchase.svg" color="#273655" class="bold-font chip_sty" v-on:receiveClick="handleNavigate('Outlet')"/>
+    <Chip v-if="page_function == 'CreditNote'" :text="'Credit Note'" icon="img:purchase.svg" color="#273655" class="bold-font chip_sty" v-on:receiveClick="handleNavigate('Outlet')"/>
+    </div>
+    <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 col-xl-2" align="right" style="margin-top: 5px;">
+          <Button_icon :icon="'filter_alt'" :flat="false" :border_radius="'8px;'" :font_color="'primary'" :color="'white'" :outline="true" size="15px"
+          v-on:receiveClick="handleShowFilter" class="primary_button_font"/>
+        </div>
+    
+  </div>
+    <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 q-px-md" > 
+      <div class="row col-12">
+        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 ">
+          <Button_icon :icon="'sort'" :border_radius="'17px;'" :flat="true" :font_color="'#29292A'" :color="'transparent'" :outline="false" size="17px"
+                  v-on:receiveClick="handleShowSidebar" class="sort_font"/>
+        </div>
+        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
           <Title v-if="page_function == 'PurchaseOrder'" :text="$language('D0010')" :smaller_label="true" :noFilter="true" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
           <Title v-if="page_function == 'GoodsReceivedNote'" :text="$language('D0123')" :smaller_label="true" :noFilter="true" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
           <Title v-if="page_function == 'DebitNote'" :text="$language('D0012')" :noFilter="true" :smaller_label="true" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
@@ -150,31 +177,30 @@
           <Title v-if="page_function == 'CreditNote'" :text="'Credit Note'"  :smaller_label="true" :noFilter="true" :filter_status="filter_status" v-on:receiveFilter="handleReceiveFilter" />
         </div>
 
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3" align="right" style="margin-top: 5px;">
-          <Button_icon :icon="'filter_alt'" :flat="false" :border_radius="'15px;'" :font_color="'black'" :color="'white'" :outline="false" size="15px"
-          v-on:receiveClick="handleShowFilter"/>
-        </div>
+        
 
       </div>
-    </div>
+    </div> -->
 
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 text-center q-pb-xs" style="font-size: 11px ; padding:0px">
-          <q-icon name="person" class="q-px-none" size="15px"/>&nbsp;:&nbsp;Supplier &nbsp;&nbsp;&nbsp;&nbsp;
-          <q-icon name="location_city" class="q-px-none" size="15px"/>&nbsp;:&nbsp;Branch&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <q-icon name="event" class="q-px-none" size="15px"/>&nbsp;:&nbsp;Date
-        </div>
+    <div class="container_top col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 text-center " style="font-size: 13px ; color:#757575; font-weight:700; font-family: InterfontBold; ">
+          <q-icon name="fa fa-user" class="q-px-none" size="15px" :style="{ color: '#54656F !important' }"/>&nbsp;&nbsp;Supplier &nbsp;&nbsp;&nbsp;&nbsp;
+          <q-icon name="location_on" :style="{ color: '#54656F !important' }" size="15px" />&nbsp;&nbsp;Branch&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <q-icon name="event" class="q-px-none" size="15px" :style="{ color: '#54656F !important' }"/>&nbsp;&nbsp;Date
+          <!-- &nbsp;:&nbsp;Supplier &nbsp;&nbsp;&nbsp;&nbsp; -->
+    </div>
 
 
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
       <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" style="padding: 3px;">
-          <div class="row">
-            <div @click="handleAction(result)" v-for="(result,index) in results" :key="index" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" style="padding-bottom: 5px;">
-              <q-card flat class="card_design" style="width: 100%; overflow-wrap: break-word; border-radius:6px;">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" style="padding: 0px; padding-bottom: 24px">
+          <div class="row" style="gap:10px">
+<!-- expanded card @click="expanded = !expanded"-->
+            <div @click="selectCard(index)" v-for="(result,index) in results" :key="index" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" > <!-- style="padding-bottom: 8px;"-->
+              <q-card flat class="card_design" style="width: 100%; overflow-wrap: break-word; border-radius:8px;" :class="{'selected-card': selectedCardIndex === index}"> 
                   <q-card-section style="padding: 5px;">
                     <div class="row">
                       <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9 q-pl-sm">
-                        <div class="row text-subtitle1">
+                        <div class="row text_1">
                             {{ result.RefNo }}
                         </div>
                         <!-- <div v-if="page_function == 'PurchaseOrder'" class="row q-pt-md" style="font-size: 11px;">
@@ -182,40 +208,40 @@
                         </div> -->
                         <div v-if="page_function == 'PurchaseOrder'" id="detail_show" ref="detail_show"  class="row q-pt-sm" style="font-size: 11px;">
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <q-icon name="person" class="q-pa-xs" size="15px">
+                             <q-icon name="fa fa-user" class="q-pa-xs" size="15px" :style="{ color: '#54656F !important' }">
                               <!-- <q-tooltip anchor="top middle" self="bottom middle"  :hide-delay="300" :offset="[10, 10]">
                                 <strong>Supplier</strong>
                                </q-tooltip> -->
                              </q-icon>
-                             {{ result.SCode }} - {{ result.SName }}
+                             <span class="text_2">{{ result.SCode }} - {{ result.SName }}</span>
                             </div>
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <q-icon name="location_city" class="q-px-xs" size="15px">
+                             <q-icon name="location_on" class="q-px-xs" size="15px" :style="{ color: '#54656F !important' }">
                               <!-- <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]" :hide-delay="300">
                                 <strong>Branch</strong>
                                </q-tooltip> -->
                              </q-icon>
-                              {{ result.loc_group }} &nbsp;
-                             <q-icon name="event" class="q-px-xs" size="15px">
+                              <span class="text_2">{{ result.loc_group }}</span> &nbsp;
+                             <q-icon name="event" class="q-px-xs" size="15px" :style="{ color: '#54656F !important' }">
                               <!-- <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]" :hide-delay="300">
                                 <strong>Date</strong>
                                </q-tooltip> -->
                               </q-icon>
-                              {{ result.PODate }}
+                              <span class="text_2">{{ result.PODate }}</span>
 
                           </div>
                         </div>
 
                         <div v-if="page_function == 'GoodsReceivedNote'" class="row q-pt-sm" style="font-size: 11px;">
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <q-icon name="person" class="q-pa-xs" size="15px" />
-                             {{ result.Code }} - {{ result.Name }}
+                             <q-icon name="fa fa-user" class="q-pa-xs" size="15px" color="primary"/>
+                              <span class="text_2">{{ result.Code }} - {{ result.Name }}</span>
                             </div>
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <q-icon name="location_city" class="q-px-xs" size="15px"/>
-                              {{ result.loc_group }} &nbsp;
-                             <q-icon name="event" class="q-px-xs" size="15px"/>
-                              {{ result.GRDate }}
+                             <q-icon name="location_on" class="q-px-xs" size="15px" :style="{ color: '#54656F !important' }"/>
+                              <span class="text_2">{{ result.loc_group }}</span> &nbsp;
+                             <q-icon name="event" class="q-px-xs" size="15px" :style="{ color: '#54656F !important' }"/>
+                              <span class="text_2">{{ result.GRDate }}</span>
                           </div>
                         </div>
                         <!-- <div v-if="page_function == 'GoodsReceivedNote'" class="row q-pt-md" style="font-size: 11px;">
@@ -224,11 +250,11 @@
 
                         <div v-if="page_function == 'DebitNote'" class="row q-pt-sm" style="font-size: 11px;">
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <q-icon name="person" class="q-pa-xs" size="15px"/>{{ result.Code }} - {{ result.Name }}
+                             <q-icon name="fa fa-user" class="q-pa-xs" size="15px" color="primary"/><span class="text_2">{{ result.Code }} - {{ result.Name }}</span>
                             </div>
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <q-icon name="location_city" class="q-px-xs" size="15px"/>{{ result.locgroup }} &nbsp;
-                             <q-icon name="event" class="q-px-xs" size="15px"/> {{ result.DocDate }}
+                             <q-icon name="location_on" class="q-px-xs" size="15px" :style="{ color: '#54656F !important' }"/><span class="text_2">{{ result.locgroup }}</span> &nbsp;
+                             <q-icon name="event" class="q-px-xs" size="15px" :style="{ color: '#54656F !important' }"/> <span class="text_2" >{{ result.DocDate }}</span>
 
                           </div>
                         </div>
@@ -238,23 +264,23 @@
                         </div> -->
                         <div v-if="page_function == 'InterbranchTransfer'" class="row q-pt-sm" style="font-size: 11px;">
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <q-icon name="person" class="q-pa-xs" size="15px"/>
-                             {{ result.SCode }} - {{ result.SName }}
+                             <q-icon name="fa fa-user" class="q-pa-xs" size="15px"/>
+                             <span class="text_2">{{ result.SCode }} - {{ result.SName }}</span>
                             </div>
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <q-icon name="location_city" class="q-px-xs" size="15px"/>
-                              {{ result.loc_group }} &nbsp;
-                             <q-icon name="event" class="q-px-xs" size="15px"/>  {{ result.PODate }}
+                             <q-icon name="location_on" class="q-px-xs" size="15px" color="teal"/>
+                              <span class="text_2" >{{ result.loc_group }}</span> &nbsp;
+                             <q-icon name="event" class="q-px-xs" size="15px" color="purple"/> <span class="text_2"> {{ result.PODate }} </span>
                           </div>
                         </div>
 
                         <div v-if="page_function == 'CreditNote'" class="row q-pt-sm" style="font-size: 11px;">
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <q-icon name="person" class="q-pa-xs" size="15px"/>{{ result.Code }} - {{ result.Name }}
+                             <q-icon name="fa fa-user" class="q-pa-xs" size="15px" color="primary"/><span class="text_2">{{ result.Code }} - {{ result.Name }} </span>
                             </div>
                           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <q-icon name="location_city" class="q-px-xs" size="15px"/>{{ result.locgroup }} &nbsp;
-                             <q-icon name="event" class="q-px-xs" size="15px"/> {{ result.DocDate }}
+                             <q-icon name="location_on" class="q-px-xs" size="15px" :style="{ color: '#54656F !important' }"/><span class="text_2">{{ result.locgroup }}</span> &nbsp;
+                             <q-icon name="event" class="q-px-xs" size="15px" :style="{ color: '#54656F !important' }"/><span class="text_2"> {{ result.DocDate }}</span>
 
                           </div>
                         </div>
@@ -283,47 +309,68 @@
                         </div> -->
 
                         <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" style="font-weight:  normal; font-size:12px; color:red" >{{ result.DocumentStatus }}</div>
-                            <div v-if="page_function != 'DebitNote' && page_function != 'CreditNote'" style="padding-top:20%" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">{{ currency_sign }} {{ result.Total }}</div>
-                            <div v-if="page_function == 'DebitNote'" style="padding-top:20%" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">{{ currency_sign }} {{ result.Amount }}</div>
-                            <div v-if="page_function == 'CreditNote'" style="padding-top:20%" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">{{ currency_sign }} {{ result.SubTotal1 }}</div>
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" style="font-weight:  normal; font-size:12px; color:red" >
+                              <!-- {{ result.DocumentStatus }} --><!--textTransform:'uppercase'-->
+                              <Badge
+                                :text="result.DocumentStatus"
+                                :color="getBadgeColor(result.DocumentStatus)"
+                                :transparent="false"
+                                :rounded="true"
+                                :textColor="getBadgeTextColor(result.DocumentStatus)"
+                                :style="{ padding: '10px', borderRadius: '19px',fontSize: '12px', fontFamily:'InterfontMedium', fontWeight: '500', }"
+                              />
+                            </div>
+                            <div v-if="page_function != 'DebitNote' && page_function != 'CreditNote'" style="padding-top:20%" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 text_1">{{ currency_sign }} {{ result.Total }}</div>
+                            <div v-if="page_function == 'DebitNote'" style="padding-top:20%" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 text_1">{{ currency_sign }} {{ result.Amount }}</div>
+                            <div v-if="page_function == 'CreditNote'" style="padding-top:20%" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 text_1">{{ currency_sign }} {{ result.SubTotal1 }}</div>
                         </div>
                       </div>
                     </div>
                   </q-card-section>
+                  <q-card-section v-show="selectedCardIndex === index">
+                    <q-separator /><!--"'#B22222'" -->
+                    <q-card-section class="text-subtitle2" align="right">
+                      <q-btn no-caps flat color="primary" label="Edit" @click="handleAction(result)" style="font-family:InterfontSemiBold; font-size: 14px;font-weight: 600;"/>
+                      <q-btn no-caps flat color="red-7" label="Delete" @click="handleDelete(result)" style="font-family:InterfontSemiBold; font-size: 14px;font-weight: 600;"/>
+                    </q-card-section>
+                  </q-card-section>
               </q-card>
             </div>
 
-            <div style="padding-bottom: 40px;" class="col-xs-12" align="right">
+            <div style="padding-bottom: 40px;" class="col-xs-12 text_2" align="right">
               Entries: {{ filter.pagination }} || {{ filter.from }}- {{ filter.to }} of {{ filter.total_row }}
             </div>
 
             <div class="dialog_action1">
               <div class="row full-height items-center">
-                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3" align="center">
-                  <Button_icon :icon="'sort'" :border_radius="'17px;'" :flat="true" :font_color="'#928f8f'" :color="'white'" :outline="false" size="13px"
-                  v-on:receiveClick="handleShowSidebar" />
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" align="center"> <!--change from 3 to 4 -->
+                  <!-- <Button_icon :icon="'sort'" :border_radius="'17px;'" :flat="true" :font_color="'#928f8f'" :color="'white'" :outline="false" size="13px"
+                  v-on:receiveClick="handleShowSidebar" /> -->
+                  <Button_icon :disable="ori_params.params.offset == 0 || showAddLoading" :icon="'chevron_left'" :border_radius="'17px;'" :flat="true" :color="'white'" :outline="false" size="13px"
+                  v-on:receiveClick="changePagination('back')" class="right_left_button" :font_color="ori_params.params.offset == 0 ? '#928f8f' : '#094161'"/>
                 </div>
 
-                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3" align="center" style="border-right: 1px solid rgb(146, 143, 143);">
-                  <Button_icon v-if="page_function != 'GoodsReceivedNote'" :icon="'add'" :border_radius="'17px;'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px"
-                  v-on:receiveClick="handleShowCreatePurchaseOrder" />
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" align="center" > <!--style="border-right: 1px solid rgb(146, 143, 143);" -->
+                  <Button_icon v-if="page_function != 'GoodsReceivedNote'" :icon="'add'" :border_radius="'30px;'" :flat="false" :font_color="'white'" :color="'#094161'" :outline="false"
+                  v-on:receiveClick="handleShowCreatePurchaseOrder" class="menu_add"  :icon-size="'2.9em'" style="width:48px; height:48px"/>
 
                   <!-- <Button_icon v-if="page_function == 'GoodsReceivedNote'" :icon="'add'" :border_radius="'17px;'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px"
                   v-on:receiveClick="handleConvert"/> -->
 
-                  <Button_icon v-if="page_function == 'GoodsReceivedNote'" :icon="'add'" :border_radius="'17px;'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px"
-                  v-on:receiveClick="handleConvertNew"/>
+                  <Button_icon v-if="page_function == 'GoodsReceivedNote'" :icon="'add'" :border_radius="'30px;'" :flat="false" :font_color="'white'" :color="'#094161'" :outline="false"
+                  v-on:receiveClick="handleConvertNew" class="menu_add" style="width:48px; height:48px;"/>
                 </div>
 
-                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3" align="center">
+                <!-- <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3" align="center">
                   <Button_icon :disable="ori_params.params.offset == 0 || showAddLoading" :icon="'chevron_left'" :border_radius="'17px;'" :flat="true" :font_color="'#928f8f'" :color="'white'" :outline="false" size="13px"
                   v-on:receiveClick="changePagination('back')" />
-                </div>
+                </div> -->
 
-                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3" align="center">
-                  <Button_icon :disable="showNext || showAddLoading" :icon="'chevron_right'" :border_radius="'17px;'" :flat="true" :font_color="'#928f8f'" :color="'white'" :outline="false" size="13px"
-                  v-on:receiveClick="changePagination('next')" />
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" align="center">
+                  <Button_icon :disable="showNext || showAddLoading" :icon="'chevron_right'" :border_radius="'17px;'" :flat="true" :color="'white'" :outline="false" size="13px"
+                  v-on:receiveClick="changePagination('next')" class="right_left_button primary_button_font"
+                  :font_color="ori_params.params.offset + ori_params.params.limit >= filter.total_row ? '#928f8f' : '#094161'"/>
+                  <!--:font_color="'#1E90FF'" :font_color="ori_params.params.offset + ori_params.params.limit >= filter.total_row ? '#928f8f' : '#1E90FF'" -->
                 </div>
               </div>
             </div>
@@ -348,22 +395,22 @@
   </div>
 
   <q-dialog v-model="delete_confirmation" persistent position="top">
-    <q-card style="width: 700px; max-width: 80vw;text-align:center;margin-top: 5%;">
+    <q-card style="width: 700px; max-width: 80vw;text-align:center;margin-top: 5%;border-radius:8px">
 
-      <q-card-section class="row items-center" style="padding-top:1%;padding-bottom:1%;border-bottom: 1px solid #a7bbcb;">
+      <q-card-section class="theme_color row items-center" style="padding: 8px 24px;border-bottom: 1px solid #a7bbcb;">
         <div class="text-h6">{{ $language('D0115') }}</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup :disable="showAddLoading"/>
       </q-card-section>
 
-      <q-card-section>
+      <q-card-section style="padding: 32px 24px">
         <!-- <span class="q-ml-sm custom_selection_font">{{general_body}}</span> -->
-        <span>{{ $language('C0001') }}</span>
+        <span class="dialog_confirmation_question_font">{{ $language('C0001') }}</span>
       </q-card-section>
 
-      <q-card-actions align="right">
-        <q-btn flat :label="$language('D0116')" color="primary" v-close-popup />
-        <q-btn flat :label="$language('D0117')" color="primary" @click="handleDeleteLine" />
+      <q-card-actions align="right" style="padding: 0px 24px 16px 24px">
+        <q-btn flat :label="$language('D0116')" font_color="#29292A" color="#29292A" v-close-popup class="dialog_confirm_cancel_button"/>
+        <q-btn flat :label="$language('D0117')" color="white" style="backgroundColor: #EF4444" class="dialog_confirm_print_button" @click="handleDeleteLine" />
       </q-card-actions>
 
       <q-inner-loading
@@ -372,141 +419,166 @@
       />
     </q-card>
   </q-dialog>
-
+<!-- mobile filter -->
   <q-dialog v-model="filter_transmain" persistent :position="$q.screen.width > 1023 ? 'top' : 'standard'">
-    <q-card style="width: 700px; max-width: 98vw; margin-top: 5%;">
-      <q-card-section v-if="$q.screen.width > 1023" class=" row theme_color header_top_mobile dialog_header" style="padding: 0px;">
+    <q-card style="width: 450px; max-width: 98vw; margin-top: 2%; border-radius:8px">
+      <q-card-section v-if="$q.screen.width > 1023" class=" row theme_color header_top_mobile dialog_header" style="padding: 16px;padding: 0px;">
           <div class="text-subtitle1 header_text" style="margin-top: 5px;">{{ $language('D0126') }}<br></div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup :disable="showAddLoading || showAddLoading2"/>
       </q-card-section>
 
-      <q-card-section v-if="$q.screen.width < 1024" class="row items-center header_top_mobile dialog_header" style="padding-top:1%;padding-bottom:1%;border-bottom: 1px solid #a7bbcb;">
-        <div class="text-h6">{{ $language('D0126') }}</div>
+      <q-card-section v-if="$q.screen.width < 1024" class="theme_color row items-center header_top_mobile dialog_header" style="height:56px;padding: 16px 24px;border-bottom: 1px solid #A7BBCB;">
+        <div class="font_filter_sort">{{ $language('D0126') }}</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup :disable="showAddLoading || showAddLoading2"/>
       </q-card-section>
 
       <q-card-section class="upload_container content_body_dialog">
-        <q-form ref="save_edit_pochild_form">
-          <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-              <div class="row input_wrapper_right">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                  <div class="row dialog_separator">
-                    <div class="offset-xs-1 col-xs-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
+        <q-form ref="save_edit_pochild_form" >
+          <div class="row col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" style="padding: 16px">
+            <!-- <div class="q-pr-lg q-pl-lg"> -->
+              <div class="row col-12" style="gap:10px;">
+                
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                       <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
-                              <span class="dialog_font">{{ $language('D0030') }}</span>
-                            </div>
-                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <Input
-                              :autofocusclick="true"
-                              :no_label="true"
-                              :readonly="false"
-                              v-on:change="handleChange"
-                              v-model="search"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="offset-xs-1 col-xs-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
-                              <span class="dialog_font">{{ $language('D0025') }}</span>
-                            </div>
-                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <SelectFilter
-                              :readonly="false"
-                              :no_label="true"
-                              v-model:pass_value="supcus"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.select"
-                              :options="supcus_options"
-                              v-on:receiveChange="handleChange"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="offset-xs-1 col-xs-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
-                              <span class="dialog_font">{{ $language('D0127') }}</span>
-                            </div>
-                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <Select
-                              :readonly="false"
-                              :no_label="true"
-                              v-model="filter.pagination"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.sort_by : oridbComponentBehavior.select"
-                              :options="filter.pagination_options"
-                              v-on:receiveChange="handleChange"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="offset-xs-1 col-xs-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
-                              <span class="dialog_font">{{ $language('D0128') }}</span>
-                            </div>
-                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <Select
-                              :readonly="false"
-                              :no_label="true"
-                              v-model="filter.sort_by"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.sort_by : oridbComponentBehavior.select"
-                              :options="sort_by_options"
-                              v-on:receiveChange="handleChange"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="offset-xs-1 col-xs-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <div class="row">
                             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
                               <span class="dialog_font">{{ $language('D0129') }}</span>
                             </div>
                             <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <Radio size="xs" :disable="false" v-on:receiveChange="handleChange" v-model="filter.sort_type" :options="sort_type_options"  />
+                              <Radio class="radio_font" size="xs" :disable="false" v-on:receiveChange="handleChange" v-model="filter.sort_type" :options="sort_type_options"  />
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
+                  <div style="border-top: 1px solid #BFBFBF; width: 100%;" />
+                  
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" style="padding-bottom:8px">
+                    <span class="dialog_font">CATEGORY</span>
                   </div>
                 </div>
-              </div>
-            </div>
+                  <div class="row col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" style="gap:16px">
+                    
+                    <div class="row col-12" style=" gap:16px">
+                              <!-- <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                <span class="dialog_font">{{ $language('D0030') }}</span>
+                              </div> -->
+                              <div class="col-12"><!-- refno -->
+                                <InputLabel
+                                class="custom-input"
+                                :icon_append="'search'"
+                                :autofocusclick="true"
+                                :label= "$language('D0030') "
+                                :no_label="false"
+                                :readonly="false"
+                                v-on:change="handleChange"
+                                v-model="search"
+                                :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
+
+                                <!-- <InputLabel
+                                :icon_append="'search'"
+                                :readonly="false"
+                                :no_label="true"
+                                :text="$language('D0030')"
+                                v-model:pass_value="search"
+                                :dbComponentBehavior="{ ...dbComponentBehavior.text, label: $language('D0030') }"
+                                v-on:receiveChange="handleChangeOptions"
+                                /> -->
+                              </div>
+                            
+                          
+
+                              <!-- <div class="offset-xs-1 col-xs-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
+                                <div class="row">
+                                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                                    <div class="row"> -->
+                                      <!-- <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                        <span class="dialog_font">{{ $language('D0128') }}</span>
+                                      </div> -->
+                                      <div class="col-12"><!-- sortby -->
+                                        <Select
+                                        class="custom-input custom-select"
+                                        :readonly="false"
+                                        :no_label="false"
+                                        :label= "$language('D0128') "
+                                        v-model="filter.sort_by"
+                                        :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.sort_by : oridbComponentBehavior.select"
+                                        :options="sort_by_options"
+                                        v-on:receiveChange="handleChange"
+                                        />
+                                      </div>
+                                    <!-- </div>
+                                  </div>
+                                </div>
+                              </div> -->
+
+                      
+                      <!-- <div class="offset-xs-1 col-xs-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                            <div class="row">
+                              <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                <span class="dialog_font">{{ $language('D0025') }}</span>
+                              </div> -->
+                              <div class="col-12"><!-- supplier -->
+                                <SelectFilter
+                              
+                                :readonly="false"
+                                :no_label="false"
+                                :label= "$language('D0025') "
+                                v-model:pass_value="supcus"
+                                :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.select"
+                                :options="supcus_options"
+                                v-on:receiveChange="handleChange"
+                                />
+                              </div>
+                            <!-- </div>
+                          </div>
+                        </div>
+                      </div> -->
+
+                      <!-- <div class="offset-xs-1 col-xs-10 col-sm-10 col-md-6 col-lg-6 col-xl-6">
+                        <div class="row">
+                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                            <div class="row">
+                              <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                <span class="dialog_font">{{ $language('D0127') }}</span>
+                              </div> -->
+                              <div class="col-12"><!-- sortby -->
+                                <Select
+                                class="custom-input custom-select"
+                                :readonly="false"
+                                :no_label="false"
+                                :label= "$language('D0127')"
+                                v-model="filter.pagination"
+                                :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.sort_by : oridbComponentBehavior.select"
+                                :options="filter.pagination_options"
+                                v-on:receiveChange="handleChange"
+                                />
+                              </div>
+                            <!-- </div>
+                          </div>
+                        </div>
+                      </div> -->
+                    </div>
+                  </div>
+                    
+                    
+                  
+                
+              
+            <!-- </div> -->
           </div>
         </q-form>
       </q-card-section>
 
-      <q-card-actions class="dialog_action" style="padding-left: 20px;">
-          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" dir="rtl">
-            <Button_icon :readonly="false" :flat="true" :font_color="'white'" :color="'#094161'" :text="$language('D0130')" :outline="false" size="15px"
-            v-on:receiveClick="handleFilter()"/>
+      <q-card-actions class="dialog_action3" style="padding: 0px 16px 16px 16px" > <!--style="justify-content:center; align-items:center; " -->
+          <div class="row col-12">
+            <Button_icon :readonly="false" :flat="true" :font_color="'white'" :color="'#094161'" :text="$language('D0130')" :outline="false" size="16px"
+            v-on:receiveClick="handleFilter()" class="full-width font_filter_button primary_button_font"/>
           </div>
       </q-card-actions>
 
@@ -527,11 +599,11 @@
 
       </q-card-section>
 
-      <q-card-section class="q-pt-none card_sides">
-
-        <Button_icon style="width: 100%;" :readonly="false" :flat="true" :font_color="'white'" :color="'#094161'" :text="$language('D0215')" :outline="false" size="15px"
-        v-on:receiveClick="handleRedirect('SimpleReceive');"/><!--SAVE-->
-
+      <q-card-section class="q-pt-none card_sides ">
+        <div class="row justify-center items-center q-mb-md" style="width: 100%; height: 60px;">
+        <Button_icon :readonly="false" :flat="true" :font_color="'white'" :color="'#1E90FF'" :text="$language('D0215')" :outline="false" size="16px"
+        v-on:receiveClick="handleRedirect('SimpleReceive');" class="justify-center items-center dialog_detail_add_button"/><!--SAVE-->
+        </div>
 
         <Button_icon v-if="item_listing_receiving" style="width: 100%;" :readonly="false" :flat="true" :font_color="'white'" :color="'#094161'" :text="'(x Excel) Item Listing Receive'" :outline="false" size="15px"
         v-on:receiveClick="handleRedirect('ItemListingReceive')"/>
@@ -549,7 +621,10 @@
 
 <script>
 import Input from 'src/components/ERP/Base/Input'
+import Badge from 'src/components/ERP/Base/Badge'
+import Chip from 'src/components/ERP/Base/Chip'
 import LabelInputHorizontal from 'src/components/ERP/General/LabelInputHorizontal'
+import InputLabel from 'src/components/ERP/Base/InputLabel'
 import LabelSelectFilterHorizontal from 'src/components/ERP/General/LabelSelectFilterHorizontal'
 import PurchaseTable from 'src/components/ERP/Purchase/PurchaseTable'
 import Title from 'src/components/ERP/General/Title'
@@ -565,6 +640,8 @@ import { Loading, QSpinnerTail} from 'quasar'
 export default{
   data(){
     return{
+      selectedCardIndex: null,
+      expanded: false,
       session_outlet_guid: sessionStorage.getItem("session_outlet_guid") != "" && sessionStorage.getItem("session_outlet_guid") != "null" && sessionStorage.getItem("session_outlet_guid") != null ? sessionStorage.getItem("session_outlet_guid") : [],
       filter_status: false,
       search: "",
@@ -626,11 +703,14 @@ export default{
   },
   props: ['miniState'],
   components:{
+      Badge,
       Input,
       LabelInputHorizontal,
       LabelSelectFilterHorizontal,
       PurchaseTable,
       Title,
+      Chip,
+      InputLabel,
       // LabelSelectHorizontal,
       // LabelMultiSelectHorizontal,
       // LabelDatepickerHorizontal,
@@ -645,6 +725,18 @@ export default{
     },
   },
   methods: {
+    performSearch() {
+      // This method will be triggered when the search icon is clicked
+      if (this.search) {
+        // Call handleChangeOptions with the current search input
+        this.handleChangeOptions(this.search);
+      } else {
+        console.log('Please enter a search term.');
+      }
+    },
+    selectCard(index) {
+      this.selectedCardIndex = this.selectedCardIndex === index ? null : index;
+    },
     handleRedirect(type)
     {
       if(type == "SimpleReceive")
@@ -1060,12 +1152,12 @@ export default{
               //     headerStyle: 'text-align: center;'
               // },
               {
-                  name: 'document_status',
+                  name: 'DocumentStatus',
                   required: true,
                   label: this.$language('D0029'),
                   align: 'left',
                   sortable: false,
-                  field: 'document_status',
+                  field: 'DocumentStatus',
                   format_child: '',
                   tooltip: '',
                   headerStyle: 'text-align: center;'
@@ -1134,7 +1226,8 @@ export default{
                   field: 'Supplier',
                   format_child: '',
                   tooltip: '',
-                  headerStyle: 'text-align: center;'
+                  headerStyle: 'text-align: center;',
+                  classes: 'supplier-column'  
               },
               // {
               //     name: 'SName',
@@ -1369,7 +1462,8 @@ export default{
                   field: 'Supplier',
                   format_child: '',
                   tooltip: '',
-                  headerStyle: 'text-align: center;'
+                  headerStyle: 'text-align: center;',
+                  classes: 'supplier-column'
               },
               {
                   name: 'Total',
@@ -1659,7 +1753,8 @@ export default{
                   field: 'SName',
                   format_child: '',
                   tooltip: '',
-                  headerStyle: 'text-align: center;'
+                  headerStyle: 'text-align: center;',
+                  classes: 'supplier-column'
               },
               {
                   name: 'Location',
@@ -1850,7 +1945,8 @@ export default{
                   field: 'Name',
                   format_child: '',
                   tooltip: '',
-                  headerStyle: 'text-align: center;'
+                  headerStyle: 'text-align: center;',
+                  class:'supplier-column'
               },
               {
                   name: 'DocNo',
@@ -2388,8 +2484,71 @@ export default{
               ]
           })
       },
-
+//new method added for chip
+      handleNavigate (type) {
+        if(type == "Outlet")
+      {
+        this.$router.push("/erp/location/outletlocation");
+        // this.$router.push({ name: "Create" + this.page_function });
+      }
+      else if(type == "ItemListingReceive")
+      {
+        this.$router.push("itemlistingreceive");
+      }
+      },
+      getBadgeColor(status) {
+            switch (status) {
+              case 'Posted':
+                return 'green-2';
+              case 'Unpost':
+                return 'red-2';
+              case 'New':
+                return 'light-blue-1';
+              case 'Completed':
+                return 'light-green-2';
+              case 'Cancelled':
+                return 'blue-grey-2';
+              case 'Send':
+                return 'orange-1';
+              case 'Approved':
+                return 'teal-2';
+              case 'Rejected':
+                return 'brown-2';
+              case 'Amended':
+                return 'light-blue-2';
+              default:
+                return 'black'; // default color if status doesn't match any case
+            }
+    },
+          getBadgeTextColor(status) {
+            switch (status) {
+              case 'Posted':
+                return 'green-10';
+              case 'Unpost':
+                return 'red-13';
+              case 'New':
+                return 'blue-8';
+              case 'Completed':
+                return 'light-green-9';
+              case 'Cancelled':
+                return 'blue-grey-8';
+              case 'Send':
+                return 'orange-8';
+              case 'Approved':
+                return 'teal-8';
+              case 'Rejected':
+                return 'brown-9';
+              case 'Amended':
+                return 'blue-8';                 
+              default:
+                return 'white'; // default text color if status doesn't match any case
+            }
+          },
+          
+  
+  
   },
+
   async created() {
     var sort_by_options = [];
   //   setTimeout(async()=>{
@@ -2711,17 +2870,47 @@ export default{
 </script>
 
 <style scoped>
+.separator-style {
+  border-top: 2px solid #943a3a !important;
+  width: 100%;
+}
+.input_icon_custom >>> .q-field__append {
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.input_icon_custom >>> .q-field__append .q-icon {
+  background: none;
+  transition: background-color 0.3s ease;
+}
+
+.input_icon_custom >>> .q-field__append .q-icon:hover {
+  background-color: rgba(132, 132, 132, 0.5);
+  color: white;
+  border-radius: 50%; /* optional: to make the background round */
+  transition: background-color 0.3s ease;
+}
 .dialog_action1
 {
   position: fixed;
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 55%; /* Adjust the desired width */
-  height: 40px; /* Adjust the desired height */
-  border-radius: 15px;
+  width: 320px; /* 55%; Adjust the desired width */
+  height: 60px; /* 40px; Adjust the desired height */
+  padding: 8px 32px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 24px;
   background-color: white;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 11px 0px rgba(0, 0, 0, 0.40);
+}
+.dialog_action3 {
+  /* display: flex;
+  justify-content: center;
+  align-items: center; */
+}
+.font_filter_button {
+  display: inline-block;
 }
 .header_text
 {
@@ -2738,9 +2927,12 @@ export default{
 
 .card_design
 {
-  height: 100px;
+  /* height: 120px; */
   background-color: white;
   color:black;
+  padding: 16px;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.30) !important;
+
 }
 
 @media all and (max-width: 1023px) {
@@ -2763,36 +2955,53 @@ export default{
 
 .upload_container
 {
-    padding: 10px;
-    padding-top: 0px;
+    padding: 24px;
+    /* padding-top: 0px; */
+}
+.button_container {
+  padding-left: 24px;
+  padding-right: 24px;
 }
 
+.card_section {
+  background: #F4F7FE;
+}
 .card_section_two
 {
-    margin-top: 10px;
+    /* margin-top: 10px; */
 }
 
 @media all and (min-width: 600px) {
   .card_section_second
   {
-      padding-left: 20px;
-      padding-right: 20px;
+      /* padding-top: 8px; */
+      padding-left:24px;
+      padding-right:24px;
+      padding-bottom:24px;
+     
   }
 }
 
 @media all and (max-width: 599px) {
+  .no-scroll {
+    overflow: hidden;
+  }
   .card_section_second
   {
       padding: 10px;
   }
 }
-
+ *>>>.q-separator--horizontal {
+    display: none;
+    height: 0px;
+ }
 .card_section_second_content
 {
     border: 2px solid #ababab;
     /* height: 60vh; */
     min-height: 60vh;
     /* overflow-y: scroll; */
+    padding: 10px;
 }
 
 /* width */
@@ -2827,8 +3036,12 @@ export default{
 * >>> .q-table__container
 {
     padding: 0px;
-    border-radius: 0px;
-    padding: 0px !important;
+    border-radius: 3px;
+    justify-content: center;
+    /* align-items: center; */
+    
+    /* padding: 0px !important; */
+
 }
 
 /* .q-form
@@ -2862,8 +3075,10 @@ export default{
 
 .dialog_font
 {
-  font-weight: bold;
-  font-size: 15px;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 600;
+  font-family: InterfontSemiBold;
 }
 
 .dialog_separator
@@ -2898,4 +3113,283 @@ export default{
 {
     border: 1px solid black;
 }
+
+.input-container {
+  /* width: 100%; */
+  /* padding-top: 10px; */
+  /* padding-bottom: 24px; */
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  
+  /* padding-right: none; */
+  
+}
+.div-container {
+  height: 100%;
+  
+}
+@media screen and (min-width: 600px) {
+    .q-field__append {
+        min-height: 26px !important;
+        /* height: 26px !important; */
+    }
+}
+/* *>>>.q-table th {
+    font-weight: 700;
+    font-size: 12px;
+    -webkit-user-select: none;
+    user-select: none;
+    font-family: InterfontBold;
+    color: black;
+    text-align: center !important;
+    background-color: #d7e2e9;
+} */
+/* * >>> .q-table td
+  {
+      padding: 10px !important;
+      padding-left: 20px !important;
+      padding-right:  20px !important;
+      font-size: 12px !important;
+      height: 24px !important;
+       text-align: center !important;
+      font-family: InterfontMedium;
+      font-weight: 500;
+  } */
+  /* nth-child(2) */
+* >>> .q-table td.supplier-column
+  {
+    text-align: left !important;
+  }
+* >>> .q-field__label
+{
+  /* top: 5px; */
+  color: #72777A;
+  /* background-color: antiquewhite; */
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  font-family: InterfontMedium;
+}
+*.label-font >>>.q-field__native{
+    /* min-height: 50px !important;
+    height: 50px !important;
+    padding-top: 28px !important; */
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 500;
+    font-family: InterfontMedium;
+    color: black;
+    /* background-color: forestgreen; */
+}
+
+.bold-font {
+  font-family: InterfontBold;
+  font-weight: 700;
+  font-size: 16px;
+}
+.custom-chip-padding {
+  padding: 11px; /* Adjust the padding as needed */
+  border-radius: 8px;
+  background: #FFF !important;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+}
+*[data-v-123da5ba] .q-chip--outline {
+    background: #ffffff;
+    box-shadow: 0px 0px 3.6px 0px rgba(0, 0, 0, 0.25);
+}
+.chip-container {
+  display: flex;
+  align-items: center;
+}
+.chip-icon {
+  margin: 0 8px;
+  font-size: 16px; /* Adjust the size as needed */
+}
+.text-align-left {
+    text-align: left;
+}
+.q-pr-xs {
+    /* padding-right: 4px; */
+}
+.grn_receive_button {
+  justify-content: center;  
+  background-color: #1E90FF; 
+  color: white; 
+  border-radius: 8px;
+  box-shadow: 0px 1px 3.6px 0px rgba(0, 0, 0, 0.25);  
+  padding: 16px !important;
+  font-size: 16px;
+  font-family: InterfontBold;
+  font-weight: 700;
+  width: 120px;
+  height: 42px;
+
+}
+.qlist-font {
+  font-family: InterfontMedium;
+  font-size: 13px;
+  font-weight: 500px;
+  padding: 14px 16px;
+  width: 241px;
+  height: 42px;
+}
+.q-field--outlined {
+    /* overflow: hidden; Add this to clip the background */
+    /* border-radius: 8px; Ensure the background is applied to the right element */
+    /* background: white; */
+}
+
+*>>>.q-btn--outline:before {
+    background-color: white;
+}
+.text_1 {
+  font-size: 16px;
+  font-family: InterfontBold;
+  font-weight: 700;
+  color: #29292A;
+}
+.text_2 {
+  font-size: 11px;
+  font-family: InterfontSemiBold;
+  font-weight: 600;
+  color: #29292A;
+}
+.sort_font {
+  width: 29px;
+  height: 33px;
+  font-size: 29px; /* Adjust font-size to fit within the dimensions */
+}
+.container_top {
+  border-radius: 8px;
+  background: #FFF;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  padding: 8px 32px;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+.font_filter_sort {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  font-family: InterfontSemiBold;
+}
+.font_filter_button {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  font-family: InterfontBold;
+  border-radius: 8px;
+  box-shadow: 0px 1px 3.6px 0px rgba(0, 0, 0, 0.25);
+  padding: 10px;
+  /* width: 329px; */
+  display: inline-block;
+}
+
+@media screen and (max-width: 599px) {
+  .input_wrapper_right
+{
+  padding-right: 2%;
+  padding-left: 2%;
+}
+  .dialog_detail_add_button {
+  border-radius: 8px;
+  background: #1E90FF;
+  box-shadow: 0px 1px 3.6px 0px rgba(0, 0, 0, 0.25);
+  height: 56px;
+  padding: 16px;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  font-family: InterfontBold;
+}
+  .q-field__control {
+        /* border-radius: 5px; */
+        padding: 0px !important;
+        padding-top: 0px !important;
+        /* min-height: 35px !important; */
+        height: 60px !important;
+    }
+  .custom-select >>>.q-field__native {
+    /* min-height: 50px !important; */
+    /* height: 50px !important; */
+    /* height: 150px; */
+    padding-top: 0px !important;
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 500;
+    font-family: InterfontMedium;
+    /* background-color: #ffc6cd; */
+  }
+  .custom-selectfilter >>> .q-field__control {
+    padding: 0 16px;
+    border-radius: 8px;
+    
+}
+
+  .q-field__append {
+        min-height: 35px !important;
+        height: 0px !important;
+    }
+    /* *>>>.q-field--dense .q-field__control, .q-field--dense .q-field__marginal {
+    height: -2px !important;
+} */
+    /* *>>>.q-field--dense .q-field__marginal {
+        height: 0px;
+    } */
+  *>>>.q-card__section--vert {
+    padding: 0px;
+}
+.selected-card {
+  border-radius: 8px;
+  border: 2px solid #90A8D6;
+  background: #FFF;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.30);
+}
+
+}
+.radio-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.radio-container >>> .q-radio {
+  margin-bottom: 0px; /* Optional: add spacing between items */
+}
+.radio_font {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  font-family: InterfontMedium;
+}
+/* .menu_add.q-btn .q-icon, 
+.menu_add.q-btn .q-spinner {
+    font-size: 2.9em !important; Use !important as a last resort
+} */
+ .menu_add.q-btn >>>.q-icon {
+  font-size: 2.3em;
+ }
+.menu_add[data-v-123da5ba] .q-icon {
+    font-size: 2.2em !important;
+    width: 35px;
+    height: 35px;
+}
+.right_left_button >>>.q-icon {
+  font-size: 2.0em !important;
+}
+.right_left_button.disabled {
+  color: #928f8f;
+}
+</style>
+
+<style lang="sass">
+@media screen and (max-width: 599px)
+  .q-field--dense .q-field__control
+    height: auto !important
+
+  .q-field--dense .q-field__marginal
+    height: auto !important
 </style>

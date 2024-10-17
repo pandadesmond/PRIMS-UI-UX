@@ -7,7 +7,13 @@ import sales_route from 'src/router/ERP/Sales/routes.js'
 import adjust_route from 'src/router/ERP/Adjustment/routes.js'
 import itemmaster_route from 'src/router/ERP/Itemmaster/routes.js'
 import document_route from 'src/router/ERP/Document/routes.js'
+import product_route from 'src/router/ERP/Product/routes.js'
 
+// setup2
+import setup2_route from 'src/router/ERP/Setup2/routes.js'
+
+import configuration_route from 'src/router/ERP/Configuration/routes.js'
+import inventory_route from 'src/router/ERP/Inventory/routes.js'
 
 var routes = [
   // Always leave this as last one,
@@ -27,5 +33,11 @@ routes = routes.concat(sales_route);
 routes = routes.concat(adjust_route);
 routes = routes.concat(itemmaster_route);
 routes = routes.concat(document_route);
+
+// setup2
+routes = routes.concat(setup2_route);
+routes = routes.concat(product_route);
+routes = routes.concat(configuration_route);
+routes = routes.concat(inventory_route);
 
 export default routes

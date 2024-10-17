@@ -1,9 +1,9 @@
 <template>
-    <Input @keyup="handleKeyUp" autocomplete="off" :readonly="readonly ? true : false" :id="id" :name="name" v-on:change="handleChange" v-model="pass_value" :componentBehavior="dbComponentBehavior" />
+    <InputBase class="new_input" outlined @keyup="handleKeyUp" autocomplete="off" :readonly="readonly ? true : false" :id="id" :name="name" v-on:change="handleChange" v-model="pass_value" :componentBehavior="dbComponentBehavior" />
 </template>
 
 <script>
-import Input from 'src/components/Base/Input';
+import InputBase from "src/components/ERP/Base/InputBase";
 
 export default {
     data() {
@@ -13,7 +13,7 @@ export default {
     },
     props: ['text', 'value', 'dbComponentBehavior', 'id', 'name', 'type','readonly'],
     components: {
-        Input,
+        InputBase,
     },
     methods:{
         handleChange: function(newVal){
@@ -31,6 +31,36 @@ export default {
 </script>
 
 <style scoped>
+@media (max-width: 599px) {
+q-field__native {
+        padding: 0px;
+        min-height: 0px !important;
+        overflow-y: scroll;
+    }
+}
+.q-field--outlined.q-field--readonly >>>.q-field__control:before {
+    border-style: solid;
+}
+*>>>.q-field__native, .q-field__prefix, .q-field__suffix, .q-field__input {
+  color: #000;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 500;
+  font-family: InterfontMedium;
+}
+*>>> .q-field__label {
+    top: 8px;
+}
+* >>> .q-field__control
+{
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+.new_input >>> .q-field__inner, .new_input >>> .q-field__inner > .q-field__control {
+  /* height: 32px; */
+}
 /* For text input padding removal */
 .q-field
 {
@@ -48,7 +78,7 @@ export default {
 
 * >>> .q-field__inner
 {
-    border: 1px solid #d2d6de;
+    /* border: 1px solid #d2d6de; */
 }
 /* hide error message when no error validation*/
 .q-field >>> .q-field__bottom
@@ -74,7 +104,7 @@ export default {
 }
 
 
-/* readonly field*/
+/* readonly field */
 .q-field--filled.q-field--readonly >>> .q-field__control:before {
     opacity: 1;
     background: #ededed;
@@ -86,5 +116,13 @@ export default {
     opacity: 1;
     background: #ededed;
     border-bottom-style: none;
+}
+*>>>.q-field__control {
+    height: 32px !important;
+}
+.q-field--labeled >>>.q-field__native {
+    line-height: 24px;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
 </style>

@@ -69,8 +69,8 @@
 
 <script>
 import set from 'vue'
-import Button_icon from 'src/components/IMS/Base/Button_icon'
-import Checkbox from 'src/components/IMS/Base/Checkbox'
+import Button_icon from 'src/components/ERP/Base/Button_icon'
+import Checkbox from 'src/components/ERP/Base/Checkbox'
 export default {
     data(){
       return{

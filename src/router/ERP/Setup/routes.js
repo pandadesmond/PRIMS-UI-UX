@@ -15,6 +15,8 @@ const routes = [
     // },
     children: [
         { path: 'Component', component: () => import('src/pages/ERP/Setup/Component.vue') },
+        // { path: 'Vendor', component: () => import('src/pages/ERP/Setup/Vendor.vue') },  // new vendor route
+
 
 
         { path: 'PaymentTerm', component: () => import('src/pages/ERP/Setup/PaymentTerm.vue') },
@@ -47,6 +49,17 @@ const routes = [
         { path: 'SystemAccessRight', component: () => import('src/pages/ERP/Setup/SystemAccessRight.vue') },
         { path: 'SystemAccessRight_2', component: () => import('src/pages/ERP/Setup/SystemAccessRight_2.vue') },
         { path: 'Division/Details',name: "DivisionDetails", component: () => import('src/pages/ERP/Setup/DivisionDetails.vue') },
+
+        { path: 'VendorMaster', name: 'VendorMaster', component: () => import('src/pages/ERP/Setup/VendorMaster.vue') }, // AP Supplier page
+        { path: 'Vendor', name: 'Vendor', component: () => import('src/pages/ERP/Setup/Vendor.vue') }, // AP Supplier (Vendor page)
+        { path: 'VendorView', name: 'VendorView', component: () => import('src/pages/ERP/Setup/Vendor.vue') }, // AP Supplier (Vendor page)
+
+        { path: 'CustomerMaster', name: 'CustomerMaster', component: () => import('src/pages/ERP/Setup/VendorMaster.vue') }, // AP Supplier page
+        { path: 'Customer', name: 'Customer', component: () => import('src/pages/ERP/Setup/Vendor.vue') }, // AP Supplier (Vendor page)
+        { path: 'CustomerView', name: 'CustomerView', component: () => import('src/pages/ERP/Setup/Vendor.vue') }, // AP Supplier (Vendor page)
+
+        // { path: 'VendorMasterCustomer', name: 'VendorMasterCustomer', component: () => import('src/pages/ERP/Setup/VendorMasterCustomer.vue') }, // AR Customer page
+        // { path: 'VendorCustomer', name: 'VendorCustomer', component: () => import('src/pages/ERP/Setup/VendorCustomer.vue') }, // AR Customer (Vendor page)
 
         // New
         { path: 'companylist', component: () => import('src/pages/ERP/SetupNew/CompanyList.vue') },

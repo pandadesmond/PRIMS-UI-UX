@@ -36,7 +36,7 @@ export default function () {
     ibtchild: [],
     ibtchild_status: {},
     search_supcus: [],
-    read_po_supplier_list: [],
+    po_supplier_list: [],
     item_tagging: {},
     item_untagging: {},
     read_barcode_by_itemcode: {},
@@ -59,6 +59,15 @@ export default function () {
     surcharge_discount_status:{},
     grn_create_grchild_status:{},
     gst_read_gst:[],
-    read_master_code_by_trans_type:[]
+    read_master_code_by_trans_type:[],
+    po_read_po: {},
+    po_ex: {},
+    price_change_req: [],
+    price_change_req_status: {},
+    price_change_req2item: [],
+    item_by_itemcode_for_po: {},
+    barcode_by_itemcode: {},
+    read_grmain: {},
+
   }
 }

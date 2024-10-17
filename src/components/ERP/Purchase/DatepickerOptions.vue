@@ -1,5 +1,5 @@
 <template>
-  <q-input v-if="clickableInput" class="clickableInput" @click="showPopup" :disable="pass_disabled" dense bg-color="white" v-on:change="handleChange" :mask="componentBehavior.mask" filled v-model="date" :rules="componentBehavior.rules">
+  <q-input outlined v-if="clickableInput" class="clickableInput" @click="showPopup" :disable="pass_disabled" bg-color="white" v-on:change="handleChange" :mask="componentBehavior.mask" v-model="date" :rules="componentBehavior.rules">
     <template v-slot:append>
       <q-icon name="event" class="cursor-pointer">
         <q-popup-proxy ref="qDateProxy" cover transition-show="scale" transition-hide="scale">
@@ -13,7 +13,7 @@
     </template>
   </q-input>
 
-  <q-input v-else :disable="pass_disabled" dense bg-color="white" v-on:change="handleChange" :mask="componentBehavior.mask" filled v-model="date" :rules="componentBehavior.rules">
+  <q-input v-else outlined :disable="pass_disabled" bg-color="white" v-on:change="handleChange" :mask="componentBehavior.mask" v-model="date" :rules="componentBehavior.rules">
     <template v-slot:append>
       <q-icon name="event" class="cursor-pointer">
         <q-popup-proxy ref="qDateProxy" cover transition-show="scale" transition-hide="scale">
@@ -119,7 +119,8 @@ text-decoration: underline; /* Underline on hover */
 
 * >>> .q-field__inner
 {
-    border: 1px solid #d2d6de;
+    /* border: 2px solid #D4D4D4; */
+    /* border-radius: 8px; */
 }
 /* hide error message when no error validation*/
 .q-field >>> .q-field__bottom
@@ -142,5 +143,97 @@ text-decoration: underline; /* Underline on hover */
     /* border-bottom: 1px solid rgba(0, 0, 0, 0.42);
     opacity: 0;
     transition: opacity 0.36s cubic-bezier(0.4, 0, 0.2, 1), background 0.36s cubic-bezier(0.4, 0, 0.2, 1); */
+}
+.clickableInput >>> .q-field__control {
+  /* border-radius: 8px; */
+  /* padding: 0px 16px !important; */
+  /* background-color: antiquewhite; */
+  overflow: hidden;
+  background: white;
+  height: 32px;
+}
+
+
+
+@media (min-width: 600px){
+  .q-field--outlined.q-field--disabled >>>.q-field__control:before {
+    border: 2px solid rgba(0, 0, 0, 0.24);
+}
+  .q-field--labeled.q-field--dense >>>.q-field__native {
+  padding-top: 17px;
+  padding-bottom: 8px;
+  line-height: 24px;
+}
+  *>>>.q-field__marginal {
+    height: 32px;
+  }
+  
+  .q-field--dense >>>.q-field__marginal {
+    height: 32px;
+}
+  *>>>.q-field__native {
+    /* min-height: 50px !important; */
+    /* height: 50px !important; */
+    /* height: 150px; */
+    /* padding-top: 20px !important; */
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 500;
+    font-family: InterfontMedium;
+    /* background-color: #ffc6cd; */
+}
+* >>> .q-field__label
+{
+  top: 10px;
+  color: #535151;
+  /* background-color: antiquewhite; */
+  font-size: 16px !important;
+  font-style: normal;
+  font-weight: 500;
+  font-family: InterfontMedium;
+}
+}
+
+@media (max-width: 599px) {
+  .q-field--outlined.q-field--disabled >>>.q-field__control:before {
+    border: 2px solid rgba(0, 0, 0, 0.24);
+}
+  .q-field--standard.q-field--disabled >>>.q-field__control:before {
+    border: 2px solid rgba(0, 0, 0, 0.24);
+    transition: border-color 0.36s cubic-bezier(0.4, 0, 0.2, 1);
+}
+  .q-field--dense.q-field--float >>>.q-field__label {
+    transform: translateY(-30%) scale(0.75);
+    font-size: 12px !important;
+}
+  .q-field--labeled.q-field--dense >>>.q-field__native {
+  padding-top: 17px;
+  padding-bottom: 8px;
+  line-height: 24px;
+}
+  .clickableInput >>> .q-field__control {
+    height: 40px !important;
+  }
+  *>>>.q-field__native {
+    /* min-height: 50px !important; */
+    /* height: 50px !important; */
+    /* height: 150px; */
+    /* padding-top: 20px !important; */
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    font-family: InterfontMedium;
+    /* background-color: #ffc6cd; */
+}
+* >>> .q-field__label
+{
+  top: 10px;
+  color: #535151;
+  /* background-color: antiquewhite; */
+  font-size: 12px !important;
+  font-style: normal;
+  font-weight: 500;
+  font-family: InterfontMedium;
+}
 }
 </style>

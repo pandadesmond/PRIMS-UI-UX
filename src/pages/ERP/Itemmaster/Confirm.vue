@@ -8,7 +8,7 @@
       </q-card-section>
 
       <q-card-section class="dialog_header card_sides">
-        <div class="card_ypadding">
+        <div :class="{'card_ypadding_IM': header === 'IM' && type === 'update', 'card_ypadding': !(header === 'IM' && type === 'update')}">
           <div class="row justify-center q-pb-sm">
             <Button_icon :readonly="true" :big_round="true" :flat="true" :font_color="'white'" :color="'green'" :icon="'verified'" :outline="true" size="30px" />
           </div>
@@ -18,7 +18,7 @@
             style="background-color: white;"/>
 
             <Label v-if="header=='IM' && type=='update'" :text="'Item Master Updated'"
-            style="background-color: white;"/>
+            style="font-size:16px; font-weight: 600; font-family: InterfontSemiBold;background-color: white;"/>
           </div>
           <div class="row q-pt-lg" style="font-size: 10px;">
             <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
@@ -457,6 +457,11 @@ td, th {
   padding-bottom:6px;
   text-align: right;
   padding-right: 10px;
+}
+.card_ypadding_IM
+{
+  padding-top: 50%;
+  padding-bottom: 50%;
 }
 .card_ypadding
 {

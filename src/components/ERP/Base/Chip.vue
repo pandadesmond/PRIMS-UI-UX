@@ -1,9 +1,9 @@
 <template>
-    <Chip v-on:receiveClick="handleClick" :text="pass_text" :icon="pass_icon"/>
+    <ChipBase v-on:receiveClick="handleClick" :text="pass_text" :icon="pass_icon" outline/>
 </template>
 
 <script>
-import Chip from 'src/components/Base/Chip';
+import ChipBase from 'src/components/ERP/Base/ChipBase';
 
 export default {
     data() {
@@ -14,7 +14,7 @@ export default {
     },
     props: ['text','icon'],
     components: {
-        Chip,
+        ChipBase,
     },
     methods:{
         handleClick: function(newVal){

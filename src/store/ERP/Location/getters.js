@@ -49,3 +49,7 @@ export function get_mc_district_status (state) {
 export function get_cp_set_branch (state) {
   return state.cp_set_branch
 }
+
+export function get_cp_set_branch_general (state) {
+  return state.cp_set_branch_general
+}

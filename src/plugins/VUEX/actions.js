@@ -27,12 +27,14 @@ export default function ({ commit,state }, payload) {
         return axios({
             method: "POST",
             url: `${payload.url}`,
+            params: payload.params,
             data: payload.body,
             headers: payload.headers,
         })
         .then((response) => {
             var json = {};
             json.status = "success";
+            // console.log(response)
             json.response = response.data;
             commit(`${payload.update_path}`, json)
         })
@@ -55,7 +57,7 @@ export default function ({ commit,state }, payload) {
             commit(`${payload.update_path}`, json)
         })
         .catch((error) => {
-  
+
             var json = {};
             json.status = "failed";
             json.response = error.response ? JSON.stringify(error.response.data) : (error.message ? error.message : 'Unable to Connect. Please contact administrator.');
@@ -86,6 +88,6 @@ export default function ({ commit,state }, payload) {
         })
     }
 
-    
+
 
 }

@@ -1,6 +1,80 @@
 <template>
-  <div class="">
-    <q-table :hide-bottom="hide_footer" :separator="no_separator ? 'none' : 'cell'" :flat="flat_status" :bordered="bordered_status" class="main_table my_sticky_header_table" :title="title" :row_per_page="row_per_page"
+  <div class="border-container">
+      <div v-if="showTopButton" class="" style="padding-top: 0px;padding-bottom:10px">
+      <template v-if="showTopButton">
+        <div v-if="!top_button_dropdown" class="row col-12 justify-end">
+        <Button_icon  :disabled="readonly_button" :flat="true" :icon="'add'" v-on:receiveClick="add_button()" :font_color="'white'" :color="'#069857'" :text="$language('D0024')" :outline="false" size="12px" class="justify-end button_add_1" />
+        </div>
+        <div v-else class="row col-12 justify-between">
+        <div class="container-button q-gutter-x-md" style="height:100%">
+          <Button_icon :disabled="readonly_button ? true : generate_sn_readonly" :flat="true" v-on:receiveClick="group()" :font_color="'#54656F'" :color="''" :text="'Group'" :outline="false" size="14px" class="button_group" v-if="group_button" />
+          <Button_icon :loading="loading_button" :disabled="readonly_button ? true : update_weight_readonly" :flat="true" v-on:receiveClick="ungroup()" :font_color="'#54656F'" :color="''" :text="'Ungroup'" :outline="false" size="14px" class="button_group" v-if="group_button" />
+        </div>
+        <div>
+          <q-btn-dropdown
+            v-if="top_button_dropdown && page_function != 'EditGoodsReceivedNote'"
+            no-caps
+            dense
+            split
+            icon="add"
+            flat
+            style="background-color: #069857; color: white;border-radius: 8px;"
+            :label="$language('D0024')"
+            size="14px"
+            @click="add_button()"
+            class="button_add_2 button_add_dropdown"
+          >
+            <q-list>
+              <q-item dense clickable v-close-popup @click="supplier_item_list">
+                <q-item-section>
+                  <q-item-label class="qlist-font">Supplier Item List</q-item-label>
+                </q-item-section>
+              </q-item>
+
+            </q-list>
+          </q-btn-dropdown>
+          <q-btn-dropdown
+            v-if="top_button_dropdown && page_function == 'EditGoodsReceivedNote'"
+            no-caps
+            dense
+            ref="dropdown"
+            split
+            flat
+            icon="add"
+            style="background-color: #069857; color: white; border-radius:8px"
+            label="GR Tools"
+            size="14px"
+            @click="add_button()"
+            class="button_add_3 button_add_dropdown"
+          >
+            <q-list v-for="item in btndropdownList" :key="item">
+              <q-item dense clickable v-close-popup @click="onItemClick(item.section)">
+                <q-item-section>
+                  <q-item-label>{{ item.title }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+            <!-- <q-list>
+              <q-item dense clickable v-close-popup @click="onItemClick('RTV')">
+                <q-item-section>
+                  <q-item-label>RTV (Return To Vendor)</q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item dense clickable v-close-popup @click="onItemClick('VFOC')">
+                <q-item-section>
+                  <q-item-label>Vendor FOC Item without PO</q-item-label>
+                </q-item-section>
+              </q-item>
+
+            </q-list> -->
+          </q-btn-dropdown>
+          </div>
+          </div>
+      </template>
+      </div>
+
+    <q-table :hide-bottom="hide_footer" :separator="no_separator ? 'none' : 'cell'" :flat="flat_status" :bordered="bordered_status" class="" :title="title" :row_per_page="row_per_page"
     :rows="rows" :columns="columns" rows-per-page-label="Entries" :pagination-label="getPaginationLabel"
     :rows-per-page-options="row_per_page"
     :row-key="row_key"
@@ -9,73 +83,31 @@
       v-model:pagination="pagination"
       binary-state-sort
       :loading="loading"
+
       >
-
-      <template v-if="top_button" v-slot:top-left>
-        <Button_icon :disabled="readonly_button ? true : generate_sn_readonly" :flat="true" v-on:receiveClick="group()" :font_color="'white'" :color="'#094161'" :text="'Group'" :outline="false" size="12px" class="q-px-sm q-mr-sm" v-if="group_button" />
-
-        <Button_icon :loading="loading_button" :disabled="readonly_button ? true : update_weight_readonly" :flat="false" v-on:receiveClick="ungroup()" :font_color="'black'" :color="'white'" :text="'Ungroup'" :outline="true" size="12px" class="q-mr-sm" v-if="group_button" />
-      </template>
-
-      <template v-if="top_button" v-slot:top-right>
-        <Button_icon v-if="!top_button_dropdown" :disabled="readonly_button" :flat="true" :icon="'add'" v-on:receiveClick="add_button()" :font_color="'white'" :color="'green'" :text="'Add'" :outline="false" size="12px" class="q-pr-sm q-mr-sm"/>
-
-        <q-btn-dropdown
-          v-if="top_button_dropdown && page_function != 'EditGoodsReceivedNote'"
-          no-caps
-          dense
-          split
-          icon="add"
-          flat
-          style="background-color: #228026; color: white"
-          label="Add"
+<!-- button pagination -->
+<!--:boundary-numbers="true"     function: adjust the first page and last page visibilty -->
+      <template v-slot:pagination>
+        <div class="col-auto">
+          <span style="padding-right: 32px;">{{ rowRange }}</span>
+        </div>
+        <q-pagination
+          v-model="pagination.page"
+          :max="Math.ceil(pagination.rowsNumber / pagination.rowsPerPage)"
+          direction-links
+          @update:model-value="onPagination"
+          :max-pages="5"
+          :ellipses="false"
+          :boundary-numbers="false"
+          color="grey-9"
+          active-color="light-blue-1"
+          active-text-color = "primary"
+          round
+          :label="getPaginationLabel"
+          gutter="8px"
           size="12px"
-          @click="add_button()"
-        >
-          <q-list>
-            <q-item dense clickable v-close-popup @click="supplier_item_list">
-              <q-item-section>
-                <q-item-label>Supplier Item List</q-item-label>
-              </q-item-section>
-            </q-item>
-
-          </q-list>
-        </q-btn-dropdown>
-        <q-btn-dropdown
-          v-if="top_button_dropdown && page_function == 'EditGoodsReceivedNote'"
-          no-caps
-          dense
-          ref="dropdown"
-          split
-          flat
-          icon="add"
-          style="background-color: #228026; color: white"
-          label="GR Tools"
-          size="12px"
-          @click="add_button()"
-        >
-           <q-list v-for="item in btndropdownList" :key="item">
-            <q-item dense clickable v-close-popup @click="onItemClick(item.section)">
-              <q-item-section>
-                <q-item-label>{{ item.title }}</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-          <!-- <q-list>
-            <q-item dense clickable v-close-popup @click="onItemClick('RTV')">
-              <q-item-section>
-                <q-item-label>RTV (Return To Vendor)</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item dense clickable v-close-popup @click="onItemClick('VFOC')">
-              <q-item-section>
-                <q-item-label>Vendor FOC Item without PO</q-item-label>
-              </q-item-section>
-            </q-item>
-
-          </q-list> -->
-        </q-btn-dropdown>
+          class="round-button-custom"
+        />
       </template>
 
       <template v-slot:header="props" >
@@ -104,9 +136,9 @@
           </q-th>
           </q-tr>
       </template>
-
+<!-- edit purchase - detail - g -->
       <template v-slot:body-cell-group_status="props">
-          <q-td :style="`text-align:${props.col.align}`">
+          <q-td :style="`text-align:${props.col.align}`" >
             <Checkbox
               size="xs"
               :disable="true"
@@ -376,7 +408,8 @@
 
       <template v-slot:body-cell-action="props">
           <q-td style="padding-right: 0px;">
-              <Button_icon :disabled="readonly_action" :icon="'edit_note'" :color="'#094161'" :outline="false" size="12px" v-on:click="action(props.row)" v-if="action_button" class="q-mr-sm" :tooltip_message="'Edit'"/>
+              <Button_icon :disabled="readonly_action" icon="far fa-edit" class="q-mr-sm text-blue" :color="''" :flat="true" :outline="false" size="12px" v-on:click="action(props.row)" v-if="action_button" :tooltip_message="'Edit'"
+              style="border-radius: 16px;transition: all 0.3s; padding: 10px" @mouseover="isHovered = true" @mouseleave="isHovered = false" :class="{ 'hover-style': isHovered }"/>
 
               <q-btn icon="visibility" color="primary" dense outline ripple class="q-mr-sm" v-on:click="edit(props.row)"
               v-if="edit_button">
@@ -393,13 +426,15 @@
               </q-btn> -->
 
               <Button_icon :icon="'view_list'" :color="'positive'" :outline="false" size="12px" v-on:click="list(props.row)" v-if="view_button" class="q-mr-sm" />
-
-              <Button_icon :disabled="readonly_delete" :icon="'delete'" :color="'negative'" :outline="false" size="12px" v-on:click="remove(props.row)" v-if="delete_button" class="q-mr-sm" />
+              <!-- <i class="fas fa-trash-alt"></i> -->
+              <Button_icon :disabled="readonly_delete" :icon="'fas fa-trash-alt'" :flat="true" :color="''" :outline="false" size="12px" v-on:click="remove(props.row)" v-if="delete_button" class="q-mr-sm text-red"
+              style="border-radius: 16px;transition: all 0.3s; padding: 10px" @mouseover="isHovered = true" @mouseleave="isHovered = false" :class="{ 'hover-style': isHovered }"/>
 
               <Button_icon :disabled="readonly_button" icon="print" color="primary" :outline="false" size="12px" dense ripple :disable="showAddLoading" v-if="print_button" class="q-mr-sm" v-on:click="handlePrint(props.row)"
               @click.stop="btnclick"/>
 
-              <Button_icon :icon="'content_copy'" :color="'teal'" :outline="false" size="12px" v-on:click="duplicate(props.row)" v-if="duplicate_button"  :tooltip_message="'Duplicate Item Link'"/>
+              <Button_icon :icon="'content_copy'" class="q-mr-sm text-teal" :color="''" :flat="true" :outline="false" size="12px" v-on:click="duplicate(props.row)" v-if="duplicate_button"  :tooltip_message="'Duplicate Item Link'"
+              style="border-radius: 16px;transition: all 0.3s; padding: 10px" @mouseover="isHovered = true" @mouseleave="isHovered = false" :class="{ 'hover-style': isHovered }"/>
               <!-- <q-btn icon="content_copy" size="12px" color="teal" dense  ripple class="q-mr-sm" v-on:click="duplicate(props.row)"
               v-if="duplicate_button">
                   <q-tooltip>
@@ -412,14 +447,41 @@
           </q-td>
       </template>
 
+      <template v-slot:body-cell-DocumentStatus="props">
+        <q-td>   <!-- :style="`text-align:${props.col.align}`" --><!---textTransform:'uppercase'-->
+          <Badge
+            :text="props.row.DocumentStatus"
+            :color="getBadgeColor(props.row.DocumentStatus)"
+            :text-color="getBadgeTextColor(props.row.DocumentStatus)"
+            :style="{ padding: '10px', borderRadius: '19px',fontSize: '12px', fontWeight: '500'}"
+          >
+            {{ props.row.DocumentStatus }}
+          </Badge>
+          </q-td>
+      </template>
+
+      <template v-slot:body-cell-primary="props">
+          <q-td :style="`text-align:${props.col.align}`" >
+            <Checkbox
+              size="xs"
+              :disable="true"
+              :no_label="true"
+              v-model="props.row.primary"
+              :dbComponentBehavior="dbComponentBehavior.text"
+              v-on:receiveChangenewVal="receiveChangetdCheckbox"
+              :table="true"
+              />
+          </q-td>
+      </template>
 
     </q-table>
   </div>
-  </template>
+</template>
 
   <script>
   import Button_icon from 'src/components/ERP/Base/Button_icon'
   import Checkbox from 'src/components/ERP/Base/Checkbox'
+  import Badge from 'src/components/ERP/Base/Badge'
   export default {
       data(){
         return{
@@ -440,20 +502,24 @@
           amount: false,
           forfeited: false,
           page_function: this.$route.name,
-          isDropdownOpen: false
+          isDropdownOpen: false,
+          showTopButton: false
         }
       },
       props: ['title','btndropdownList', 'table_column', 'table_data','top_button', 'top_button_dropdown', 'hide_footer', 'row_per_page','table_footer',"flat_status", "bordered_status", 'action_button','edit_button', 'view_button', 'delete_button','cancel_button','print_button', 'table_type','readonly_button','readonly_action','readonly_delete'
-      ,'group_button',"pass_row_key",'forceLoading','loading_button','update_weight_readonly','select_all','generate_sn_readonly','no_separator','print_btn_dropdown','duplicate_button'],
+      ,'group_button',"pass_row_key",'forceLoading','loading_button','update_weight_readonly','select_all','generate_sn_readonly','no_separator','print_btn_dropdown','duplicate_button', 'selective_display'],
       components: {
         Button_icon,
         Checkbox,
+        Badge
       },
       mounted(){
         this.onRequest({
           pagination: this.pagination,
           filter: undefined
         })
+
+        this.show_top_button()
       },
       created() {
       },
@@ -461,8 +527,39 @@
         dbComponentBehavior() {
           return this.$store.getters['dbComponentBehavior/byLanguage']('erp')
         },
+        rowRange() {
+          const start = (this.pagination.page - 1) * this.pagination.rowsPerPage + 1;
+          const end = Math.min(this.pagination.page * this.pagination.rowsPerPage, this.pagination.rowsNumber);
+          return `${start} - ${end} of ${this.pagination.rowsNumber}`;
+        }
       },
       methods: {
+          show_top_button(){
+            var showTopButton = false;
+            if(this.top_button){
+             if(this.selective_display){
+              if(this.page_function == 'CreateCurrency'){
+                showTopButton = false
+              }else if(this.page_function == 'EditCurrency'){
+                showTopButton = true
+              }else if(this.page_function == 'CreatePaymentTerm'){
+                showTopButton = false
+              }else if(this.page_function == 'EditPaymentTerm'){
+                showTopButton = true
+              }else if(this.page_function == 'CreateWeighingTypeModuleAssignment'){
+                showTopButton = false
+              }else if(this.page_function == 'EditWeighingTypeModuleAssignment'){
+                showTopButton = true
+              }
+             }else{
+              showTopButton = true
+             }
+            }else{
+              showTopButton = false
+            }
+
+            this.showTopButton = showTopButton;
+          },
           supplier_item_list()
           {
             this.$emit('main_supplier_item_list');
@@ -552,6 +649,10 @@
 
             this.loading = true
           },
+          onPagination(page) {
+            this.pagination.page = page;
+            this.onRequest({ pagination: this.pagination });
+          },
           add_button : function()
           {
             if(this.page_function !== "EditGoodsReceivedNote"){
@@ -574,6 +675,55 @@
             }
 
           },
+          getBadgeColor(status) {
+            switch (status) {
+              case 'Posted':
+                return 'green-2';
+              case 'Unpost':
+                return 'red-2';
+              case 'New':
+                return 'light-blue-1';
+              case 'Completed':
+                return 'light-green-2';
+              case 'Cancelled':
+                return 'blue-grey-2';
+              case 'Send':
+                return 'orange-1';
+              case 'Approved':
+                return 'teal-2';
+              case 'Rejected':
+                return 'brown-2';
+              case 'Amended':
+                return 'light-blue-2';
+              default:
+                return 'black'; // default color if status doesn't match any case
+            }
+    },
+          getBadgeTextColor(status) {
+            switch (status) {
+              case 'Posted':
+                return 'green-10';
+              case 'Unpost':
+                return 'red-13';
+              case 'New':
+                return 'blue-8';
+              case 'Completed':
+                return 'light-green-9';
+              case 'Cancelled':
+                return 'blue-grey-8';
+              case 'Send':
+                return 'orange-8';
+              case 'Approved':
+                return 'teal-8';
+              case 'Rejected':
+                return 'brown-9';
+              case 'Amended':
+                return 'blue-5';
+              default:
+                return 'white'; // default text color if status doesn't match any case
+            }
+          },
+
       },
       watch:{
           table_column(newVal)
@@ -618,6 +768,17 @@
   }
   </script>
 
+<!--   * >>> td
+  {
+      padding: 10px !important;
+      padding-left: 20px !important;
+      padding-right:  20px !important;
+      font-size: 16px !important;
+      height: 24px !important;
+      text-align: center;
+      font-family: InterMedium;
+      font-weight: 500;
+  } -->
   <style scoped>
   .custom_link
   {
@@ -640,35 +801,173 @@
       border-radius: 0px;
   }
 
-  * >>> thead
+ * >>> thead
   {
       background-color: #dee1e6;
   }
-
+/*
   * >>> th
   {
-      padding: 2px !important;
+      padding: 5px 5px !important;
+      text-align: center !important;
+      background-color: #D7E2E9;
+
   }
 
-  * >>> tr, * >>> td
+  * >>> tr
   {
       padding: 0px !important;
-      height: 20px !important;
+       height: 20px !important;
   }
+  */
 
-  * >>> td
-  {
-      padding: 3px !important;
-      padding-left: 5px !important;
-      padding-right: 5px !important;
-      font-size: 12px !important;
-      height: 20px !important;
-  }
+
 
   * >>> .q-table__container
   {
-      padding: 0px;
+
+      /* Adjust the width and height as needed */
+    width: 100%; /* Example: Make it full-width */
+
   }
+  *>>>.q-table th {
+    font-weight: bold;
+    font-size: 11px;
+    -webkit-user-select: none;
+    user-select: none;
+    font-family: Poppins;
+    color: black;
+    text-align: center !important;
+}
+* >>> .q-table td
+  {
+
+      /* padding:5px  5px !important; */
+      font-size: 11px !important;
+
+      font-weight: 500;
+  }
+  .border-container {
+    /*border: 1px solid #ababab;
+    border-radius: 8px;*/
+    /*padding-top: 24px;*/
+    width: 100%;
+    gap: 16px;
+  }
+
+  .text-blue {
+    color: #1E90FF;
+  }
+  .text-red {
+    color: #B22222;
+  }
+  .hover-style {
+    background: rgba(215, 232, 250, 0.50);
+  }
+  *[data-v-c8f6ecca] .q-table__container {
+    padding: 0px;
+    width: 100%;
+    /* height: 350px; */
+    /*max-height: 800px;*/
+    text-align: center;
+    /*border: 2px solid rgba(185, 14, 185, 0.3);*/
+    border-radius: 8px;
+}
+.q-table__container {
+  border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border: 2px solid rgba(83, 81, 81, 0.30);
+    border-radius: 8px;
+}
+*.q-table__flat {
+    /* box-shadow: none; */
+}
+.button_group {
+  padding: 2px 9px;
+  border-radius: 8px;
+  border: 1px solid #54656F;
+  background: #FFFFFF;
+  font-family: InterfontSemiBold;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 600;
+  text-align: center;
+  width: 72px;
+  height: 32px;
+}
+.button_add_1 {
+  text-align: center;
+  font-family: Poppins;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  /* padding: 0px 15px; */
+  width: 70px;
+  height: 30px;
+  align-items: center;
+}
+.button_add_2 >>>.q-btn {
+  text-align: center;
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  padding: 10px;
+  width: 90px;
+  height: 36px;
+  justify-content: center;
+
+}
+.button_add_3 >>>.q-btn {
+  text-align: center;
+  font-family: Poppins;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+  /*padding: 20px; */
+  width: 130px;
+  height: 34px;
+  justify-content: center;
+
+}
+.button_add_dropdown >>> .q-btn-dropdown__arrow-container  {
+  width: 46px;
+  height: 36px;
+}
+*>>>.q-btn-dropdown--split .q-btn-dropdown__arrow-container:not(.q-btn--outline) {
+    border-left: 1px solid #FFF;
+}
+.container-button {
+  gap: 10px;
+}
+.qlist-font {
+
+  font-size: 13px;
+  font-weight: 500px;
+  padding: 14px 16px;
+  width: 241px;
+  height: 42px;
+}
+*>>>.q-table__bottom {
+    min-height: 50px;
+    padding: 4px 14px 4px 16px;
+    font-size: 12px;
+
+    font-weight: 500;
+}
+*>>>.q-table__bottom-item {
+    margin-right: 20px;
+}
+*>>>.q-field--auto-height .q-field__control, .q-field--auto-height .q-field__native {
+    align-items: center;
+}
+
+.round-button-custom >>>.q-btn--round {
+    border-radius: 50%;
+    padding: 0;
+    min-width: 2em !important;
+    min-height: 25px;
+}
   </style>
 
 <style lang="sass">
@@ -677,7 +976,7 @@
   max-height: 400px
 
   thead tr:first-child th
-    background-color: #dee1e6
+    background-color: #d7e2e9
 
   thead tr th
     position: sticky

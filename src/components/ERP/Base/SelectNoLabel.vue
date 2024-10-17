@@ -1,9 +1,9 @@
 <template>
-  <Select :id="id" :name="name" :no_label="no_label" v-model="pass_value" :options="options" :componentBehavior="dbComponentBehavior"/>
+  <SelectBase :id="id" :name="name" :no_label="no_label" v-model="pass_value" :options="options" :componentBehavior="dbComponentBehavior" class="custom-select"/>
 </template>
 
 <script>
-import Select from 'src/components/Base/Select';
+import SelectBase from 'src/components/ERP/Base/SelectBase';
 
 export default {
   data() {
@@ -13,12 +13,15 @@ export default {
   },
   props: ['value', 'options', 'id', 'name','dbComponentBehavior', 'no_label'],
   components: {
-      Select
+      SelectBase
   }
 }
 </script>
 
 <style scoped>
+.q-field--auto-height.q-field--dense >>>.q-field__control {
+  min-height: 32px;
+}
 /* For dropdown padding removal */
 .q-field
 {
@@ -36,7 +39,7 @@ export default {
 /* For text input border colour */
 * >>> .q-field__inner
 {
-  border: 1px solid #d2d6de;
+  /* border: 1px solid #d2d6de; */
 }
 
 /* when hover on text input */
@@ -75,5 +78,19 @@ export default {
 * >>> .q-field__bottom {
   padding: 3px 0px 0;
 }
-
+* >>> .q-field__control {
+  border-radius: 8px;
+  padding: 0px 16px !important;
+  height: 32px;
+  /* background-color: antiquewhite; */
+}
+*.q-field--square >>>.q-field__control {
+    /* border-radius: 8px !important; */
+}
+.q-field--dense >>>.q-field__marginal {
+    height: 32px;
+}
+*>>>.q-field--auto-height.q-field--dense .q-field__control {
+    min-height: 32px;
+}
 </style>

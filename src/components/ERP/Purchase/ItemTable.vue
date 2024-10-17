@@ -1,7 +1,7 @@
 <template>
-<div class="q-pa-md table_wrapper">
+<div class=" table_wrapper" ><!--style="padding:24px"-->
 
-  <q-table separator="cell" :flat="flat_status" :bordered="bordered_status" class="main_table my_sticky_header_table" :title="title" :row_per_page="row_per_page"
+  <q-table separator="cell" :flat="flat_status" :bordered="bordered_status" class="main_table my_sticky_header_table custom_paginationPO custom_paginationDN" :title="title" :row_per_page="row_per_page"
   :rows="rows" :columns="columns" rows-per-page-label="Entries" :pagination-label="getPaginationLabel"
   :rows-per-page-options="row_per_page"
   :row-key="row_key"
@@ -12,7 +12,25 @@
     binary-state-sort
     :loading="loading"
     >
-
+    <template v-slot:pagination>
+        <q-pagination
+          v-model="pagination.page"
+          :max="Math.ceil(pagination.rowsNumber / pagination.rowsPerPage)"
+          direction-links
+          @update:model-value="onPagination"
+          :max-pages="5"
+          :ellipses="false"
+          :boundary-numbers="false"
+          color="grey-9"
+          active-color="light-blue-1"
+          active-text-color="primary"
+          round
+          size="md"
+        />
+        <div class="row-range">
+            {{ rowRange }}
+          </div>
+      </template>
     <template v-slot:top-right v-if="top_button">
       <Button_icon :disabled="readonly_button" :flat="true" :icon="'add'" v-on:receiveClick="add_button()" :font_color="'white'" :color="'green'" :text="'Add'" :outline="false" size="12px" class="q-pr-sm q-mr-sm"/>
     </template>
@@ -70,8 +88,8 @@
 
 <script>
 import set from 'vue'
-import Button_icon from 'src/components/IMS/Base/Button_icon'
-import Checkbox from 'src/components/IMS/Base/Checkbox'
+import Button_icon from 'src/components/ERP/Base/Button_icon'
+import Checkbox from 'src/components/ERP/Base/Checkbox'
 export default {
     data(){
       return{
@@ -81,13 +99,12 @@ export default {
         loading: true,
         filter:"",
         pagination: {
-          sortBy: '',
-          descending: '',
-          page: 1,
-        //   rowsPerPage: 5,
+        sortBy: '',
+        descending: '',
+        page: 1,
         rowsPerPage: this.row_per_page[0] === undefined ? this.row_per_page : this.row_per_page[0],
-          rowsNumber: 0
-        },
+        rowsNumber: 0
+      },
         permission: sessionStorage.getItem("permission") != "" && sessionStorage.getItem("permission") != "null" && sessionStorage.getItem("permission") != null ? sessionStorage.getItem("permission").split(',') : [],
         state: {
           selectedRow: ""
@@ -102,9 +119,9 @@ export default {
     },
     mounted(){
       this.onRequest({
-        pagination: this.pagination,
-        filter: undefined
-      })
+      pagination: this.pagination,
+      filter: undefined
+    })
     },
     created() {
     },
@@ -112,6 +129,21 @@ export default {
       dbComponentBehavior() {
         return this.$store.getters['dbComponentBehavior/byLanguage']('erp')
       },
+      rowRange() {
+      const start = (this.pagination.page - 1) * this.pagination.rowsPerPage + 1;
+      const end = Math.min(this.pagination.page * this.pagination.rowsPerPage, this.pagination.rowsNumber);
+      return `Showing ${start} to ${end} of ${this.pagination.rowsNumber}`;
+    }
+      // rowRange() {
+      //       const start = (this.pagination.page - 1) * this.pagination.rowsPerPage + 1;
+      //       const end = Math.min(this.pagination.page * this.pagination.rowsPerPage, this.pagination.rowsNumber);
+      //       return `${start} - ${end} of ${this.pagination.rowsNumber}`;
+      //     }
+      // rowRange() {
+      //     const start = (this.pagination.page - 1) * this.pagination.rowsPerPage + 1;
+      //     const end = Math.min(start + this.pagination.rowsPerPage - 1, this.pagination.rowsNumber);
+      //     return `${start} - ${end} of ${this.pagination.rowsNumber}`;
+      // }
     },
     methods: {
         action : function(payload)
@@ -142,20 +174,30 @@ export default {
         // {
         //     return payload.isactive == '1' ? 'Yes' : 'No';
         // }
-        onRequest (props) {
-          this.$emit("receiveRequestTable",props);
+       onRequest(props) {
+        this.$emit("receiveRequestTable", props);
 
-          this.pagination.sortBy = props.pagination.sortBy;
-          this.pagination.descending = props.pagination.descending;
-          this.pagination.page = props.pagination.page;
-          this.pagination.rowsPerPage = props.pagination.rowsPerPage;
-          this.loading = true
+        this.pagination.sortBy = props.pagination.sortBy;
+        this.pagination.descending = props.pagination.descending;
+        this.pagination.page = props.pagination.page;
+        this.pagination.rowsPerPage = props.pagination.rowsPerPage;
+        this.loading = true;
+      },
+        onPagination(page) {
+        this.pagination.page = page;
+        this.onRequest({
+          pagination: this.pagination,
+          filter: this.filter
+        });
         },
         add_button : function()
         {
             this.$emit('add_button')
         },
+    getPaginationLabel(firstRowIndex, endRowIndex, totalRowsNumber) {
+      return `Showing ${firstRowIndex + 1} to ${endRowIndex} of ${totalRowsNumber}`;
     },
+  },
     watch:{
         table_column(newVal)
         {
@@ -212,22 +254,71 @@ export default {
     background-color: #dee1e6;
 }
 
-* >>> tr, * >>> td
-{
-    height: 35px !important;
-    cursor: pointer;
-}
+* >>> th
+  {
+      padding: 10px !important;
+  }
+
+  * >>> tr, * >>> td
+  {
+      padding: 0px !important;
+      height: 35px !important;
+      cursor: pointer;
+  }
+
 
 * >>> .q-table__container
 {
     padding: 10px;
 }
-
-* >>> .q-table__bottom
+/* * >>> .q-table__bottom
 {
   background-color: white;
 
+} */
+*>>>.q-table__bottom {
+    min-height: 50px;
+    padding: 4px 14px 4px 16px;
+    font-size: 12px;
+    font-family: InterfontMedium;
+    font-weight: 500;
 }
+*>>>.q-table__bottom-item {
+    margin-right: 32px;
+}
+*>>>.q-field--auto-height .q-field__control, .q-field--auto-height .q-field__native {
+    align-items: center;
+}
+/* *>>>.q-field__native {
+  margin-top: 15px;
+} */
+* .custom_paginationPO >>>.q-field__native {
+  margin-top: 15px;
+}
+* .custom_paginationPO >>>.q-field__native {
+  margin-bottom: 15px;
+}
+*>>>.q-table th {
+    font-weight: 700;
+    font-size: 12px;
+    -webkit-user-select: none;
+    user-select: none;
+    font-family: InterfontBold;
+    color: black;
+    text-align: center !important;
+}
+* >>> .q-table td
+  {
+      padding: 10px !important;
+      padding-left: 20px !important;
+      padding-right:  20px !important;
+      font-size: 12px !important;
+      height: 24px !important;
+       text-align: center !important;
+      font-family: InterfontMedium;
+      font-weight: 500;
+  }
+  
 </style>
 
 <style lang="sass">
@@ -236,7 +327,7 @@ export default {
   max-height: 380px
 
   thead tr:first-child th
-    background-color: #dee1e6
+    background-color: #d7e2e9
 
   thead tr th
     position: sticky

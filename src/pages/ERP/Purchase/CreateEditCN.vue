@@ -1,29 +1,9 @@
 <template>
   <div v-if="$q.screen.width > 599" class="card_sides">
-    <q-card style="max-height: 100%;">
-      <q-card-section class="theme_color dialog_header header_top">
-        <div class="intermediate"/>
-        <div v-if="page_function == 'CreateCreditNote'" class="text-subtitle1 header_text">Credit Note <!-- {{ this.$language('D0223') }} --></div>
-          <div v-if="page_function == 'EditCreditNote'" class="text-subtitle1 header_text">
-            Credit Note <!-- {{ this.$language('D0223') }} --><br>
-            <div class="row">
-            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
-              <span class="text-caption">  {{ this.$language('D0030') }} : {{ json.RefNo }} |{{ this.$language('D0026') }} : {{json.locgroup}} | {{ this.$language('D0025') }} : {{ json.Code }} - {{ json.Name }} <br></span>
-            </div>
-            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 text-right">
-              <span class="text-caption text-right text-bold" style="font-size:14px">{{ this.$language('D0145') }}: {{ currency_sign }} {{ json.SubTotal1 }}<br></span>
-            </div>
-          </div>
-            <!-- <span class="text-caption">
-              Refno: {{ json.RefNo }} | Branch: {{json.locgroup}} | Supplier: {{ json.Code }} - {{ json.Name }} <br>
-            </span> -->
-
-          </div>
-      </q-card-section>
-
-      <q-card-section class="upload_container">
+    <q-card class="card-container" style="max-height: 100%;">
+      <q-card-section class="">
         <q-form ref="save_form">
-          <div v-if="page_function == 'EditCreditNote'" class="intermediate_white"/>
+          <div v-if="page_function == 'EditCreditNote'"/>
           <div class="row upload_separator_first">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
               <q-stepper
@@ -34,40 +14,51 @@
                 animated
                 @update:model-value="handleChangeStepper"
                 :class="page_function == 'EditCreditNote' ? 'sticky_stepper' : ''"
+                inactive-color="grey-7"
+                done-color="primary"
               >
                 <q-step
                   :name="1"
+                  prefix="1"
                   title="Header"
                   icon="settings"
                   :done="json.step > 1"
                 >
-                  <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9 col-xl-9">
-                      <div class="row dialog_separator">
-                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+<!-- GENERAL INFO -->
+                  <div class="row" style="align-items: center; width: 100%;">
+                    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10" style="padding-top: 10px; height: 100%;">
+                      <div class="row" style="margin-bottom: 10px;">
+                        <!--refno :label="$language('D0030')" -->
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3" style="padding-right: 10px;">
+                          <div class="row" style="align-items: center;">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                              <Span><b> {{$language('D0030')}} </b> </span>
+                            </div>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-xs-8">
                               <!-- RefNo -->
                               <Input
                               :autofocusclick="true"
                               :no_label="false"
-                              :label="$language('D0030')"
-                              :readonly="true"
+                              
+                              :readonly="false"
                               v-on:change="handleChange"
                               v-model="json.RefNo"
                               :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
                             </div>
                           </div>
                         </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row" :class="$q.screen.width < 1024 ? 'dialog_separator' : ''">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <!--docno :label="$language('D0086')" -->
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3" style="padding-right: 10px;">
+                          <div class="row" style="align-items: center;">
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                              <b>{{$language('D0086')}}</b>
+                            </div>
+                            <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-xs-9">
                               <!-- Doc No -->
                               <Input
                               :autofocusclick="true"
                               :no_label="false"
-                              :label="$language('D0086')"
+                              
                               :readonly="json.BillStatus==1"
                               v-on:change="handleChange"
                               v-model="json.DocNo"
@@ -75,84 +66,38 @@
                             </div>
                           </div>
                         </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row" :class="$q.screen.width < 1024 ? 'dialog_separator' : ''">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <!-- Doc Date -->
-                              <!-- <DatepickerOptions
-                              :clickableInput="true"
-                              :no_label="false"
-                              :label="$language('D0087')"
-                              :disable="json.BillStatus==1"
-                              :autoclose="true"
-                              v-on:receiveChange="handleChangeDocDate"
-                              :daterange="json.DocDate"
-                               :options="optionsDate"
-                              :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" /> -->
-
+                        <!--docdate :label="$language('D0087')" -->
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3" style="padding-right: 10px;">
+                        <div class="row" style="align-items: center;">
+                          <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                            <b>{{$language('D0087')}}</b>
+                          </div>
+                          <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-xs-9">    
                               <DatepickerOptions
                               :clickableInput="true"
                               :no_label="false"
-                              :label="$language('D0087')"
+                              
                               :disable="json.BillStatus==1"
                               :autoclose="true"
                               v-on:receiveChange="handleChangeDocDate"
                               :daterange="json.DocDate"
-                               :optionsFn="generateDatePickerOptions"
+                              :optionsFn="generateDatePickerOptions"
                               :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
                             </div>
                           </div>
                         </div>
-                      </div>
-
-                      <div class="row dialog_separator">
-                        <div class="input_wrapper_right" :class="json.BillStatus == 0 && !supplier_readonly ? 'col-xs-4 col-sm-5 col-md-3 col-lg-3 col-xl-3' : 'col-xs-4 col-sm-6 col-md-4 col-lg-4 col-xl-4'">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                             <!-- Supplier -->
-                              <SelectFilter
-                              :readonly="json.BillStatus==1 ? true : supplier_readonly"
-                              :no_label="false"
-                              :label="$language('D0025')"
-                              v-model:pass_value="json.Code"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
-                              :options="supplier_options"
-                              v-on:receiveChange="handleChangeSCode"
-                              />
+                        <!-- label="DN No" -->
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3" style="padding-right: 10px;">
+                          <div class="row" style="align-items: center;">
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                              <b>DN No</b>
                             </div>
-                          </div>
-                        </div>
-
-                        <!-- <div class="input_wrapper_right" :class="json.BillStatus == 0 && !supplier_readonly ? 'col-xs-4 col-sm-5 col-md-7 col-lg-7 col-xl-7' : 'col-xs-4 col-sm-6 col-md-8 col-lg-8 col-xl-8'">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <SelectFilter
-                              :readonly="json.BillStatus==1 ? true : supplier_readonly"
-                              :no_label="false"
-                              :label="'Name'"
-                              v-model:pass_value="json.Code"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
-                              :options="supplier_options2"
-                              v-on:receiveChange="handleChange"
-                              />
-                            </div>
-                          </div>
-                        </div> -->
-
-                        <div v-if="json.BillStatus == 0 && !supplier_readonly" dir="rtl" class="col-xs-2 col-sm-1 col-md-1 col-lg-1 col-xl-1 input_wrapper_right">
-                          <Button_icon :flat="true" :font_color="'white'" :color="'#094161'" :icon="'search'" :outline="false" size="13px"
-                          v-on:receiveClick="addButtonCreatePOChild('supplier')" style="margin-top: -2px;"/>
-                        </div>
-
-                        <div class="col-xs-6 col-sm-3 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-xs-9">  
                             <!-- $language('D0225') -->
                               <Input
                               :autofocusclick="true"
                               :no_label="false"
-                              label="DN No"
+                              
                               :readonly="json.BillStatus==1"
                               v-on:change="handleChange"
                               v-model="json.sup_cn_no"
@@ -160,139 +105,171 @@
                             </div>
                           </div>
                         </div>
-
-                        <div class="col-xs-6 col-sm-3 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <!-- $language('D0226') -->
-                              <Datepicker
-                              :clickableInput="true"
-                              :no_label="false"
-                              label="DN Date"
-                              :disable="json.BillStatus==1"
-                              :autoclose="true"
-                              :daterange="json.sup_cn_date"
-                              :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                      </div>
+                      <div class="row" style="margin-bottom: 10px;">
+                        <!--supplier :label="$language('D0025')" -->
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6" style="padding-right: 10px;">
+                          <div class="row" style="align-items: center;">
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                              <b>{{$language('D0025')}}</b>
+                            </div>
+                            <div :class="json.BillStatus == 0 && !supplier_readonly ? 'col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9' : 'col-xs-10 col-sm-10 col-md-10 col-lg-10 col-xl-10'">
+                              <!-- Supplier -->
+                                <SelectFilter
+                                :readonly="json.BillStatus==1 ? true : supplier_readonly"
+                                :no_label="false"
+                                
+                                v-model:pass_value="json.Code"
+                                :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
+                                :options="supplier_options"
+                                v-on:receiveChange="handleChangeSCode"
+                                />  
+                            </div>
+                            <div v-if="json.BillStatus == 0 && !supplier_readonly" dir="ltr" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 col-xl-1">
+                              <Button_icon :flat="false" :font_color="'primary'" :color="'white'" :icon="'search'" :outline="true" size="13px"
+                              v-on:receiveClick="addButtonCreatePOChild('supplier')" style="margin-top: 0px;height:100%" class="full-width search_button_icon search_button_secondary primary_button_font"/>
                             </div>
                           </div>
+                        </div>
+                        <!--issuedby :label="$language('D0045')" -->
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3" style="padding-right: 10px;">
+                          <div class="row" style="align-items: center;">
+                          <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                            <b>{{$language('D0045')}}</b>
+                          </div>
+                          <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-xs-9">
+                                <!-- Issued By -->
+                                <Input
+                                :autofocusclick="true"
+                                :no_label="false"
+                                
+                                :readonly="false"
+                                v-on:change="handleChange"
+                                v-model="json.Issuedby"
+                                :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                              </div>
+                          </div>
+                        </div> 
+                        <!--dndate label="DN Date" -->
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3" style="padding-right: 10px;">
+                          <div class="row" style="align-items: center;">
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                              <b>DN Date</b>
+                            </div>
+                            <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-xs-9">  
+                                <!-- $language('D0226') -->
+                                <Datepicker
+                                :clickableInput="true"
+                                :no_label="false"
+                                
+                                :disable="json.BillStatus==1"
+                                :autoclose="true"
+                                :daterange="json.sup_cn_date"
+                                :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                              </div>
+                          </div>
+                        </div>
+                      </div> 
+                      <div class="row" style="margin-bottom: 10px;">
+                        <!--branch :label="$language('D0026')" -->
+                        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3" style="padding-right: 10px;">
+                          <div class="row" style="align-items: center;">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-xs-4">
+                              <b>{{$language('D0026')}}</b>
+                            </div>
+                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-xs-8">
+                                <!-- Branch -->
+                                <SelectFilter
+                                :readonly="json.BillStatus==1"
+                                :no_label="false"
+                                
+                                v-model:pass_value="json.locgroup"
+                                :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
+                                :options="location_options"
+                                v-on:receiveChange="handleChangeLocGroup"
+                                />
+                            </div>
+                          </div>
+                        </div>
+                            <!--location :label="$language('D0090')" -->
+                          <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3" style="padding-right: 10px;">
+                            <div class="row" style="align-items: center;">
+                              <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                <b>{{$language('D0090')}}</b>
+                              </div>
+                              <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9 col-xs-9">
+                                  <!-- Location -->
+                                  <SelectFilter
+                                  :readonly="json.BillStatus==1"
+                                  :no_label="false"
+                                  
+                                  v-model:pass_value="json.Location"
+                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
+                                  :options="location_options2"
+                                  v-on:receiveChange="handleChangeLocGroup"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                      </div> 
+                      <div class="row col-12"><!--REMARKS -->
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <Textarea class="ignore_height" :no_label="false" :readonly="json.BillStatus==1" v-on:receiveChange="handleChange" v-model="json.Remark"
+                          :dbComponentBehavior="dbComponentBehavior.remark" :pass_label="$language('D0055')"  />
                         </div>
                       </div>
-
-                      <div class="row dialog_separator">
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <!-- Branch -->
-                              <SelectFilter
-                              :readonly="json.BillStatus==1"
-                              :no_label="false"
-                              :label="$language('D0026')"
-                              v-model:pass_value="json.locgroup"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
-                              :options="location_options"
-                              v-on:receiveChange="handleChangeLocGroup"
-                              />
+<!-- checkbox below -->
+                      <div v-if="page_function == 'EditCreditNote'" class="row col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="row col-12 q-col-gutter-y-md">
+                          <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-xs-2" style="padding-right: 10px;">
+                            <div class="row" style="align-items: center;">
+                              <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                                <b>{{$language('D0082')}}</b>
+                              </div>
+                              <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                              <Toggle :class="[json.Consign === 1 ? 'custom_truthcheckbox' : 'custom_checkbox_disabl']" :btm_padding="true" size="md" :disable="true" v-model="json.Consign" :true-value="1" :false-value="0" />
+                              <!-- <span class="checkbox_InterfontMedium">{{ this.$language('D0082') }}Consign</span> -->
+                              </div>
                             </div>
                           </div>
-                        </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <!-- Location -->
-                              <SelectFilter
-                              :readonly="json.BillStatus==1"
-                              :no_label="false"
-                              :label="$language('D0090')"
-                              v-model:pass_value="json.Location"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
-                              :options="location_options2"
-                              v-on:receiveChange="handleChangeLocGroup"
-                              />
-                            </div>
+                          <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-xs-2" style="padding-right: 10px;">
+                              <div class="row" style="align-items: center;">
+                                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                                  <b>{{$language('D0057')}}</b>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                  <Toggle :class="[json.BillStatus === 1 ? 'custom_truthcheckbox' : 'custom_checkbox_disabl']" :btm_padding="true" size="md" :disable="true" v-model="json.BillStatus" :true-value="1" :false-value="0" />
+                                  <!-- <span class="checkbox_InterfontMedium"> {{ this.$language('D0057') }} Posted</span> -->
+                                </div>
+                              </div>
                           </div>
-                        </div>
-
-                        <div v-if="page_function=='EditCreditNote'" class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row" :class="$q.screen.width < 1024 ? 'dialog_separator' : ''">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <!-- Issued By -->
-                              <Input
-                              :autofocusclick="true"
-                              :no_label="false"
-                              :label="$language('D0045')"
-                              :readonly="true"
-                              v-on:change="handleChange"
-                              v-model="json.Issuedby"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 input_wrapper_right">
-                          <div class="row dialog_separator">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Textarea class="ignore_height" :no_label="false" :readonly="json.BillStatus==1" v-on:receiveChange="handleChange" v-model="json.Remark"
-                              :dbComponentBehavior="dbComponentBehavior.remark" :pass_label="$language('D0055')"  />
-                            </div>
+                          <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-xs-2" style="padding-right: 10px;">
+                              <div class="row" style="align-items: center;">
+                                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                                  <b>{{$language('D0060')}}</b>
+                                </div>
+                                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                  <Toggle :class="[json.uploaded === 1 ? 'custom_truthcheckbox' : 'custom_checkbox_disabl']" :btm_padding="true" size="md" :disable="true" v-model="json.uploaded" :true-value="1" :false-value="0" />
+                                  <!-- <span class="checkbox_InterfontMedium"> {{ this.$language('D0060') }} Uploaded</span> -->
+                                </div>
+                              </div>
                           </div>
                         </div>
                       </div>
                     </div>
-
-                    <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
-                      <div v-if="page_function == 'EditCreditNote'" class="row">
-                        <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-7 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                              <span class="dialog_font">{{ this.$language('D0082') }}<!--Consign--></span>
-                            </div>
-                            <div class="col-xs-5 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                              <Checkbox :btm_padding="true" size="xs" :disable="true" v-model="json.Consign" :true-value="1" :false-value="0" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-7 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                              <span class="dialog_font"> {{ this.$language('D0057') }} <!--Posted --></span>
-                            </div>
-                            <div class="col-xs-5 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                              <Checkbox :btm_padding="true" size="xs" :disable="true" v-model="json.BillStatus" :true-value="1" :false-value="0" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-7 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                              <span class="dialog_font"> {{ this.$language('D0060') }} <!--Uploaded--></span>
-                            </div>
-                            <div class="col-xs-5 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                              <Checkbox :btm_padding="true" size="xs" :disable="true" v-model="json.uploaded" :true-value="1" :false-value="0" />
-                            </div>
-                          </div>
-                        </div>
-                        <!--B2B Status-->
-                        <!-- <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-7 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                              <span class="dialog_font">{{ this.$language('D0065') }} </span>
-                            </div>
-                            <div class="col-xs-5 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                              <Input
-                              :autofocusclick="true"
-                              :no_label="true"
-                              :readonly="true"
-                              v-on:change="handleChange"
-                              v-model="json.b2b_status"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div> -->
+                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 col-xs-2" style="text-align:center; height: 100%;">
+                      <div><b>Image Details</b></div>
+                      <div style="padding-top: 10px;">
+                      <q-img
+                        src="product_1.png"
+                        spinner-color="white"
+                        style="height: 120px; max-width: 120px;"
+                      />
                       </div>
-
+                      <div style="padding-top: 10px;">
+                      <!-- <q-btn unelevated square dense push style="background-color: white; color: black; font-size: 10px;" label="upload" @click="refresh" /> -->
+                      <q-btn no-caps dense color="white" text-color="black" label="upload photo" style="font-size: 12px; color: black; font-weight: bold;" />
+                      </div>
                     </div>
                   </div>
                 </q-step>
@@ -300,12 +277,13 @@
                 <q-step
                   v-if="page_function == 'EditCreditNote'"
                   :name="2"
+                  prefix="2"
                   title="Detail"
                   icon="create_new_folder"
                   :done="json.step > 2"
                 >
                   <div class="row">
-                    <div class="card_section_two col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class=" col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"><!--card_section_two-->
                         <PurchaseTable
                         hide_footer
                         :readonly_button="false"
@@ -334,14 +312,15 @@
                 <q-step
                   v-if="page_function == 'EditCreditNote'"
                   :name="3"
+                  prefix="3"
                   title="Discount"
                   icon="create_new_folder"
                   :done="json.step > 3"
                 >
-                  <div class="row dialog_separator">
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                  <div class="row" style="padding-top:16px">
+                    <div class="row col-12">
+                      <div class="row col-12"> 
+                          <div class="col-6 q-pr-md">
                           <!-- GROSS -->
                           <Input
                           :autofocusclick="true"
@@ -352,12 +331,7 @@
                           v-model="json.SubTotal1"
                           :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right : oridbComponentBehavior.text" />
                         </div>
-                      </div>
-                    </div>
-
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="col-6 q-pl-md">
                          <!-- Tax -->
                           <Input
                           :autofocusclick="true"
@@ -368,8 +342,12 @@
                           v-model="json.gst_tax_sum"
                           :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right : oridbComponentBehavior.text" />
                         </div>
+
+
                       </div>
                     </div>
+
+                    
 
                     <!-- <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
                       <div class="row">
@@ -386,7 +364,7 @@
                       </div>
                     </div> -->
 
-                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 input_wrapper_right"></div>
+                    <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 input_wrapper_right"></div> -->
                   </div>
 
                   <!-- <div v-if="page_function=='EditCreditNote'" class="row dialog_separator">
@@ -427,74 +405,89 @@
         </q-form>
       </q-card-section>
 
-      <q-card-actions class="dialog_action justify-between">
-        <div v-if="this.json.step == 1">
-
-          <Button_icon v-if="page_function == 'EditCreditNote'"  :flat="true" :font_color="'white'" :color="'#094161'" :text="json.BillStatus==1 ? $language('D0148') : $language('D0019')" :outline="false" size="15px"
-            v-on:receiveClick="confirmPost"/>
-
-
-          <span v-if="page_function == 'EditCreditNote'" class="q-pl-xs">
-              <Button_icon :flat="true" :font_color="'white'" :color="'#094161'" :text="'PRINT'" :outline="false" size="15px"
-              v-on:receiveClick="handlePrint"/>
-          </span>
-
-           <span v-if="json.BillStatus == 0" class="q-pl-xs">
-            <!-- SAVE -->
-            <Button_icon :flat="true" :font_color="'white'" :color="'#094161'" :text="$language('D0020')" :outline="false" size="15px"
-            v-on:receiveClick="handleCreatePO"/>
-          </span>
-
-          <span v-if="page_function=='EditCreditNote'" class="q-pl-xs">
-            <!-- NEXT -->
-            <Button_icon :flat="false" :font_color="'black'" :color="'white'" :text="$language('D0021')" :outline="true" size="15px"
-            @click="json.step = 2"/>
-          </span>
-        </div>
-
-        <div v-if="this.json.step == 2">
-          <!-- PREVIOUS -->
-          <Button_icon :flat="false" :font_color="'black'" :color="'white'" :text="$language('D0023')" :outline="true" size="15px"
-          @click="json.step = 1"/>
-
-          <span class="q-pl-xs">
-          <!-- NEXT -->
-            <Button_icon :flat="false" :font_color="'black'" :color="'white'" :text="$language('D0021')" :outline="true" size="15px"
-            @click="json.step = 3"/>
-          </span>
-        </div >
-
-        <div v-if="this.json.step == 3">
-        <!-- SAVE -->
-          <Button_icon v-if="json.BillStatus == 0" :flat="true" :font_color="'white'" :color="'#094161'" :text="$language('D0020')" :outline="false" size="15px"
-          v-on:receiveClick="handleCreatePO"/>
-
-          <span class="q-pl-xs">
-            <!-- PREVIOUS -->
-            <Button_icon :flat="false" :font_color="'black'" :color="'white'" :text="$language('D0023')" :outline="true" size="15px"
-            @click="json.step = 2"/>
-          </span>
-        </div >
-
-        <!-- Back -->
-          <Button_icon :flat="true" :font_color="'black'" :color="'white'" :text="$language('D0022')" :outline="true" size="15px" class="custom_cancel_button" @click="back()" />
-      </q-card-actions>
+<!-- BUTTONSS NAV/SAVE -->
+      
 
       <q-inner-loading
         :showing="showAddLoading"
         color="primary"
       />
     </q-card>
+    <q-card-actions class="dialog_action justify-between">
+        <div v-if="this.json.step == 1">
+            
+          <span v-if="page_function=='EditCreditNote'" class="q-pl-xs">
+            <!-- NEXT :text="$language('D0021')" -->
+            <Button_icon :flat="true" :font_color="'#29292A'" :icon-right="'chevron_right'" :color="'white'"  :outline="true" size="14px"
+            @click="json.step = 2" class="primary_navigation_button"/>
+          </span>
+        </div>
 
+        <div v-if="this.json.step == 2">
+          <!-- PREVIOUS -->
+          <!-- <Button_icon :flat="false" :font_color="'black'" :color="'white'" :text="$language('D0023')" :outline="true" size="15px"
+          @click="json.step = 1"/> -->
+          <!-- Back :text="$language('D0022')"-->
+          <Button_icon :flat="true" :font_color="'#29292A'" :icon="'chevron_left'" :color="'white'"  :outline="true" size="14px" 
+          class="primary_navigation_button" @click="json.step = 1" />
+
+          <span class="q-pl-xs">
+          <!-- NEXT :text="$language('D0021')"-->
+            <Button_icon :flat="true" :font_color="'#29292A'" :icon-right="'chevron_right'" :color="'white'"  :outline="false" size="14px"
+            @click="json.step = 3" class="primary_navigation_button"/>
+          </span>
+        </div >
+
+        <div v-if="this.json.step == 3">
+        <!-- SAVE -->
+          <!-- <Button_icon v-if="json.BillStatus == 0" :flat="true" :font_color="'white'" :color="'#094161'" :text="$language('D0020')" :outline="false" size="15px"
+          v-on:receiveClick="handleCreatePO"/> -->
+
+          <span class="q-pl-xs">
+            <!-- PREVIOUS :text="$language('D0022')"-->
+            <Button_icon :flat="true" :font_color="'#29292A'" :icon="'chevron_left'" :color="'white'"  :outline="false" size="15px"
+            @click="json.step = 2" class="primary_navigation_button"/>
+          </span>
+        </div >
+        <span v-if="page_function == 'EditCreditNote'" class="q-gutter-x-md">
+        <!-- print -->
+          <!-- <Button_icon v-if="page_function == 'EditCreditNote'&& this.json.step == 1" :flat="true" :font_color="'#1E90FF'" :color="'white'" :icon="'img:icons/print.svg'" :outline="false" size="16px"
+               class="print_actions_button" v-on:receiveClick="handlePrint"/> -->
+
+            <!-- POST -->
+          <span v-if="page_function == 'EditCreditNote'&& this.json.step == 1" class="q-pl-xs">
+              <Button_icon v-if="page_function == 'EditCreditNote'&& this.json.step == 1"  :flat="true" :text="json.BillStatus==1 ? $language('D0148') : $language('D0019')" :outline="false" size="16px"
+               v-on:receiveClick="confirmPost" :class="{ 'primary_actions_button': json.BillStatus === 1, 'secondary_actions_button': json.BillStatus === 0 }"/>
+          </span>
+          <span v-if="json.BillStatus == 0 && (this.json.step == 1 || this.json.step == 3)" class="q-pl-xs">
+            <Button_icon :flat="true" :font_color="'white'" :color="'rgb(9, 65, 97)'" :text="'SAVE'" :outline="false" size="16px" class="primary_actions_button"
+            v-on:receiveClick="handleCreatePO"/>
+          </span>
+        </span>
+          <Button_icon v-if="page_function == 'CreateCreditNote'" :flat="true" :font_color="'white'" :color="'#1E90FF'" :text="$language('D0020')" :outline="false" size="16px"
+            v-on:receiveClick="handleCreatePO" class="primary_actions_button"/>
+        
+      </q-card-actions>
   </div>
 
   <div v-else class="card_sides">
-    <q-card style="min-height: 100vh;">
-      <q-card-section class="header_top">
-        <Button_icon :disable="showAddLoading" :big_round="true" :flat="true" :font_color="'#928f8f'" :color="'rgba(255, 255, 255, 0.5)'" :icon="'arrow_back_ios'" :outline="true" size="12px" class="custom_back_button" @click="back()" />
-        <div v-if="page_function == 'CreateCreditNote'" class="text-subtitle1 header_text" style="padding-top: 10px;">Credit Note <!--{{$language('D0223')}}--></div>
-        <div v-if="page_function == 'EditCreditNote'" class="text-subtitle1 header_text">Credit Note  <!--{{$language('D0223')}}-->
-        <br>{{$language('D0030')}}<!--Refno-->: {{ json.RefNo }}</div>
+    <div class="row col-12 justify-between q-pb-md">
+    <div :class="page_function == 'CreateCreditNote' ? 'chip-container_2' : 'chip-container_1'"> <!--D0224 -->
+          <Chip v-if="page_function == 'CreateCreditNote'" :icon="'chevron_left'" :text="'New CN'" text-color="grey-10" class="bold-font chip_sty" v-on:receiveClick="handleNavigate('CreditNote')"/>
+          <Chip v-if="page_function == 'EditCreditNote'" :icon="'chevron_left'" :square="true" :label="'Edit CN' +' / '+ json.RefNo" text-color="#273655" class="bold-font chip_sty" v-on:receiveClick="handleNavigate('CreditNote')"/>
+    </div>
+    <div class="justify-left items-center" >
+                  <Button_icon class="bold-font summary_button q-pa-none q-ma-none" :flat="true" :label="currency_sign + ' ' + json.SubTotal1" v-on:receiveClick="show_summary_dialog" :font_color="'#273655'" :color="'primary'" :outline="false" size="14px"/>
+                  <!-- <span class="" style="color:#1976D2;" @click="show_summary_dialog"> Total Amount:  {{ currency_sign }} {{ json.SubTotal1 }} </span> -->
+    </div>
+    </div>      
+    <q-card class="card-container" style="min-height: 100vh;">
+      <!-- <q-card-section class="header_top"> -->
+        <!-- <Button_icon :disable="showAddLoading" :big_round="true" :flat="true" :font_color="'#928f8f'" :color="'rgba(255, 255, 255, 0.5)'" :icon="'arrow_back_ios'" :outline="true" size="12px" class="custom_back_button" @click="back()" /> -->
+        <!-- <div v-if="page_function == 'CreateCreditNote'" class="text-subtitle1 header_text" style="padding-top: 10px;">Credit Note </div> -->
+        <!-- <div v-if="page_function == 'EditCreditNote'" class="text-subtitle1 header_text">Credit Note   -->
+        <!-- <br>{{$language('D0030')}}: {{ json.RefNo }}</div> -->
+                                   <!--Refno-->                               <!--{{$language('D0223')}}--><!--{{$language('D0223')}}-->
         <!-- <q-btn-dropdown v-if="page_function == 'EditCreditNote'" :disable="showAddLoading" class="custom_more_button" flat dense icon="more_vert">
           <q-list>
             <q-item clickable v-close-popup>
@@ -505,7 +498,7 @@
             </q-item>
           </q-list>
         </q-btn-dropdown> -->
-      </q-card-section>
+      <!-- </q-card-section> -->
 
       <q-card-section class="content_body_dialog">
         <q-form ref="save_form">
@@ -519,72 +512,33 @@
                 animated
                 @update:model-value="handleChangeStepper"
                 class="sticky_stepper"
+                inactive-color="grey-7"
+                done-color="primary"
               >
                 <q-step
+                  class="no-scroll"
                   :name="1"
+                  prefix="1"
                   title="Header"
                   icon="settings"
                   :done="json.step > 1"
                 >
-                  <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9 col-xl-9">
-                      <div class="row dialog_separator">
-
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row" :class="$q.screen.width < 1024 ? 'dialog_separator' : ''">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <span class="mobile_font">{{ $language('D0086') }}<!--Doc No--></span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Input
-                              :autofocusclick="true"
-                              :no_label="true"
-                              :readonly="json.BillStatus==1"
-                              v-on:change="handleChange"
-                              v-model="json.DocNo"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row" :class="$q.screen.width < 1024 ? 'dialog_separator' : ''">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <span class="mobile_font">{{ $language('D0087') }}<!--Doc Date--></span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <!-- <Datepicker
-                              :clickableInput="true"
-                              :no_label="true"
-                              :disable="json.BillStatus==1"
-                              :autoclose="true"
-                              v-on:receiveChange="handleChangeDocDate"
-                              :daterange="json.DocDate"
-                              :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" /> -->
-                              <DatepickerOptions
-                                :clickableInput="true"
-                                :no_label="true"
-                                :disable="json.BillStatus==1"
-                                :autoclose="true"
-                                v-on:receiveChange="handleChangeDocDate"
-                                :daterange="json.DocDate"
-                                :optionsFn="generateDatePickerOptions"
-                                :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="row dialog_separator">
-                        <div class="input_wrapper_right" :class="page_function == 'CreateCreditNote' ? 'col-xs-10' : json.BillStatus == 1 ? 'col-xs-12' : json.BillStatus == 0 && !supplier_readonly ? 'col-xs-10' : 'col-xs-12'">
+                  <div class="row col-12 gap-style" style="padding-top: 16px;">
+                    <!-- <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9 col-xl-9"> -->
+                      <div class="row col-12 gap-style" >
+                        <div class="row col-12 mobile_section_font">General Information</div>
+                        <div class="row col-12">
+                        <!-- supplier -->
+                        <div class="" :class="page_function == 'CreateCreditNote' ? 'col-xs-10 col-sm-10 col-md-10 col-lg-10 col-xl-10 q-pr-sm' : json.BillStatus == 1 ? 'col-xs-12' : json.BillStatus == 0 && !supplier_readonly ? 'col-xs-10 col-sm-10 col-md-10 col-lg-10 col-xl-10 q-pr-sm' : 'col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12'">
                           <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <span class="mobile_font">{{ $language('D0025') }}<!--Supplier--></span>
-                            </div>
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <span class="mobile_font">{{ $language('D0025') }}</span>
+                            </div> --><!--Supplier-->
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                               <SelectFilter
                               :readonly="json.BillStatus==1 ? true : supplier_readonly"
-                              :no_label="true"
+                              :no_label="false"
+                              :label="$language('D0025')"
                               v-model:pass_value="json.Code"
                               :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
                               :options="supplier_options"
@@ -611,59 +565,24 @@
                             </div>
                           </div>
                         </div> -->
-
-                        <div v-if="json.BillStatus == 0 && !supplier_readonly" dir="rtl" class="col-xs-2 col-sm-1 col-md-1 col-lg-1 col-xl-1 input_wrapper_right" style="padding-top: 21px;">
-                            <Button_icon :small_round="true" :flat="false" :font_color="'white'" :color="'primary'" :icon="'search'" :outline="false" size="13px"
-                            v-on:receiveClick="addButtonCreatePOChild('supplier')" style="margin-top: 2px;"/>
+                          <!-- button search -->
+                        <div v-if="json.BillStatus == 0 && !supplier_readonly" dir="rtl" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 q-pl-sm" style="padding-top: 0px;">
+                            <Button_icon :small_round="true" :flat="false" :font_color="'primary'" :color="'white'" :icon="'search'" :outline="true" size="13px"
+                            v-on:receiveClick="addButtonCreatePOChild('supplier')" style="margin-top: 0px; height:100%" class="full-width full-height search_button search_button_icon primary_button_font"/>
                         </div>
                       </div>
-
-                      <div class="row dialog_separator">
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
+                        <div class="row col-12">
+                        <!-- BRANCH -->
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-sm">
                           <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <span class="mobile_font">DN No <!--{{ $language('D0225') }}--> </span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Input
-                              :autofocusclick="true"
-                              :no_label="true"
-                              :readonly="json.BillStatus==1"
-                              v-on:change="handleChange"
-                              v-model="json.sup_cn_no"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <span class="mobile_font">DN Date <!-- {{ $language('D0226') }} --></span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Datepicker
-                              :clickableInput="true"
-                              :no_label="true"
-                              :disable="json.BillStatus==1"
-                              :autoclose="true"
-                              :daterange="json.sup_cn_date"
-                              :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="row dialog_separator">
-                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                              <span class="mobile_font">{{ $language('D0026') }}<!--Branch--></span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                              <span class="mobile_font">{{ $language('D0026') }}</span>
+                            </div> -->
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"><!--Branch-->
                               <SelectFilter
                               :readonly="json.BillStatus==1"
-                              :no_label="true"
+                              :no_label="false"
+                              :label="$language('D0026')"
                               v-model:pass_value="json.locgroup"
                               :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
                               :options="location_options"
@@ -672,18 +591,17 @@
                             </div>
                           </div>
                         </div>
-                      </div>
-
-                      <div class="row dialog_separator">
-                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
+                        <!-- LOCATION -->
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-sm">
                           <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <span class="mobile_font">{{ $language('D0090') }}<!--Location--></span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <span class="mobile_font">{{ $language('D0090') }}</span>
+                            </div> -->
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"><!--Location-->
                               <SelectFilter
                               :readonly="json.BillStatus==1"
-                              :no_label="true"
+                              :no_label="false"
+                              :label="$language('D0090')"
                               v-model:pass_value="json.Location"
                               :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
                               :options="location_options2"
@@ -692,71 +610,174 @@
                             </div>
                           </div>
                         </div>
+                        </div>
                       </div>
-
-                      <div class="row dialog_separator">
-                        <div v-if="page_function=='EditCreditNote'" class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <span class="mobile_font">{{ $language('D0045') }}<!--Issued By--></span>
+<q-separator class="separator-style"></q-separator>
+                        <div class="row col-12 gap-style" >
+                          <div class="row col-12 mobile_section_font">Details</div>
+                          <div class="row col-12">
+                            <!-- DOC NO -->
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-sm">
+                              <div class="row" :class="$q.screen.width < 1024 ? '' : ''">
+                                <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                  <span class="mobile_font">{{ $language('D0086') }}</span>
+                                </div> -->
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"><!--Doc No-->
+                                  <Input
+                                  :autofocusclick="true"
+                                  :no_label="false"
+                                  :label="$language('D0086')"
+                                  :readonly="json.BillStatus==1"
+                                  v-on:change="handleChange"
+                                  v-model="json.DocNo"
+                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                                </div>
+                              </div>
                             </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Input
-                              :autofocusclick="true"
-                              :no_label="true"
-                              :readonly="true"
-                              v-on:change="handleChange"
-                              v-model="json.Issuedby"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                            <!-- DOC DATE -->
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-sm">
+                              <div class="row" :class="$q.screen.width < 1024 ? '' : ''">
+                                <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                  <span class="mobile_font">{{ $language('D0087') }}</span>
+                                </div> -->
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"><!--Doc Date-->
+                                  <!-- <Datepicker
+                                  :clickableInput="true"
+                                  :no_label="true"
+                                  :disable="json.BillStatus==1"
+                                  :autoclose="true"
+                                  v-on:receiveChange="handleChangeDocDate"
+                                  :daterange="json.DocDate"
+                                  :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" /> -->
+                                  <DatepickerOptions
+                                    :clickableInput="true"
+                                    :no_label="false"
+                                    :label="$language('D0087')"
+                                    :disable="json.BillStatus==1"
+                                    :autoclose="true"
+                                    v-on:receiveChange="handleChangeDocDate"
+                                    :daterange="json.DocDate"
+                                    :optionsFn="generateDatePickerOptions"
+                                    :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 input_wrapper_right">
-                          <div class="row dialog_separator">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <span class="mobile_font">{{ $language('D0055') }}<!--Remark--></span>
+                          <div class="row col-12">
+                            <!-- DN NO -->
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-sm">
+                              <div class="row">
+                                <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                  <span class="mobile_font">DN No  </span>
+                                </div> -->
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"><!--{{ $language('D0225') }}-->
+                                  <Input
+                                  :autofocusclick="true"
+                                  :no_label="false"
+                                  :label="'DN No'"
+                                  :readonly="json.BillStatus==1"
+                                  v-on:change="handleChange"
+                                  v-model="json.sup_cn_no"
+                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
+                                </div>
+                              </div>
                             </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Textarea class="ignore_height" :no_label="true" :readonly="json.BillStatus==1" v-on:receiveChange="handleChange" v-model="json.Remark"
+                            <!-- DN DATE -->
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-sm">
+                              <div class="row">
+                                <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                  <span class="mobile_font">DN Date</span>
+                                </div> -->
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"> <!-- {{ $language('D0226') }} -->
+                                  <Datepicker
+                                  :clickableInput="true"
+                                  :no_label="false"
+                                  :label="'DN Date'"
+                                  :disable="json.BillStatus==1"
+                                  :autoclose="true"
+                                  :daterange="json.sup_cn_date"
+                                  :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <!-- ISSUED BY -->
+                            <div v-if="page_function=='EditCreditNote'" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-sm">
+                              <div class="row">
+                                <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                  <span class="mobile_font">{{ $language('D0045') }}</span>
+                                </div> -->
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"><!--Issued By-->
+                                  <Input
+                                  :autofocusclick="true"
+                                  :no_label="false"
+                                  :label="$language('D0045')"
+                                  :readonly="true"
+                                  v-on:change="handleChange"
+                                  v-model="json.Issuedby"
+                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                                </div>
+                              </div>
+                            </div>
+                      </div>
+                      <q-separator class="separator-style"></q-separator>
+                      <div class="row col-12">
+                        <!-- REMARKS -->
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <div class="row ">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <span class="mobile_font">{{ $language('D0055') }}</span>
+                            </div> -->
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"><!--Remark-->
+                              <Textarea class="ignore_height" :no_label="false" :readonly="json.BillStatus==1" v-on:receiveChange="handleChange" v-model="json.Remark"
                               :dbComponentBehavior="dbComponentBehavior.remark" />
                             </div>
                           </div>
                         </div>
+                      </div>
 
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                          <div v-if="page_function == 'EditCreditNote'" class="row">
-                            <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 input_wrapper_right">
-                              <div class="row dialog_separator">
+                      <div v-if="page_function == 'EditCreditNote'" class="column col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" style="height:60px">    
+                        <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"> -->
+                          <div  class="row">
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 "><!--Consign-->
+                              <Toggle :class="[json.Consign === 1 ? 'custom_truthcheckbox' : 'custom_checkbox_disabl']" :btm_padding="true" size="xs" :disable="true" v-model="json.Consign" :true-value="1" :false-value="0" />
+                              <span class="custom-checkbox-edit">{{ $language('D0082') }}</span>
+                        
+                              <!-- <div class="row dialog_separator">
                                 <div class="col-xs-7 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                                  <span class="dialog_font">{{ $language('D0082') }}<!--Consign--></span>
+                                  <span class="dialog_font">{{ $language('D0082') }}</span>
                                 </div>
                                 <div class="col-xs-5 col-sm-6 col-md-6 col-lg-6 col-xl-6">
                                   <Checkbox :btm_padding="true" size="xs" :disable="true" v-model="json.Consign" :true-value="1" :false-value="0" />
                                 </div>
-                              </div>
+                              </div> -->
                             </div>
 
-                            <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 input_wrapper_right">
-                              <div class="row dialog_separator">
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6"><!--Posted-->
+                              <Toggle :class="[json.BillStatus === 1 ? 'custom_truthcheckbox' : 'custom_checkbox_disabl']" :btm_padding="true" size="xs" :disable="true" v-model="json.BillStatus" :true-value="1" :false-value="0" />
+                              <span class="custom-checkbox-edit">{{ $language('D0057') }}</span>
+                              <!-- <div class="row dialog_separator">
                                 <div class="col-xs-7 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                                  <span class="dialog_font">{{ $language('D0057') }}<!--Posted--></span>
+                                  <span class="dialog_font">{{ $language('D0057') }}</span>
                                 </div>
                                 <div class="col-xs-5 col-sm-6 col-md-6 col-lg-6 col-xl-6">
                                   <Checkbox :btm_padding="true" size="xs" :disable="true" v-model="json.BillStatus" :true-value="1" :false-value="0" />
                                 </div>
-                              </div>
+                              </div> -->
                             </div>
 
-                            <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 input_wrapper_right">
-                              <div class="row">
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6"><!--Uploaded-->
+                              <Toggle :class="[json.uploaded === 1 ? 'custom_truthcheckbox' : 'custom_checkbox_disabl']" :btm_padding="true" size="xs" :disable="true" v-model="json.uploaded" :true-value="1" :false-value="0" />
+                              <span class="custom-checkbox-edit">{{ $language('D0060') }}</span>
+                              <!-- <div class="row">
                                 <div class="col-xs-7 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                                  <span class="dialog_font">{{ $language('D0060') }}<!--Uploaded--></span>
+                                  <span class="dialog_font">{{ $language('D0060') }}</span>
                                 </div>
                                 <div class="col-xs-5 col-sm-6 col-md-6 col-lg-6 col-xl-6">
                               <Checkbox :btm_padding="true" size="xs" :disable="true" v-model="json.uploaded" :true-value="1" :false-value="0" />
                             </div>
-                          </div>
+                          </div> -->
                         </div>
                         <!--B2B Status-->
                         <!-- <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 input_wrapper_right">
@@ -777,33 +798,35 @@
                         </div> -->
                       </div>
 
-                        </div>
+                        <!-- </div> -->
                       </div>
-                    </div>
+                    <!-- </div> -->
                   </div>
                 </q-step>
 
                 <q-step
                   v-if="page_function == 'EditCreditNote'"
                   :name="2"
+                  prefix="2"
                   title="Detail"
                   icon="create_new_folder"
                   :done="json.step > 2"
                 >
                   <div v-if="page_function == 'EditCreditNote'" class="row">
-                    <div class="card_section_two col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                      <q-card v-if="results.length != 0" flat bordered class="card_design" style="width: 100%; border-radius:6px;">
-                          <q-card-section @click="handleAction(result)" v-for="(result,index) in results" :key="index" style="padding: 5px; border-bottom: 1px solid rgba(0, 0, 0, 0.12);">
+                    <div v-if="results.length != 0" class=" col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" style="padding-top: 16px"><!--card_section_two-->
+                      <q-card @click="selectCard(index)" v-for="(result,index) in results" :key="index" flat bordered class="card_design q-mb-md" style="width: 100%; padding:16px; border-radius:8px;"
+                      :class="{'selected-card': selectedCardIndex === index}">
+                          <q-card-section  style="padding: 5px;">
                             <div class="row">
-                              <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9 q-pl-sm">
+                              <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 col-xl-8 q-pl-sm" style="color:#29292A;font-size:14px; font-family:InterfontBold; font-weight:700">
                                 <div class="row text-subtitle2">
                                   {{ result.Description }}
                                 </div>
                               </div>
-                              <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3 q-pr-sm text-caption" align="right">
-                                {{ result.Qty }}
-                                <div style="padding-top: 35px;">
-                                  {{ currency_sign }} {{ result.TotalPrice }}
+                              <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 q-pr-sm text-caption" align="right" style="color:#29292A; font-family:InterfontBold; font-weight:700; font-size:14px">
+                                {{ currency_sign }} {{ result.TotalPrice }}
+                                <div style="padding-top: 12px; font-size:14px; font-family:InterfontMedium; font-weight:500; color:#757575">
+                                  {{ result.Qty }}
                                 </div>
                               </div>
                             </div>
@@ -822,6 +845,13 @@
                               </div>
                             </div>
                           </q-card-section> -->
+                          <q-card-section v-show="selectedCardIndex === index">
+                            <!-- <q-separator />"'#B22222'" -->
+                            <q-card-section class="text-subtitle2" align="right">
+                              <q-btn no-caps flat color="primary" :label="json.BillStatus == 0 ? 'Edit' : 'View'"  @click="handleAction(result)" style="font-family:InterfontSemiBold; font-size: 14px;font-weight: 600;"/>
+                              <q-btn v-if="json.BillStatus == 0" no-caps flat color="red-7" label="Delete"  @click="handleDelete(index)" style="font-family:InterfontSemiBold; font-size: 14px;font-weight: 600;"/>
+                            </q-card-section>
+                          </q-card-section>
                       </q-card>
                     </div>
                   </div>
@@ -830,20 +860,22 @@
                 <q-step
                   v-if="page_function == 'EditCreditNote'"
                   :name="3"
+                  prefix="3"
                   title="Discount"
                   icon="create_new_folder"
                   :done="json.step > 3"
                 >
-                  <div v-if="page_function=='EditCreditNote'" class="row dialog_separator">
-                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
+                  <div v-if="page_function=='EditCreditNote'" class="row col-12" style="padding-top:16px">
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-sm">
                       <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                          <span class="mobile_font">{{ $language('D0067') }}<!--GROSS--></span>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <span class="mobile_font">{{ $language('D0067') }}</span>
+                        </div> -->
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"><!--GROSS-->
                           <Input
                           :autofocusclick="true"
-                          :no_label="true"
+                          :no_label="false"
+                          :label="$language('D0067')"
                           :readonly="true"
                           v-on:change="handleChange"
                           v-model="json.SubTotal1"
@@ -852,15 +884,16 @@
                       </div>
                     </div>
 
-                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 input_wrapper_right">
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-sm">
                       <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                          <span class="mobile_font">{{ $language('D0070') }}<!--Tax--></span>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <span class="mobile_font">{{ $language('D0070') }}</span>
+                        </div> -->
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"><!--Tax-->
                           <Input
                           :autofocusclick="true"
-                          :no_label="true"
+                          :no_label="false"
+                          :label="$language('D0070')"
                           :readonly="true"
                           v-on:change="handleChange"
                           v-model="json.gst_tax_sum"
@@ -883,19 +916,19 @@
       />
     </q-card>
 
-    <div v-if="json.step == 1 || json.step == 3" class="dialog_action_bottom" :style="page_function == 'EditCreditNote' && json.BillStatus == 0 ? 'height: 65px;' : 'height: 40px;'">
+    <div v-if="json.step == 1 || json.step == 3" :style="page_function == 'EditCreditNote' && json.BillStatus == 0 ? 'height: 65px;' : 'height: 40px;'">
       <!-- <div v-if="page_function == 'EditCreditNote'" class="q-pl-sm q-pr-lg q-pt-xs text-right" style="font-size: 13px;">
         Gross: {{ currency_sign }} {{ json.SubTotal1 }}
       </div> -->
-      <div v-if="page_function == 'EditCreditNote'" class="row q-px-sm" :class="page_function == 'EditCreditNote' && json.BillStatus !== 0  ? 'q-pt-sm' :''" style="font-size: 13px;">
-           <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+      <!-- <div v-if="page_function == 'EditCreditNote'" class="row q-px-sm" :class="page_function == 'EditCreditNote' && json.BillStatus !== 0  ? 'q-pt-sm' :''" style="font-size: 13px;"> -->
+           <!-- <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
               <div class="row justify-left items-center" >
                   <Button_icon class="q-pa-none q-ma-none" :flat="true" :icon="'expand_less'" v-on:receiveClick="show_summary_dialog" :font_color="'primary'" :color="'primary'" :outline="false" size="13px"/>
                   <span class="" style="color:#1976D2;" @click="show_summary_dialog"> Total Amount:  {{ currency_sign }} {{ json.SubTotal1 }} </span>
               </div>
-          </div>
+          </div> -->
 
-          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+          <!-- <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
             <div class="row">
               <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-xs">
                     <Button_icon v-if="json.BillStatus==1" class="full-width" style="height: 25px;" :small_round="true" :text="'UNPOST'" :flat="false" :font_color="'white'" :color="'#273655'" :outline="false" size="11px" @click="confirmPost"/>
@@ -905,7 +938,7 @@
                     <Button_icon class="full-width" style="height: 25px;" :small_round="true" :text="'PRINT'" :flat="false" :font_color="'white'" :color="'#273655'" :outline="false" size="11px" @click="handlePrint"/>
               </div>
             </div>
-          </div>
+          </div> -->
           <!-- <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
               <div class="row justify-left items-center" >
                   <Button_icon class="q-pa-none q-ma-none" :flat="true" :icon="'expand_less'" v-on:receiveClick="show_summary_dialog" :font_color="'primary'" :color="'primary'" :outline="false" size="13px"/>
@@ -919,23 +952,54 @@
               <Button_icon v-else class="full-width" style="height: 25px;" :small_round="true" :text="'POST'" :flat="false" :font_color="'white'" :color="'#273655'" :outline="false" size="11px" @click="confirmPost"/>
             </span>
           </div> -->
-      </div>
+      <!-- </div> -->
+      <!-- :readonly="(page_function.startsWith('Edit') && deepEqual(ori_json, json)) || (page_function.startsWith('Create') && deepEqual(ori_json, json))" -->
+      <!-- <div class="dialog_mobile_detail">
+              <div class="row full-height items-center">
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" align="center"> 
+                  <Button_icon :text="'PRINT'" :icon="'fa fa-print fa-xl'" :flat="true" :font_color="'primary'" :color="''" :outline="false" size="9px"
+                  @click="handlePrint" class="mobile_nav_font mobile_nav_icons primary_button_font" stack/>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" align="center">
+                  
+                  <Button_icon v-if="json.BillStatus==0" :icon="'add'" :readonly="page_function.startsWith('Edit') && deepEqual(ori_json, json)" :border_radius="'30px;'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px" @click="handleCreatePO"
+                  class="menu_add"  :icon-size="'2.9em'"/>
+                </div>
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" align="center">
+                  
+                  <Button_icon v-if="json.BillStatus==1" :icon="'fa fa-paper-plane fa-xl'" :text="$language('D0148')" :flat="true" :font_color="'primary'" :color="''" :outline="false" size="9px"
+                  @click="confirmPost" class="mobile_nav_font mobile_nav_icons primary_button_font" stack/>
+                  <Button_icon v-else :text="$language('D0019')" :flat="true" :font_color="'primary'" :color="''" :outline="false" size="9px" :icon="'fa fa-paper-plane fa-xl'"
+                  @click="confirmPost" class="mobile_nav_font mobile_nav_icons primary_button_font" stack/>
+                </div>
+              </div>
+      </div> -->
 
-      <div class="row q-px-sm q-py-xs">
+      <ButtonMobile
+      :json="json" 
+      :ori_json="ori_json" 
+      :page_function="page_function"
+      @print="handlePrint"
+      @create-po="handleCreatePO"
+      @confirm-post="confirmPost"
+      @convert-new="handleConvertNew"
+    />
+
+      <!-- <div class="row q-px-sm q-py-xs">
         <Button_icon v-if="json.BillStatus==0" :readonly="page_function.startsWith('Edit') && deepEqual(ori_json, json)" style="height: 30px; width: 100%" :small_round="true" :text="page_function.startsWith('Create') ? 'Generate Credit Note' : 'Update Credit Note'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px" @click="handleCreatePO"/>
-      </div>
+      </div> -->
     </div>
 
     <div v-if="json.step == 2" class="dialog_action_bottom" :style="page_function == 'EditCreditNote' && json.BillStatus== 0  ? 'height: 65px;' : 'height: 40px;'">
-      <div v-if="page_function == 'EditCreditNote'" class="row q-px-sm" :class="page_function == 'EditCreditNote' && json.BillStatus !== 0  ? 'q-pt-sm' :''" style="font-size: 13px;">
-        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+      <!-- <div v-if="page_function == 'EditCreditNote'" class="row q-px-sm" :class="page_function == 'EditCreditNote' && json.BillStatus !== 0  ? 'q-pt-sm' :''" style="font-size: 13px;"> -->
+        <!-- <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
               <div class="row justify-left items-center" >
                   <Button_icon class="q-pa-none q-ma-none" :flat="true" :icon="'expand_less'" v-on:receiveClick="show_summary_dialog" :font_color="'primary'" :color="'primary'" :outline="false" size="13px"/>
                   <span class="" style="color:#1976D2;" @click="show_summary_dialog"> Total Amount:  {{ currency_sign }} {{ json.SubTotal1 }} </span>
               </div>
-          </div>
+          </div> -->
 
-          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+          <!-- <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
             <div class="row">
               <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-xs">
                     <Button_icon v-if="json.BillStatus==1" class="full-width" style="height: 25px;" :small_round="true" :text="'UNPOST'" :flat="false" :font_color="'white'" :color="'#273655'" :outline="false" size="11px" @click="confirmPost"/>
@@ -945,7 +1009,7 @@
                     <Button_icon class="full-width" style="height: 25px;" :small_round="true" :text="'PRINT'" :flat="false" :font_color="'white'" :color="'#273655'" :outline="false" size="11px" @click="handlePrint"/>
               </div>
             </div>
-          </div>
+          </div> -->
         <!-- <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
           <div class="row justify-left items-center" >
             <Button_icon class="q-pa-none q-ma-none" :flat="true" :icon="'expand_less'" v-on:receiveClick="show_summary_dialog" :font_color="'primary'" :color="'primary'" :outline="false" size="13px"/>
@@ -958,7 +1022,7 @@
             <Button_icon v-else class="full-width" style="height: 25px;" :small_round="true" :text="'POST'" :flat="false" :font_color="'white'" :color="'#273655'" :outline="false" size="11px" @click="confirmPost"/>
           </span>
         </div> -->
-      </div>
+      <!-- </div> -->
       <div  v-if="json.BillStatus == 0" class="row q-pb-xs items-center">
           <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" @click="addButtonCreatePOChild('item')">
             <div class="row justify-center items-center q-pr-md" style="width: 100%; height: 40px;">
@@ -972,25 +1036,57 @@
             </div>
           </div>
       </div>
+      <!-- <div class="dialog_mobile_detail">
+              <div class="row full-height items-center">
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" align="center"> 
+                  <Button_icon :text="'PRINT'" :icon="'fa fa-print fa-xl'" :flat="true" :font_color="'primary'" :color="''" :outline="false" size="9px"
+                  @click="handlePrint" class="mobile_nav_font mobile_nav_icons primary_button_font" stack/>
+                </div>
+
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" align="center" > 
+                  <Button_icon v-if="json.BillStatus == 0" :icon="'add'" :border_radius="'30px;'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px"
+                  v-on:receiveClick="handleConvertNew" class="menu_add"  :icon-size="'2.9em'"/>
+                </div>
+
+                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4" align="center">
+                  
+                  <Button_icon v-if="json.BillStatus==1" :icon="'fa fa-paper-plane fa-xl'" :text="$language('D0148')" :border_radius="'17px;'" :flat="true" :font_color="'primary'" :color="''" :outline="false" size="9px"
+                  @click="confirmPost" class="mobile_nav_font mobile_nav_icons primary_button_font" stack/>
+                  <Button_icon v-else :text="$language('D0019')" :flat="true" :font_color="'primary'" :color="''" :outline="false" size="9px" :icon="'fa fa-paper-plane fa-xl'"
+                  @click="confirmPost" class="mobile_nav_font mobile_nav_icons primary_button_font" stack/>
+                </div>
+              </div>
+        </div> -->
+        <ButtonMobile
+      :json="json" 
+      :ori_json="ori_json" 
+      :page_function="page_function"
+      @print="handlePrint"
+      @create-po="handleCreatePO"
+      @confirm-post="confirmPost"
+      @convert-new="handleConvertNew"
+    />
     </div>
   </div>
 
   <q-dialog v-model="delete_child" persistent position="top">
-    <q-card style="width: 700px; max-width: 98vw;text-align:center;margin-top: 5%;">
-      <q-card-section class="row items-center" style="padding-top:1%;padding-bottom:1%;border-bottom: 1px solid #a7bbcb;">
-        <div class="text-h6">Confirmation</div>
+    <q-card style="width: 864px; max-width: 98vw;text-align:center;margin-top: 5%;border-radius:8px;">
+      <q-card-section class="theme_color row items-center" style="height:56px;padding: 8px 24px; border-bottom: 1px solid #a7bbcb;">
+        <div class="confirm_title">Confirmation</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup :disable="showAddLoading || showAddLoading2"/>
       </q-card-section>
 
-      <q-card-section>
+      <q-card-section  style="padding: 32px 24px">
         <!-- <span class="q-ml-sm custom_selection_font">{{general_body}}</span> -->
-        <span>Are you sure to delete this line?</span>
+        <span class="confirmation_line_font">Are you sure to delete this line?</span>
       </q-card-section>
 
-      <q-card-actions align="right">
-        <q-btn flat label="Cancel" color="primary" v-close-popup />
-        <q-btn flat label="OK" color="primary" @click="handleDeleteLine" />
+      <q-card-actions align="right" style="padding-top:0px;padding-bottom:16px;padding-right:16px">
+        <div class="q-gutter-x-md">
+        <q-btn flat label="Cancel" size="12px" font_color="#29292A" color="#29292A" v-close-popup class="dialog_confirm_cancel_button"/>
+        <q-btn flat label="DELETE" size="12px" font_color="'white'" color="'#D81111'" class="dialog_confirm_delete_button" @click="handleDeleteLine" />
+        </div>
       </q-card-actions>
 
       <q-inner-loading
@@ -1001,23 +1097,23 @@
   </q-dialog>
 
   <q-dialog v-model="post_transmain" persistent position="top">
-      <q-card style="width: 700px; max-width: 80vw;text-align:center;margin-top: 5%;">
+      <q-card style="width: 864px; max-width: 80vw;text-align:center;margin-top: 2%; border-radius:8px">
 
-        <q-card-section class="row items-center" style="padding-top:1%;padding-bottom:1%;border-bottom: 1px solid #a7bbcb;">
-          <div class="text-h6">Confirmation</div>
+        <q-card-section class="theme_color row items-center" style="height:56px; padding: 8px 24px;border-bottom: 1px solid #a7bbcb;">
+          <div class="confirm_title">Confirmation</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup :disable="showAddLoading || showAddLoading2"/>
         </q-card-section>
 
-        <q-card-section>
+        <q-card-section style="padding: 32px 24px">
           <!-- <span class="q-ml-sm custom_selection_font">{{general_body}}</span> -->
-          <span v-if="json.BillStatus == 0">Are you sure to post?</span>
-          <span v-if="json.BillStatus == 1">Are you sure to unpost?</span>
+          <span v-if="json.BillStatus == 0" class="confirmation_line_font">Are you sure to post?</span>
+          <span v-if="json.BillStatus == 1" class="confirmation_line_font">Are you sure to unpost?</span>
         </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="primary" v-close-popup />
-          <q-btn flat label="OK" color="primary" @click="handlePostTransmain" />
+        <q-card-actions align="right" style="padding-top:0px;padding-bottom:16px;padding-right:24px">
+          <q-btn flat label="Cancel" size="12px" font_color="#29292A" color="#29292A" class="dialog_confirm_cancel_button" v-close-popup />
+          <q-btn flat :label="json.BillStatus==1 ? 'UNPOST' : 'POST'" size="12px" text-color="white" :style="{ backgroundColor: json.BillStatus == 1 ? '#EF4444' : 'primary'}" class="dialog_confirm_print_button" @click="handlePostTransmain" />
         </q-card-actions>
 
         <q-inner-loading
@@ -1029,15 +1125,15 @@
 
   <q-dialog v-model="modify_child" persistent :position="$q.screen.width > 599 ? 'top' : 'bottom'">
     <q-card v-if="$q.screen.width < 600" style="width: 700px; max-width: 98vw; margin-top: 5%;">
-      <q-card-section class="row header_top_mobile">
-        <div v-if="!status && edit_child" class="custom_delete" @click="handleDelete(jsonChild)">
-          Delete
-          <!-- <Button_icon :disabled="readonly_delete" :icon="'delete'" :color="'negative'" :outline="false" size="12px" v-on:click="handleDelete(jsonChild)" class="q-mr-sm" /> -->
+      <q-card-section class="row header_top_mobile" :style="{ textAlign: (!status && edit_child) ? 'center' : 'left' }">
+        <div v-if="!status && edit_child" class="mobile_dialog_delete_btn" @click="handleDelete(jsonChild)">
+          <!-- Delete -->
+          <Button_icon :disabled="readonly_delete" :icon="'fas fa-trash-alt'" :flat="true" :color="''" :font-color="'black'" :outline="false" size="12px" v-on:click="handleDelete(jsonChild)" class="q-mr-sm" />
         </div>
 
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 text-center">
-          <div v-if="!edit_child" class="text-subtitle1 header_text" style="margin-top: 5px;">Credit Note Detail<br></div>
-          <div v-else class="text-subtitle1 header_text" style="margin-top: 5px;">Edit Credit Note Detail<br></div>
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+          <div v-if="!edit_child" class="text-subtitle1 mobile_dialog_bottom" style="padding:16px 24px;margin-top: 0px;box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);">Credit Note Detail<br></div>
+          <div v-else class="text-subtitle1 header_text" style="padding:16px 24px;margin-top: 0px;box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);">Edit Credit Note Detail<br></div>
         </div>
         <div class="custom_close_button">
           <q-btn icon="close" flat round dense @click="close()" :disable="false"/>
@@ -1048,54 +1144,51 @@
         <q-form ref="save_edit_pochild_form">
           <div class="row upload_separator_first">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-              <div class="row input_wrapper_right">
+              <div class="row input_wrapper_right q-pb-md">
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                  <div class="row dialog_separator">
-                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" :class="$q.screen.width > 1023 ? 'q-pl-sm': ''">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                  <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 row gap-radio" :class="$q.screen.width > 1023 ? 'q-pl-sm': ''" style="padding-bottom: 16px">
+                      <div class="row col-12">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <div class="row">
                             <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
-                              <span class="dialog_font">Entry Type</span>
+                              <span class="dialog_radio_title">Entry Type</span>
                             </div>
                             <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <Radio size="xs" :disable="json.BillStatus == 1 || status" v-on:receiveChange="handleChangeEntryType" v-model="jsonChild.EntryType" :options="entry_type_options"  />
+                              <Radio class="dialog_radio_options" size="xs" :disable="json.BillStatus == 1 || status" v-on:receiveChange="handleChangeEntryType" v-model="jsonChild.EntryType" :options="entry_type_options"  />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div class="row col-12">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <div class="row">
+                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                              <span class="dialog_radio_title">Pricing Type</span>
+                            </div>
+                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
+                              <Radio class="dialog_radio_options" size="xs" :disable="json.BillStatus == 1 || status" v-on:receiveChange="handleChangePriceType" v-model="jsonChild.PriceType" :options="pricing_type_options"  />
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6"></div>
-
-                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" :class="$q.screen.width > 1023 ? 'q-pl-sm': ''">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
-                              <span class="dialog_font">Pricing Type</span>
-                            </div>
-                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <Radio size="xs" :disable="json.BillStatus == 1 || status" v-on:receiveChange="handleChangePriceType" v-model="jsonChild.PriceType" :options="pricing_type_options"  />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"></div>
-
+                    <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"></div> -->
+                    <div class="row col-12" style="gap:12px">
                     <div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 col-xl-2">
                       <div class="row">
-                        <div class="dialog_separator" :class="edit_child ? 'col-xs-12' : 'col-xs-10'">
+                        <div class="" :class="edit_child ? 'col-xs-12' : 'col-xs-10 q-pr-sm'">
                           <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
                               <span class="mobile_font">Item Code</span>
-                            </div>
+                            </div> -->
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                               <Input
                               :autofocusclick="true"
-                              :no_label="true"
+                              :no_label="false"
+                              label="Item Code"
                               :readonly="true"
                               v-on:change="handleChange"
                               v-model="jsonChild.Itemcode"
@@ -1104,24 +1197,25 @@
                           </div>
                         </div>
 
-                        <div v-if="!edit_child" dir="rtl" class="button_upload_wrapper col-xs-2 col-sm-1 col-md-2 col-lg-2 col-xl-2" style="padding-top: 26px;">
-                            <Button_icon ref="searchButton" :small_round="true" :flat="false" :font_color="'white'" :color="'primary'" :icon="'search'" :outline="false" size="13px"
-                            v-on:receiveClick="showSearchDialog()" style="margin-top: 2px;"/>
+                        <div v-if="!edit_child" class="button_upload_wrapper col-xs-2 col-sm-2 col-md-2 col-lg-2 col-xl-2" style="padding-top: 0px;">
+                            <Button_icon ref="searchButton" :small_round="true" :flat="false" :font_color="'primary'" :color="'white'" :icon="'search'" :outline="true" size="15px"
+                            v-on:receiveClick="showSearchDialog()" style="margin-top: 0px;height:100%" class="full-height full-width search_button_step2 search_button_icon primary_button_font"/>
                         </div>
                       </div>
                     </div>
 
                     <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 four_column_left">
                       <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
                               <span class="mobile_font">Description</span>
-                            </div>
+                            </div> -->
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                               <Input
                               :autofocusclick="true"
-                              :no_label="true"
+                              :no_label="false"
+                              label="Description"
                               :readonly="true"
                               v-on:change="handleChange"
                               v-model="jsonChild.Description"
@@ -1153,360 +1247,14 @@
                         </div>
                       </div>
                     </div> -->
-
-                    <div v-if="hv_item" class="col-xs-6 col-sm-6 col-md-3 col-lg-3 col-xl-3 four_column_left two_column_left">
+                    <div v-if="hv_item" class="row col-12">
+                    <div v-if="hv_item" class="col-xs-6 col-sm-6 col-md-3 col-lg-3 col-xl-3 q-pr-sm">
                       <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
                               <span class="mobile_font">Pack Size</span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Input
-                              :autofocusclick="true"
-                              :no_label="true"
-                              :readonly="true"
-                              v-on:change="handleChange"
-                              v-model="jsonChild.PackSize"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right_readonly : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div v-if="hv_item" class="col-xs-6 col-sm-6 col-md-2 col-lg-2 col-xl-2 ">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                              <span class="mobile_font">Article No</span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Input
-                              :autofocusclick="true"
-                              :no_label="true"
-                              :readonly="true"
-                              v-on:change="handleChange"
-                              v-model="jsonChild.ArticleNo"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div v-if="hv_item" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 two_column_left">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                              <span class="mobile_font">Reason</span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Select
-                              :readonly="json.BillStatus == 1 || status"
-                              :no_label="true"
-                              v-model="jsonChild.reason"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.reason : oridbComponentBehavior.select"
-                              :options="reason_options"
-                              v-on:receiveChange="handleChangeType"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div v-if="hv_item" class="two_column_left" :class="json.BillStatus == 1 || status ? 'col-xs-6' : 'col-xs-4'">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                              <span class="mobile_font">Ori Invoice No</span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-
-                              <Select
-                              v-if="select_inv"
-                              :readonly="json.BillStatus == 1 || status"
-                              :no_label="true"
-                              v-model="jsonChild.ori_inv_no"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.ori_inv_no : oridbComponentBehavior.select"
-                              :options="ori_inv_no_options"
-                              v-on:receiveChange="handleChangeOriInvNo"
-                              />
-                              <Input
-                              v-else
-                              :autofocusclick="true"
-                              :no_label="true"
-                              :readonly="json.BillStatus == 1 || status"
-                              v-on:change="handleChange"
-                              v-model="jsonChild.ori_inv_no"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div v-if="!status && hv_item" class="col-xs-2 col-sm-6 col-md-2 col-lg-2 col-xl-2 two_column_left" dir="rtl">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                              <span class="mobile_font">&nbsp;</span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Button_icon :small_round="true" :readonly="false" :flat="false" :font_color="'white'" :color="'primary'" :icon="select_inv ? 'playlist_add_check' : 'drive_file_rename_outline'" :outline="false" size="15px"
-                              v-on:receiveClick="changeInvoiceMethod()"/>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div v-if="hv_item" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                              <span class="mobile_font">Ori invoice Date</span>
-                            </div>
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Datepicker
-                              :clickableInput="true"
-                              :no_label="true"
-                              :disable="json.BillStatus == 1 || status ? true : select_inv"
-                              :autoclose="true"
-                              v-on:receiveChange="handleChangeInvoiveDate"
-                              :daterange="jsonChild.ori_inv_date"
-                              :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div v-if="hv_item" class="row dialog_separator">
-                    <div class="col-xs-6 col-sm-2 col-md-1 col-lg-1 col-xl-1 two_column_left" :class="$q.screen.width>599 && $q.screen.width<1024 ? 'two_column_left' : ''">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                          <span class="mobile_font">Qty</span>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                          <Input
-                          :autofocusclick="true"
-                          :no_label="true"
-                          min='0'
-                          :readonly="json.BillStatus == 1 || status"
-                          v-on:change="handleChangeQty"
-                          v-model="jsonChild.SetQty"
-                          :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.input_number : oridbComponentBehavior.text" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-xs-6 col-sm-3 col-md-2 col-lg-2 col-xl-2 four_column_left">
-                      <div class="row" :class="page_function == 'EditPurchaseOrder' && $q.screen.width<599 ? 'dialog_separator': ''">
-                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                          <span class="mobile_font">Unit Price</span>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                          <Input
-                          :autofocusclick="true"
-                          :no_label="true"
-                          :readonly="json.BillStatus == 1 || jsonChild.PriceType=='FOC' ? true :  unit ? false : true"
-                          v-on:change="handleChangeUnitPrice"
-                          v-model="jsonChild.UnitPrice"
-                          :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right_readonly : oridbComponentBehavior.text" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div v-if="hv_item" class="row dialog_separator">
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 col-xl-2 two_column_left">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                          <span class="mobile_font">Total</span>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                          <Input
-                          :autofocusclick="true"
-                          :no_label="true"
-                          :readonly="json.BillStatus == 1 || status ? true : jsonChild.PriceType=='FOC' ? true :  unit"
-                          v-on:change="handleChangeTotalPrice"
-                          v-model="jsonChild.TotalPrice"
-                          :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right : oridbComponentBehavior.text" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div v-if="hv_item" class="row dialog_separator">
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                        <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
-                          <span class="mobile_font">Remark</span>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                          <Textarea class="ignore_height" :no_label="true" :readonly="json.BillStatus == 1 || status ? true : json.BillStatus==1" v-on:receiveChange="handleChange" v-model="jsonChild.itemremark"
-                          :dbComponentBehavior="dbComponentBehavior.remark" />
-                        </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </q-form>
-      </q-card-section>
-
-      <q-card-actions v-if="!status && hv_item" class="dialog_action" style="padding-left: 20px;">
-        <div class="row full-width">
-          <div v-if="!edit_child" class="col-xs-6 q-pr-xs">
-            <Button_icon class="full-width" style="height: 30px;" :small_round="true" :text="'ADD'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px" @click="handleChild('save&add')"/>
-          </div>
-          <div :class="!edit_child ? 'col-xs-6 q-pl-xs': 'full-width'">
-            <Button_icon class="full-width" style="height: 30px;" :small_round="true" :text="'DONE'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px" @click="handleChild('save')"/>
-          </div>
-        </div>
-      </q-card-actions>
-
-      <q-inner-loading
-        :showing="showAddLoading"
-        color="primary"
-      />
-    </q-card>
-
-    <q-card v-else style="width: 700px; max-width: 98vw; margin-top: 5%;">
-      <q-card-section class=" row theme_color dialog_header" style="padding: 0px;">
-          <div class="text-subtitle1 header_text" style="margin-top: 5px;">Credit Note Detail<br></div>
-          <q-space />
-          <q-btn icon="close" flat round dense @click="close()" :disable="false"/>
-      </q-card-section>
-
-      <q-card-section class="upload_container">
-        <q-form ref="save_edit_pochild_form">
-          <div class="row upload_separator_first">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-              <div v-if="$q.screen.width > 599 && $q.screen.width < 1024" class="row input_wrapper_right">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                  <div class="row dialog_separator">
-                    <div class="col-xs-10 col-sm-11 col-md-6 col-lg-6 col-xl-6" :class="$q.screen.width > 1023 ? 'q-pl-sm': ''">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
-                              <span class="dialog_font">Entry Type</span>
-                            </div>
-                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <Radio size="xs" :disable="json.BillStatus == 1" v-on:receiveChange="handleChangeEntryType" v-model="jsonChild.EntryType" :options="entry_type_options"  />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div v-if="json.BillStatus == 0 && edit_child" class="col-xs-2 col-sm-1 col-md-12 col-lg-12 col-xl-12" align="right">
-                      <Button_icon :disabled="readonly_delete" :icon="'delete'" :color="'negative'" :outline="false" size="12px" v-on:click="handleDelete(jsonChild)" class="q-mr-sm" />
-                    </div>
-
-                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6"></div>
-
-                    <div class="col-xs-12 col-sm-11 col-md-6 col-lg-6 col-xl-6" :class="$q.screen.width > 1023 ? 'q-pl-sm': ''">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
-                              <span class="dialog_font">Pricing Type</span>
-                            </div>
-                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <Radio size="xs" :disable="json.BillStatus == 1" v-on:receiveChange="handleChangePriceType" v-model="jsonChild.PriceType" :options="pricing_type_options"  />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"></div>
-
-                    <div class="four_column_left two_column_left" :class="edit_child ? 'col-sm-6' : 'col-sm-5'">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Input
-                              :autofocusclick="true"
-                              :no_label="false"
-                              label="Item Code"
-                              :readonly="true"
-                              v-on:change="handleChange"
-                              v-model="jsonChild.Itemcode"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div v-if="!edit_child" dir="rtl" class="four_column_left two_column_left col-xs-2 col-sm-1 col-md-2 col-lg-2 col-xl-2" style="padding-top: 5px;">
-                      <Button_icon ref="searchButton" :flat="true" :font_color="'white'" :color="'#094161'" :icon="'search'" :outline="false" size="13px"
-                      v-on:receiveClick="showSearchDialog()"/>
-                    </div>
-
-                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 four_column_left">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <Input
-                              :autofocusclick="true"
-                              :no_label="false"
-                              label="Description"
-                              :readonly="true"
-                              v-on:change="handleChange"
-                              v-model="jsonChild.Description"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3 four_column_left two_column_left">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <!-- <Input
-                              v-if="edit_child"
-                              :autofocusclick="true"
-                              :no_label="false"
-                              label="Barcode"
-                              :readonly="true"
-                              v-on:change="handleChange"
-                              v-model="jsonChild.Barcode"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" /> -->
-                              <!-- <Select
-                              :readonly="true"
-                              :no_label="false"
-                              v-model="jsonChild.Barcode"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.barcode : oridbComponentBehavior.select"
-                              :options="barcode_options"
-                              v-on:receiveChange="handleChange"
-                              /> -->
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 col-xl-2 four_column_left">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
+                            </div> -->
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                               <Input
                               :autofocusclick="true"
@@ -1522,10 +1270,13 @@
                       </div>
                     </div>
 
-                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2 col-xl-2 two_column_left">
+                    <div v-if="hv_item" class="col-xs-6 col-sm-6 col-md-2 col-lg-2 col-xl-2 q-pl-sm">
                       <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <div class="row">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                              <span class="mobile_font">Article No</span>
+                            </div> -->
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                               <Input
                               :autofocusclick="true"
@@ -1540,15 +1291,20 @@
                         </div>
                       </div>
                     </div>
+                    </div>
 
-                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                    <div v-if="hv_item" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
                       <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <div class="row">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                              <span class="mobile_font">Reason</span>
+                            </div> -->
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                               <Select
-                              :readonly="json.BillStatus == 1"
+                              :readonly="json.BillStatus == 1 || status"
                               :no_label="false"
+                              label="Reason"
                               v-model="jsonChild.reason"
                               :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.reason : oridbComponentBehavior.select"
                               :options="reason_options"
@@ -1559,26 +1315,21 @@
                         </div>
                       </div>
                     </div>
-
-                    <div class="four_column_left two_column_left" :class="json.BillStatus == 1 ? 'col-sm-6' : 'col-sm-5'">
+                    <div v-if="hv_item" class="row col-12">
+                    <div v-if="hv_item" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-sm" :class="json.BillStatus == 1 || status ? 'col-xs-6' : 'col-xs-4 q-pr-sm'">
                       <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <div class="row">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                              <span class="mobile_font">Ori Invoice No</span>
+                            </div> -->
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                              <!-- <SelectFilter
-                              v-if="select_inv"
-                              :readonly="false"
-                              :no_label="false"
-                              :label="'Ori Invoice No'"
-                              v-model:pass_value="jsonChild.ori_inv_no"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
-                              :options="ori_inv_no_options"
-                              v-on:receiveChange="handleChangeOriInvNo"
-                              /> -->
+
                               <Select
                               v-if="select_inv"
-                              :readonly="json.BillStatus == 1"
+                              :readonly="json.BillStatus == 1 || status"
                               :no_label="false"
+                              label="Ori Invoice No"
                               v-model="jsonChild.ori_inv_no"
                               :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.ori_inv_no : oridbComponentBehavior.select"
                               :options="ori_inv_no_options"
@@ -1589,7 +1340,7 @@
                               :autofocusclick="true"
                               :no_label="false"
                               label="Ori Invoice No"
-                              :readonly="json.BillStatus == 1"
+                              :readonly="json.BillStatus == 1 || status"
                               v-on:change="handleChange"
                               v-model="jsonChild.ori_inv_no"
                               :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
@@ -1599,22 +1350,60 @@
                       </div>
                     </div>
 
-                    <div v-if="json.BillStatus == 0" dir="rtl" class="button_upload_wrapper dialog_separator col-xs-2 col-sm-1 col-md-2 col-lg-2 col-xl-2 four_column_left two_column_left">
-                      <Button_icon :flat="true" :font_color="'white'" :color="'#094161'" :icon="select_inv ? 'playlist_add_check' : 'drive_file_rename_outline'" :outline="false" size="12px"
-                      v-on:receiveClick="changeInvoiceMethod()"/>
+                    <div v-if="!status && hv_item" class="full-height col-xs-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 q-pr-sm q-pl-sm" style="height:100%">
+                      <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <div class="row">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                              <span class="mobile_font">&nbsp;</span>
+                            </div> -->
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <!-- <Button_icon :small_round="true" :readonly="false" :flat="false" :font_color="'primary'" :color="'white'" :icon="select_inv ? 'playlist_add_check' : 'drive_file_rename_outline'" :outline="false" size="15px"
+                              v-on:receiveClick="changeInvoiceMethod()" class="full-width search_button_secondary primary_button_font"/> -->
+                              <Button_icon :small_round="true" :readonly="false" :flat="false" :font_color="'primary'" :color="'white'" :icon="select_inv ? 'playlist_add_check' : 'drive_file_rename_outline'" :outline="true" size="16px"
+                              v-on:receiveClick="changeInvoiceMethod()" style="height:100%" class=" full-height full-width primary_button_font"/>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 four_column_left">
+                    <div v-if="hv_item" :class="json.BillStatus == 1 ? 'col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-sm': 'col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4'" > <!--:class="$q.screen.width>599 && $q.screen.width<1024 ? '' : ''"-->
                       <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                          <span class="mobile_font">Qty</span>
+                        </div> -->
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <Input
+                          :autofocusclick="true"
+                          :no_label="false"
+                          label="Qty"
+                          min='0'
+                          :readonly="json.BillStatus == 1 || status"
+                          v-on:change="handleChangeQty"
+                          v-model="jsonChild.SetQty"
+                          :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.input_number : oridbComponentBehavior.text" />
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+                  
 
+                  <div v-if="hv_item" class="row col-12">
+<!-- ORI INVOICE DAATE -->
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-sm">
+                      <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <div class="row">
+                            <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                              <span class="mobile_font">Ori invoice Date</span>
+                            </div> -->
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                               <Datepicker
                               :clickableInput="true"
                               :no_label="false"
-                              label="Ori Invoive Date"
-                              :disable="select_inv"
+                              label="Ori Invoice Date"
+                              :disable="json.BillStatus == 1 || status ? true : select_inv"
                               :autoclose="true"
                               v-on:receiveChange="handleChangeInvoiveDate"
                               :daterange="jsonChild.ori_inv_date"
@@ -1624,28 +1413,12 @@
                         </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div class="row dialog_separator">
-                    <div class="col-xs-6 col-sm-4 col-md-1 col-lg-1 col-xl-1 four_column_left" :class="$q.screen.width>599 && $q.screen.width<1024 ? 'two_column_left' : ''">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                          <Input
-                          :autofocusclick="true"
-                          :no_label="false"
-                          label="Qty"
-                          min='0'
-                          :readonly="json.BillStatus == 1"
-                          v-on:change="handleChangeQty"
-                          v-model="jsonChild.SetQty"
-                          :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.input_number : oridbComponentBehavior.text" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- :readonly="unit ? false : true" -->
-                    <div class="col-xs-6 col-sm-4 col-md-2 col-lg-2 col-xl-2 four_column_left" :class="$q.screen.width>599 && $q.screen.width<1024 ? 'two_column_left' : ''">
-                      <div class="row" :class="page_function == 'EditPurchaseOrder' && $q.screen.width<599 ? 'dialog_separator': ''">
+<!-- UNIT PRICE -->
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-sm">
+                      <div class="row" :class="page_function == 'EditPurchaseOrder' && $q.screen.width<599 ? '': ''">
+                        <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                          <span class="mobile_font">Unit Price</span>
+                        </div> -->
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <Input
                           :autofocusclick="true"
@@ -1658,15 +1431,20 @@
                         </div>
                       </div>
                     </div>
-
-                    <div class="col-xs-6 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                  </div>
+<!-- TOTAL -->
+                  <div v-if="hv_item" class="row col-12">
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-sm">
                       <div class="row">
+                        <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                          <span class="mobile_font">Total</span>
+                        </div> -->
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <Input
                           :autofocusclick="true"
                           :no_label="false"
                           label="Total"
-                          :readonly="jsonChild.PriceType=='FOC' ? true :  unit"
+                          :readonly="json.BillStatus == 1 || status ? true : jsonChild.PriceType=='FOC' ? true :  unit"
                           v-on:change="handleChangeTotalPrice"
                           v-model="jsonChild.TotalPrice"
                           :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right : oridbComponentBehavior.text" />
@@ -1674,84 +1452,421 @@
                       </div>
                     </div>
                   </div>
-
-                  <div class="row dialog_separator">
+                  <q-separator v-if="hv_item" class="separator-style"></q-separator>
+<!-- REMARKS -->
+                  <div v-if="hv_item" class="row col-12">
                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                        <Textarea class="ignore_height" :no_label="false" :readonly="json.BillStatus==1" v-on:receiveChange="handleChange" v-model="jsonChild.itemremark"
-                        :dbComponentBehavior="dbComponentBehavior.remark" />
+                        <!-- <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                          <span class="mobile_font">Remark</span>
+                        </div> -->
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <Textarea class="ignore_height" :no_label="false" :readonly="json.BillStatus == 1 || status ? true : json.BillStatus==1" v-on:receiveChange="handleChange" v-model="jsonChild.itemremark"
+                          :dbComponentBehavior="dbComponentBehavior.remark" />
+                        </div>
                     </div>
                   </div>
+                    </div>
+                </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </q-form>
+      </q-card-section>
 
-              <div v-if="$q.screen.width > 1023" class="row input_wrapper_right">
+      <q-card-actions v-if="!status && hv_item" class="dialog_action" style="padding: 0px 16px 16px 16px">
+        <div class="row full-width">
+          <div v-if="!edit_child" class="col-xs-6 q-pr-xs">
+            <Button_icon class="full-width" style="height: 30px;" :small_round="true" :text="'ADD'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px" @click="handleChild('save&add')"/>
+          </div>
+          <div :class="!edit_child ? 'col-xs-6 q-pl-xs': 'full-width'">
+            <Button_icon class="dialog_done_button full-width" style="height: 30px;" :small_round="true" :text="'DONE'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="16px" @click="handleChild('save')"/>
+          </div>
+        </div>
+      </q-card-actions>
+
+      <q-inner-loading
+        :showing="showAddLoading"
+        color="primary"
+      />
+    </q-card>
+
+    <q-card v-else style="width: 864px; max-width: 98vw; margin-top: 5%; border-radius:8px">
+      <q-card-section class=" row theme_color dialog_header" style="height:56px; padding: 8px 24px;">
+          <div class="text-subtitle1 header_text" style="margin-top: 5px;">Credit Note Detail<br></div>
+          <q-space />
+          <q-btn icon="close" flat round dense @click="close()" :disable="false"/>
+      </q-card-section>
+
+      <q-card-section class="upload_container">
+        <q-form ref="save_edit_pochild_form">
+          <div class="row upload_separator_first">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+<!-- credit note detail not complete -->
+              <div v-if="$q.screen.width > 599 && $q.screen.width < 1024" class="row input_wrapper_right">
+              <div v-if="json.BillStatus == 0 && edit_child" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" align="right">
+                <Button_icon :disabled="readonly_delete" :icon="'fas fa-trash-alt'" :flat="true" :color="''" :font-color="'black'" :outline="false" size="12px" v-on:click="handleDelete(jsonChild)" class="text-red q-mr-sm" />
+              </div>
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                  <div class="row dialog_separator">
-                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" :class="$q.screen.width > 1023 ? 'q-pl-sm': ''">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
+                  <div class="row po_details_separator po_details_custom">
+                    <div class="row col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 gap-radio" :class="$q.screen.width > 1023 ? 'q-pl-xs': ''">
+                      <div class="row col-12">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                           <div class="row">
-                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
-                              <span class="dialog_font">Entry Type</span>
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                              <span class="dialog_radio_title">Entry Type</span>
                             </div>
-                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <Radio size="xs" :disable="json.BillStatus == 1" v-on:receiveChange="handleChangeEntryType" v-model="jsonChild.EntryType" :options="entry_type_options"  />
+                            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                              <Radio class="dialog_radio_options" size="sm" :disable="json.BillStatus == 1" v-on:receiveChange="handleChangeEntryType" v-model="jsonChild.EntryType" :options="entry_type_options"  />
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-
-                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6"></div>
-
-                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6" :class="$q.screen.width > 1023 ? 'q-pl-sm': ''">
-                      <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                          <div class="row">
-                            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
-                              <span class="dialog_font">Pricing Type</span>
-                            </div>
-                            <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
-                              <Radio size="xs" :disable="json.BillStatus == 1" v-on:receiveChange="handleChangePriceType" v-model="jsonChild.PriceType" :options="pricing_type_options"  />
+                    
+                            <div class="row col-12">
+                              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row">
+                                  <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                    <span class="dialog_radio_title">Pricing Type</span>
+                                  </div>
+                                  <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                    <Radio class="dialog_radio_options" size="sm" :disable="json.BillStatus == 1" v-on:receiveChange="handleChangePriceType" v-model="jsonChild.PriceType" :options="pricing_type_options"  />
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
 
-                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"></div>
+                          <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"></div> -->
+                    <q-separator class="separator-style"></q-separator>
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                      <div class="row gap-style">
+                        <div class="row col-12">
+                          <div class="q-pr-md" :class="edit_child ? 'col-sm-6' : 'col-sm-5'">
+                            <div class="row">
+                              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row">
+                                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <Input
+                                    :autofocusclick="true"
+                                    :no_label="false"
+                                    label="Item Code"
+                                    :readonly="true"
+                                    v-on:change="handleChange"
+                                    v-model="jsonChild.Itemcode"
+                                    :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
 
-                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                      <div class="row">
-                        <div class="four_column_left two_column_left" :class="edit_child ? 'col-md-12 col-lg-12 col-xl-12' : 'col-md-10 col-lg-10 col-xl-10'">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                              <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                                  <Input
-                                  :autofocusclick="true"
-                                  :no_label="false"
-                                  label="Item Code"
-                                  :readonly="true"
-                                  v-on:change="handleChange"
-                                  v-model="jsonChild.Itemcode"
-                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                          <div v-if="!edit_child" dir="rtl" class="col-xs-2 col-sm-1 col-md-2 col-lg-2 col-xl-2 q-pr-md" style="padding-top: 0px;">
+                            <Button_icon ref="searchButton" :flat="false" :font_color="'primary'" :color="'white'" :icon="'search'" :outline="true" size="12px"
+                            v-on:receiveClick="showSearchDialog()" class="full-width search_button search_button_icon primary_button_font" style="height:100%"/>
+                          </div>
+
+                          <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 q-pl-md">
+                            <div class="row">
+                              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row">
+                                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <Input
+                                    :autofocusclick="true"
+                                    :no_label="false"
+                                    label="Description"
+                                    :readonly="true"
+                                    v-on:change="handleChange"
+                                    v-model="jsonChild.Description"
+                                    :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        <div v-if="!edit_child" dir="rtl" class="four_column_left two_column_left col-xs-2 col-sm-1 col-md-2 col-lg-2 col-xl-2" style="padding-top: 5px;">
-                          <Button_icon ref="searchButton" :flat="true" :font_color="'white'" :color="'#094161'" :icon="'search'" :outline="false" size="13px"
-                          v-on:receiveClick="showSearchDialog()"/>
-                        </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 four_column_left">
+                        <!-- <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3 four_column_left two_column_left">
                           <div class="row">
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
                               <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                   <Input
+                                  v-if="edit_child"
+                                  :autofocusclick="true"
+                                  :no_label="false"
+                                  label="Barcode"
+                                  :readonly="true"
+                                  v-on:change="handleChange"
+                                  v-model="jsonChild.Barcode"
+                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
+                                   <Select
+                                  :readonly="true"
+                                  :no_label="false"
+                                  v-model="jsonChild.Barcode"
+                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.barcode : oridbComponentBehavior.select"
+                                  :options="barcode_options"
+                                  v-on:receiveChange="handleChange"
+                                  /> 
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div> -->
+
+                        <div class="row col-12">
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-md">
+                            <div class="row">
+                              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row">
+                                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <Input
+                                    :autofocusclick="true"
+                                    :no_label="false"
+                                    label="Article No"
+                                    :readonly="true"
+                                    v-on:change="handleChange"
+                                    v-model="jsonChild.ArticleNo"
+                                    :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-md">
+                            <div class="row">
+                              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row">
+                                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <Input
+                                    :autofocusclick="true"
+                                    :no_label="false"
+                                    label="Pack Size"
+                                    :readonly="true"
+                                    v-on:change="handleChange"
+                                    v-model="jsonChild.PackSize"
+                                    :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right_readonly : oridbComponentBehavior.text" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row col-12">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-md"><!--reason -->
+                          <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                  <Select
+                                  :readonly="json.BillStatus == 1"
+                                  :no_label="false"
+                                  v-model="jsonChild.reason"
+                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.reason : oridbComponentBehavior.select"
+                                  :options="reason_options"
+                                  v-on:receiveChange="handleChangeType"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-md" :class="$q.screen.width>599 && $q.screen.width<1024 ? '' : ''">
+                          <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <Input
+                              :autofocusclick="true"
+                              :no_label="false"
+                              label="Qty"
+                              min='0'
+                              :readonly="json.BillStatus == 1"
+                              v-on:change="handleChangeQty"
+                              v-model="jsonChild.SetQty"
+                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.input_number : oridbComponentBehavior.text" />
+                            </div>
+                          </div>
+                        </div>
+                        </div>
+                        <div class="row col-12">
+                        <div class="q-pr-md" :class="json.BillStatus == 1 ? 'col-sm-6' : 'col-sm-5'">
+                          <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                  <!-- <SelectFilter
+                                  v-if="select_inv"
+                                  :readonly="false"
+                                  :no_label="false"
+                                  :label="'Ori Invoice No'"
+                                  v-model:pass_value="jsonChild.ori_inv_no"
+                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.select"
+                                  :options="ori_inv_no_options"
+                                  v-on:receiveChange="handleChangeOriInvNo"
+                                  /> -->
+                                  <Select
+                                  v-if="select_inv"
+                                  :readonly="json.BillStatus == 1"
+                                  :no_label="false"
+                                  v-model="jsonChild.ori_inv_no"
+                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.ori_inv_no : oridbComponentBehavior.select"
+                                  :options="ori_inv_no_options"
+                                  v-on:receiveChange="handleChangeOriInvNo"
+                                  />
+                                  <Input
+                                  v-else
+                                  :autofocusclick="true"
+                                  :no_label="false"
+                                  label="Ori Invoice No"
+                                  :readonly="json.BillStatus == 1"
+                                  v-on:change="handleChange"
+                                  v-model="jsonChild.ori_inv_no"
+                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-if="json.BillStatus == 0" dir="rtl" class="button_upload_wrapper col-xs-2 col-sm-1 col-md-2 col-lg-2 col-xl-2 q-pr-md">
+                          <Button_icon :flat="true" :font_color="'primary'" :color="'white'" :icon="select_inv ? 'playlist_add_check' : 'drive_file_rename_outline'" :outline="false" size="14px"
+                          v-on:receiveClick="changeInvoiceMethod()" class="full-width search_button search_button_icon primary_button_font" style="height:100%"/>
+                        </div>
+                        <!-- :readonly="unit ? false : true" -->
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-md" :class="$q.screen.width>599 && $q.screen.width<1024 ? '' : ''">
+                          <div class="row" :class="page_function == 'EditPurchaseOrder' && $q.screen.width<599 ? '': ''">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <Input
+                              :autofocusclick="true"
+                              :no_label="false"
+                              label="Unit Price"
+                              :readonly="json.BillStatus == 1 || jsonChild.PriceType=='FOC' ? true :  unit ? false : true"
+                              v-on:change="handleChangeUnitPrice"
+                              v-model="jsonChild.UnitPrice"
+                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right_readonly : oridbComponentBehavior.text" />
+                            </div>
+                          </div>
+                        </div>
+                        </div>
+                        
+                        <div class="row col-12">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-md">
+                          <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+
+                                  <Datepicker
+                                  :clickableInput="true"
+                                  :no_label="false"
+                                  label="Ori Invoive Date"
+                                  :disable="select_inv"
+                                  :autoclose="true"
+                                  v-on:receiveChange="handleChangeInvoiveDate"
+                                  :daterange="jsonChild.ori_inv_date"
+                                  :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                          
+                          
+
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-md">
+                          <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                              <Input
+                              :autofocusclick="true"
+                              :no_label="false"
+                              label="Total"
+                              :readonly="jsonChild.PriceType=='FOC' ? true :  unit"
+                              v-on:change="handleChangeTotalPrice"
+                              v-model="jsonChild.TotalPrice"
+                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right : oridbComponentBehavior.text" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <q-separator class="separator-style"></q-separator>
+                      <div class="row col-12">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <Textarea class="ignore_height" :no_label="false" :readonly="json.BillStatus==1" v-on:receiveChange="handleChange" v-model="jsonChild.itemremark"
+                            :dbComponentBehavior="dbComponentBehavior.remark" />
+                        </div>
+                      </div>
+                  </div>
+                    </div>
+                    </div>
+              </div>
+              </div>
+              </div>
+<!-- credit note detail -->
+              <div v-if="$q.screen.width > 1023" class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                  <div class="row gap-radio">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" :class="$q.screen.width > 1023 ? 'q-pl-xs': ''">
+                      <div class="row po_details_custom_row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <div class="row">
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                              <span class="dialog_radio_title">Entry Type</span>
+                            </div>
+                            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                              <Radio class="dialog_radio_options" size="sm" :disable="json.BillStatus == 1" v-on:receiveChange="handleChangeEntryType" v-model="jsonChild.EntryType" :options="entry_type_options"  />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-6"></div> -->
+
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" :class="$q.screen.width > 1023 ? 'q-pl-xs': ''">
+                      <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 ">
+                          <div class="row">
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                              <span class="dialog_radio_title">Pricing Type</span>
+                            </div>
+                            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                              <Radio class="dialog_radio_options" size="md" :disable="json.BillStatus == 1" v-on:receiveChange="handleChangePriceType" v-model="jsonChild.PriceType" :options="pricing_type_options"  />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    </div>
+
+                    <!-- <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"></div> -->
+                    
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                      <div class="row gap-style">
+                        <q-separator class="separator-style"></q-separator>
+                        <div class="row col-12">
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-md">
+                            <div class="row">
+                            <div class="" :class="edit_child ? 'col-md-12 col-lg-12 col-xl-12' : 'col-md-10 col-lg-10 col-xl-10 q-pr-md'">
+                              
+                                      <Input
+                                      :autofocusclick="true"
+                                      :no_label="false"
+                                      label="Item Code"
+                                      :readonly="true"
+                                      v-on:change="handleChange"
+                                      v-model="jsonChild.Itemcode"
+                                      :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                                    
+                              </div>
+
+                        <div v-if="!edit_child" dir="rtl" class=" col-xs-2 col-sm-1 col-md-2 col-lg-2 col-xl-2" style="padding-top: 0px;">
+                          <Button_icon ref="searchButton" :flat="false" :font_color="'primary'" :color="'white'" :icon="'search'" :outline="true" size="13px"
+                          v-on:receiveClick="showSearchDialog()" class="full-width search_button search_button_icon primary_button_font" style="height:100%"/>
+                        </div>
+                        </div>
+                        </div>
+                        
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-md">
+                          
                                   <Input
                                   :autofocusclick="true"
                                   :no_label="false"
@@ -1760,12 +1875,9 @@
                                   v-on:change="handleChange"
                                   v-model="jsonChild.Description"
                                   :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                                
                         </div>
-
+                          </div>
                         <!-- <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 four_column_left two_column_left">
                           <div class="row">
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
@@ -1794,89 +1906,64 @@
                           </div>
                         </div> -->
 
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 four_column_left">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                              <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                                  <Input
-                                  :autofocusclick="true"
-                                  :no_label="false"
-                                  label="Pack Size"
-                                  :readonly="true"
-                                  v-on:change="handleChange"
-                                  v-model="jsonChild.PackSize"
-                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right_readonly : oridbComponentBehavior.text" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 four_column_left" :class="$q.screen.width>599 && $q.screen.width<1024 ? 'two_column_left' : !edit_child ? 'two_column_left' : ''">
-                          <div class="row dialog_separator">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          <div class="row col-12">
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-md">
                               <Input
                               :autofocusclick="true"
                               :no_label="false"
-                              label="Qty"
-                              min='0'
-                              :readonly="json.BillStatus == 1"
-                              v-on:change="handleChangeQty"
-                              v-model="jsonChild.SetQty"
-                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.input_number : oridbComponentBehavior.text" />
-
+                              label="Pack Size"
+                              :readonly="true"
+                              v-on:change="handleChange"
+                              v-model="jsonChild.PackSize"
+                              :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right_readonly : oridbComponentBehavior.text" />
                             </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-md" :class="$q.screen.width>599 && $q.screen.width<1024 ? 'two_column_left' : !edit_child ? 'two_column_left' : ''">
+                                <Input
+                                :autofocusclick="true"
+                                :no_label="false"
+                                label="Qty"
+                                min='0'
+                                :readonly="json.BillStatus == 1"
+                                v-on:change="handleChangeQty"
+                                v-model="jsonChild.SetQty"
+                                :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.input_number : oridbComponentBehavior.text" />
+                          </div>
                           </div>
                         </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 four_column_left two_column_left">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                              <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                                  <Input
-                                  :autofocusclick="true"
-                                  :no_label="false"
-                                  label="Article No"
-                                  :readonly="true"
-                                  v-on:change="handleChange"
-                                  v-model="jsonChild.ArticleNo"
-                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
-                                </div>
-                              </div>
-                            </div>
+                        
+                        <div class="row col-12">
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-md">
+                            
+                                    <Input
+                                    :autofocusclick="true"
+                                    :no_label="false"
+                                    label="Article No"
+                                    :readonly="true"
+                                    v-on:change="handleChange"
+                                    v-model="jsonChild.ArticleNo"
+                                    :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text : oridbComponentBehavior.text" />
+                          </div>
+                          <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-md">
+                            
+                                    <Select
+                                    :readonly="json.BillStatus == 1"
+                                    :no_label="false"
+                                    v-model="jsonChild.reason"
+                                    :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.reason : oridbComponentBehavior.select"
+                                    :options="reason_options"
+                                    v-on:receiveChange="handleChangeType"
+                                    />
                           </div>
                         </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12 four_column_left">
+                            
+  <!-- <q-separator class="separator-style"></q-separator>                       -->
+<!-- invoice no -->
+                    <div class="row col-12">
+                      
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-md">
                           <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                              <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                                  <Select
-                                  :readonly="json.BillStatus == 1"
-                                  :no_label="false"
-                                  v-model="jsonChild.reason"
-                                  :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.reason : oridbComponentBehavior.select"
-                                  :options="reason_options"
-                                  v-on:receiveChange="handleChangeType"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                      <div class="row">
-                        <div class="two_column_left" :class="json.BillStatus == 1 ? 'col-md-12 col-lg-12 col-xl-12' : 'col-md-10 col-lg-10 col-xl-10'">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                              <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="" :class="json.BillStatus == 1 ? 'col-md-12 col-lg-12 col-xl-12' : 'col-md-10 col-lg-10 col-xl-10 q-pr-md'">
                                   <!-- <SelectFilter
                                   v-if="select_inv"
                                   :readonly="false"
@@ -1907,23 +1994,18 @@
                                   v-on:change="handleChange"
                                   v-model="jsonChild.ori_inv_no"
                                   :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                                </div>
-                              </div>
+                             
                             </div>
-                          </div>
+
+                        <div v-if="json.BillStatus == 0" dir="rtl" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                          <Button_icon :flat="false" :font_color="'primary'" :color="'white'" :icon="select_inv ? 'playlist_add_check' : 'drive_file_rename_outline'" :outline="true" size="13px"
+                          v-on:receiveClick="changeInvoiceMethod()" class="full-width search_button_icon search_button primary_button_font" style="height:100%"/>
                         </div>
-
-                        <div v-if="json.BillStatus == 0" dir="rtl" class="button_upload_wrapper dialog_separator col-xs-2 col-sm-1 col-md-2 col-lg-2 col-xl-2 two_column_left">
-                          <Button_icon :flat="true" :font_color="'white'" :color="'#094161'" :icon="select_inv ? 'playlist_add_check' : 'drive_file_rename_outline'" :outline="false" size="12px"
-                          v-on:receiveClick="changeInvoiceMethod()"/>
                         </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-12 col-lg-12 col-xl-12">
-                          <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                              <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-md">
+                          
+                            
                                   <Datepicker
                                   :clickableInput="true"
                                   :no_label="false"
@@ -1933,12 +2015,9 @@
                                   v-on:receiveChange="handleChangeInvoiveDate"
                                   :daterange="jsonChild.ori_inv_date"
                                   :componentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                                
                         </div>
-
+                    </div>    
                         <!-- <div class="col-xs-6 col-sm-2 col-md-4 col-lg-4 col-xl-4 four_column_left" :class="$q.screen.width>599 && $q.screen.width<1024 ? 'two_column_left' : !edit_child ? 'two_column_left' : ''">
                           <div class="row dialog_separator">
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
@@ -1953,10 +2032,10 @@
                             </div>
                           </div>
                         </div> -->
-
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 four_column_left" :class="!edit_child ? 'two_column_left': ''">
-                          <div class="row dialog_separator">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="row col-12">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pr-md" :class="!edit_child ? 'two_column_left': ''">
+                          
+                            
                               <Input
                               :autofocusclick="true"
                               :no_label="false"
@@ -1965,13 +2044,9 @@
                               v-on:change="handleChangeUnitPrice"
                               v-model="jsonChild.UnitPrice"
                               :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right_readonly : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
                         </div>
-
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                          <div class="row dialog_separator">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                          
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 q-pl-md">
                               <Input
                               :autofocusclick="true"
                               :no_label="false"
@@ -1980,12 +2055,11 @@
                               v-on:change="handleChangeTotalPrice"
                               v-model="jsonChild.TotalPrice"
                               :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_right : oridbComponentBehavior.text" />
-                            </div>
-                          </div>
+                           
                         </div>
                       </div>
-
-                      <div class="row dialog_separator">
+                      <q-separator class="separator-style"></q-separator>
+                      <div class="row col-12">
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" :class="$q.screen.width>599 && $q.screen.width<1024 ? 'two_column_left' : !edit_child ? 'two_column_left' : ''">
                           <div class="row">
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
@@ -1995,24 +2069,27 @@
                           </div>
                         </div>
                       </div>
-                    </div>
+                    
                   </div>
                 </div>
-              </div>
+              
             </div>
           </div>
+          </div>
+          
         </q-form>
       </q-card-section>
 
-      <q-card-actions v-if="json.BillStatus == 0" class="dialog_action" style="padding-left: 20px;">
+      <q-card-actions v-if="json.BillStatus == 0" class="" style="padding-top:0px;padding-right: 16px;padding-bottom: 16px">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" align="right">
-          <Button_icon v-if="!edit_child" :readonly="false" :flat="true" :font_color="'white'" :color="'#094161'" :text="'ADD'" :outline="false" size="15px"
-          v-on:receiveClick="handleChild('save&add')"/>
+          <Button_icon :readonly="false" :flat="true"   :text="'SAVE'" :outline="false" size="15px"
+          v-on:receiveClick="handleChild('save')" :class="{ 'primary_actions_button': edit_child, 'secondary_actions_button': !edit_child }"/>
+          
 
-          <span class="q-pl-xs" />
-
-          <Button_icon :readonly="false" :flat="true" :font_color="'white'" :color="'#094161'" :text="'SAVE'" :outline="false" size="15px"
-          v-on:receiveClick="handleChild('save')"/>
+          <span class="q-pl-md" v-if="!edit_child"/>
+          <!-- secondary_primary button :font_color="'white'" :color="'#1E90FF'" -->
+          <Button_icon v-if="!edit_child" :readonly="false" :flat="true" :font_color="'white'" :color="'rgb(9, 65, 97)'"  :text="'ADD'" :outline="false" size="15px"
+          v-on:receiveClick="handleChild('save&add')" class="primary_actions_button"/>
         </div>
       </q-card-actions>
 
@@ -2021,6 +2098,43 @@
         color="primary"
       />
     </q-card>
+  </q-dialog>
+
+  <!-- receiving methods -->
+  <q-dialog v-model="receiving_methods" persistent :position="$q.screen.width > 599 ? 'top' : 'bottom'">
+    <q-card style="text-align:left;margin-top: 5%; height:150px">
+      <q-card-section class="header_top_mobile">
+        <!-- <Button_icon :disable="showAddLoading" :big_round="true" :flat="true" :font_color="'#928f8f'" :color="'rgba(255, 255, 255, 0.5)'" :icon="'arrow_back_ios'" :outline="true" size="12px" class="custom_back_button" @click="back()" /> -->
+      <div class="text-right">
+        <q-btn icon="close" flat round dense v-close-popup :disable="showAddLoading || showAddLoading2"/>
+      </div>
+
+      </q-card-section>
+
+      <q-card-section class="q-pt-none card_sides">
+        <div  v-if="json.BillStatus == 0" class="row q-pt-xs q-pl-md q-pr-md" style="gap:10px; ">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" @click="addButtonCreatePOChild('item')">
+          <div class="row justify-center items-center" style="width: 100%; height: 60px;">
+            <div class="q-pr-sm">
+              <Button_icon :flat="false" :icon="'add'" v-on:receiveClick="addButtonCreatePOChild('item')" :font_color="'white'" :color="'primary'" :outline="false" size="16px"
+              :text="$language('D0152')" class="dialog_detail_add_button"/><!--   Add Item Details -->
+            </div>
+            <!-- <div>
+              {{ $language('D0152') }}
+              
+            </div> -->
+          </div>
+        </div>
+        </div>
+
+      </q-card-section>
+
+      <q-inner-loading
+        :showing="showAddLoading"
+        color="primary"
+      />
+    </q-card>
+
   </q-dialog>
 
   <q-dialog v-model="search_item" persistent :position="$q.screen.width > 599 ? 'top' : 'bottom'">
@@ -2055,7 +2169,7 @@
   </q-dialog>
 
   <q-dialog v-model="view_summary" persistent :position="$q.screen.width > 599 ? 'top' : 'bottom'">
-    <q-card style="text-align:left;margin-top: 5%;">
+    <!-- <q-card style="text-align:left;margin-top: 5%;">
       <q-card-section class="header_top_mobile">
         <div class="text-right">
           <q-btn icon="close" flat round dense v-close-popup :disable="showAddLoading || showAddLoading2"/>
@@ -2065,7 +2179,7 @@
         <div class="card_ypadding">
           <div class="row justify-center">
              <span style="font-size: 14px;"><b>Total Amount</b></span>
-            <!-- <Button_icon :readonly="true" :big_round="true" :flat="true" :font_color="'white'" :color="'green'" :icon="'verified'" :outline="true" size="30px" /> -->
+            <Button_icon :readonly="true" :big_round="true" :flat="true" :font_color="'white'" :color="'green'" :icon="'verified'" :outline="true" size="30px" />
           </div>
 
 
@@ -2095,15 +2209,18 @@
         :showing="showAddLoading"
         color="primary"
       />
-    </q-card>
-
+    </q-card> -->
+    <ViewSummaryDialog 
+      :page_function="page_function" 
+      :json="json"
+    />
   </q-dialog>
 
   <q-dialog v-model="warning_report_dialog" persistent position="top">
-    <q-card style="width: 700px; max-width: 80vw;text-align:center;margin-top: 5%;">
+    <q-card style="width: 864px; max-width: 80vw;text-align:center;margin-top: 5%;border-radius:8px">
 
-      <q-card-section class="row items-center" style="padding-top:1%;padding-bottom:1%;border-bottom: 1px solid #a7bbcb;">
-        <div class="text-h6">CN Print</div>
+      <q-card-section class="theme_color row items-center" style="height:56px; padding: 8px 24px;border-bottom: 1px solid #a7bbcb;">
+        <div class="confirm_title">CN Print</div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup :disable="showAddLoading"/>
       </q-card-section>
@@ -2144,9 +2261,9 @@
           />
       </q-card-section>
 
-      <q-card-actions align="right">
-        <q-btn flat :label="$language('D0116')" color="primary" v-close-popup />
-        <q-btn flat  label="Print" color="primary" @click="handlePrintWarning" />
+      <q-card-actions align="right" style="padding: 16px 24px">
+        <q-btn flat outline size="12px" :label="$language('D0116')" font_color="#29292A" color="#29292A" class="dialog_confirm_cancel_button" v-close-popup />
+        <q-btn :flat="false"  size="12px" label="Print" font_color="white" :color="'#1E90FF'" class="dialog_confirm_print_button" @click="handlePrintWarning" />
       </q-card-actions>
 
       <q-inner-loading
@@ -2158,10 +2275,14 @@
 </template>
 
 <script>
+import ViewSummaryDialog from 'src/components/ERP/Base/ViewSummaryDialog'
+import ButtonMobile from 'src/components/ERP/Base/ButtonMobile'
+import Chip from 'src/components/ERP/Base/Chip';
 import Input from 'src/components/ERP/Base/Input'
 import Select from 'src/components/ERP/Base/Select'
 import Datepicker from 'src/components/ERP/Base/Datepicker'
 import Checkbox from 'src/components/ERP/Base/Checkbox'
+import Toggle from 'src/components/ERP/Base/Toggle'
 import PurchaseTable from 'src/components/ERP/Purchase/PurchaseTable'
 import Button_icon from 'src/components/ERP/Base/Button_icon'
 import Radio from 'src/components/ERP/Base/Radio';
@@ -2179,6 +2300,7 @@ import PrintListTable from 'src/components/ERP/Purchase/PrintListTable'
 export default{
   data() {
     return {
+      selectedCardIndex: null,
       retailer_guid: sessionStorage.getItem("retailer_guid") != "" && sessionStorage.getItem("retailer_guid") != "null" && sessionStorage.getItem("retailer_guid") != null ? sessionStorage.getItem("retailer_guid") : [],
       user_name: sessionStorage.getItem("user_name") != "" && sessionStorage.getItem("user_name") != "null" && sessionStorage.getItem("user_name") != null ? sessionStorage.getItem("user_name") : [],
       language: sessionStorage.getItem("language") != "" && sessionStorage.getItem("language") != "null" && sessionStorage.getItem("language") != null ? sessionStorage.getItem("language") : [],
@@ -2319,14 +2441,19 @@ export default{
       optionsDate:[],
       warning_report_dialog:false,
       rows_print:[],
-      columns_print:[]
+      columns_print:[],
+      receiving_methods: false,
     }
   },
   components:{
+    ViewSummaryDialog,
+    ButtonMobile,
+    Chip,
     Input,
     Select,
     Datepicker,
     Checkbox,
+    Toggle,
     PurchaseTable,
     Button_icon,
     SelectFilter,
@@ -2524,6 +2651,22 @@ export default{
     this.showAddLoading = false;
   },
   methods: {
+      selectCard(index) {
+      this.selectedCardIndex = this.selectedCardIndex === index ? null : index;
+      },
+      handleConvertNew(){
+        this.receiving_methods = true;
+      },
+      handleNavigate (type) {
+          if(type =='CreditNote')
+        {
+          this.$router.push("CreditNote");
+          // this.$router.push({ name: "Create" + this.page_function });
+        }
+        else if (type =='Outlet') {
+          this.$router.push("/erp/location/outletlocation");
+        }
+      },
       deepEqual(ori_json, json)
       {
         var ori_keys = Object.keys(ori_json);
@@ -3054,6 +3197,9 @@ export default{
           {
             this.showAddLoading = false;
             this.showNotify("positive", "Created Successfully.");
+
+            this.$emit('subtotal1-updated', response.TotalPrice || 0); //update the total amount
+
             if(newVal == 'save')
             {
               this.jsonChild = {};
@@ -5964,6 +6110,20 @@ export default{
 </script>
 
 <style scoped>
+*>>>.q-card__section--vert {
+    padding: 0px;
+}
+.custom_toolbar
+{
+  padding-left: 0px;
+  height: 37px;
+  min-height: 37px;
+}
+.custom_toolbar >>> .q-tabs
+{
+  padding-left: 0px;
+  padding-top: 0px;
+}
 .dialog_action_bottom
 {
   width: 95%;
@@ -6034,8 +6194,8 @@ export default{
     z-index: 2;
     top: 0px;
     text-align: center;
-    padding-left: 10px;
-    padding-right: 10px;
+    /* padding-left: 10px; */
+    /* padding-right: 10px; */
     padding-top: 0px;
     padding-bottom: 0px;
   }
@@ -6045,7 +6205,7 @@ export default{
   .sticky_stepper >>> .q-stepper__header
   {
     background-color: white;
-    position: sticky;
+    position: static;
     z-index: 2;
     top: 123px;
     margin-left: -10px;
@@ -6143,12 +6303,12 @@ export default{
 .dialog_action
 {
   height: 55px;
-  position: sticky;
+  position: static;
   padding:0px;
   padding-right: 20px;
   padding-left: 20px;
   bottom: 0px;
-  background-color: white;
+  /* background-color: white; */
 }
 
 .intermediate
@@ -6173,8 +6333,8 @@ export default{
 
 .upload_container
 {
-    padding: 10px;
-    padding-top: 0px;
+    padding: 24px;
+    /* padding-top: 0px; */
 }
 
 * >>> .q-table__container
@@ -6258,11 +6418,11 @@ export default{
 .upload_separator_first
 {
     /* border-bottom: 1px solid #DEE1E6; */
-    margin-left: 10px;
-    margin-right: 10px;
-    margin-bottom: 10px;
+    /* margin-left: 10px; */
+    /* margin-right: 10px; */
+    /* margin-bottom: 10px; */
     padding-top: 0px;
-    padding-bottom: 10px;
+    /* padding-bottom: 10px; */
 }
 
 
@@ -6289,4 +6449,3 @@ export default{
   background-color: #cccccc !important;
 }
 </style>
-

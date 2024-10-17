@@ -49,3 +49,7 @@ export const update_mc_district_status = (state, payload) => {
 export const update_cp_set_branch = (state, payload) => {
   state.cp_set_branch = payload
 }
+
+export const update_cp_set_branch_general = (state, payload) => {
+  state.cp_set_branch_general = payload
+}

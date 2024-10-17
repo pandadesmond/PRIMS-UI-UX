@@ -1,10 +1,10 @@
 <template>
-    <Select :id="id" :name="name" v-model="pass_value" :options="options" :componentBehavior="dbComponentBehavior"/>
+    <SelectBase outlined :id="id" :name="name" v-model="pass_value" :options="options" :componentBehavior="dbComponentBehavior" class="custom-select"/>
 </template>
 
 <script>
 import Select from 'src/components/Base/Select';
-
+import SelectBase from 'src/components/ERP/Base/SelectBase';
 export default {
     data() {
         return {
@@ -13,12 +13,36 @@ export default {
     },
     props: ['value', 'options', 'id', 'name','dbComponentBehavior'],
     components: {
-        Select
+        SelectBase,
     }
 }
 </script>
 
 <style scoped>
+.q-field--dense >>>.q-field__label {
+    font-size: 11px;
+}
+.q-field--outlined.q-field--readonly >>>.q-field__control:before {
+    border-style: solid;
+}
+@media screen and (max-width: 599px) {
+    .q-field--outlined >>>.q-field__control:after {
+    height: inherit;
+    
+    border: 0px solid transparent;
+    
+}
+    .q-field--auto-height.q-field--dense.q-field--labeled >>>.q-field__control-container {
+        padding-top: 7px;
+}
+}
+.q-field--dense >>>.q-field__marginal {
+    height: 32px;
+}
+.q-field--dense >>>.q-field__control {
+  /* border-radius: 8px !important; */
+  height: 32px !important;
+}
 /* For dropdown padding removal */
 .q-field
 {
@@ -36,7 +60,8 @@ export default {
 /* For text input border colour */
 * >>> .q-field__inner
 {
-    border: 1px solid #d2d6de;
+    /* border: 1px solid #d2d6de; */
+    /* border-radius: 8px; */
 }
 
 /* when hover on text input */
@@ -81,5 +106,8 @@ export default {
   {
     margin-top: -8px;
   }
+  .q-field--auto-height.q-field--dense >>>.q-field__control {
+    min-height: 32px;
+}
 }
 </style>

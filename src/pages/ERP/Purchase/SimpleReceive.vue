@@ -1,16 +1,16 @@
 <template>
   <div class="card_sides">
-    <q-card v-if="$q.screen.width > 599" style="max-height: 100%;">
-      <q-card-section class="theme_color dialog_header header_top">
-          <div class="intermediate"/>
+    <q-card v-if="$q.screen.width > 599" style="max-height: 100%;margin-top: 0%; border-radius: 8px">
+      <q-card-section class="theme_color dialog_header header_top" style="height: 56px; padding: 14px 24px;">
+          <!-- <div class="intermediate"/> -->
           <div v-if="page_function == 'SimpleReceive'" class="text-subtitle1 header_text">Simple Receive</div>
           <div v-if="page_function == 'ConvertSOtoSI'" class="text-subtitle1 header_text">Convert SO to SI</div>
           <div v-if="page_function == 'ConvertIStoSI'" class="text-subtitle1 header_text">Convert IS to SI</div>
       </q-card-section>
 
-      <q-card-section class="upload_container content_body_dialog">
+      <q-card-section class=" content_body_dialog"> <!--upload_container-->
         <q-form ref="save_form">
-          <div class="row upload_separator_first">
+          <div class="row">
             <!-- <div v-if="page_function == 'ConvertSOtoSI' || page_function == 'ConvertIStoSI'" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator q-px-sm" >
               <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
@@ -70,17 +70,14 @@
                 :flat_status="true"
                 :bordered_status="true"
                 v-on:receiveRequestTable="handleTableChange"
+                class="itemtable_pagination"
                 />
               </div>
           </div>
         </q-form>
       </q-card-section>
 
-      <q-card-actions class="dialog_action" align="right">
-          <Button_icon :flat="true" :font_color="'black'" :color="'white'" :text="'BACK'" :outline="true" size="15px" class="custom_cancel_button" @click="back()" />
-
-          <Button_icon :flat="true" :font_color="'white'" :color="'#094161 '" :text="'CREATE'" :outline="false" size="15px" @click="showSimpleReceive"/>
-      </q-card-actions>
+      
 
       <q-inner-loading
         :showing="showAddLoading"
@@ -88,6 +85,11 @@
       />
 
     </q-card>
+    <q-card-actions v-if="$q.screen.width > 599" class="dialog_action" > <!--align="right"  :text="'BACK'"-->
+          <Button_icon :flat="true" :font_color="'#29292A'" :icon="'chevron_left'" :color="'white'"  :outline="true" size="14px" class="primary_navigation_button custom_primary_font" @click="back()" />
+          <q-space/>
+          <Button_icon :flat="true" :font_color="'white'" :color="'#1E90FF'" :text="'CREATE'" :outline="false" size="15px" class="custom_primary_button" @click="showSimpleReceive"/>
+      </q-card-actions>
 
     <q-card v-else style="min-height: 100vh;">
       <q-card-section class="header_top">
@@ -161,7 +163,7 @@
       </q-card-section>
 
       <q-card-actions class="dialog_action_mobile" align="right">
-        <Button_icon class="full-width" style="height: 30px;" :small_round="true" :text="'Simple Receive'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px" @click="showSimpleReceive"/>
+        <Button_icon class="full-width dialog_done_button" :small_round="true" :text="'Simple Receive'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="16px" @click="showSimpleReceive"/>
       </q-card-actions>
 
       <q-inner-loading
@@ -237,7 +239,7 @@
 
         <q-card-actions class="dialog_action" style="padding-left: 20px;">
           <div class="row full-width">
-            <Button_icon class="full-width" style="height: 30px;" :small_round="true" :text="'Simple Receive'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="13px" @click="handleConvertPO()"/>
+            <Button_icon class="full-width dialog_done_button" :small_round="true" :text="'Simple Receive'" :flat="false" :font_color="'white'" :color="'primary'" :outline="false" size="16px" @click="handleConvertPO()"/>
           </div>
         </q-card-actions>
 
@@ -247,58 +249,37 @@
         />
       </q-card>
 
-      <q-card v-else style="width: 700px; max-width: 98vw; margin-top: 5%;">
-        <q-card-section class=" row theme_color dialog_header" style="padding: 0px;">
+      <q-card v-else style="width: 700px; max-width: 98vw; margin-top: 5%; border-radius:8px">
+        <q-card-section class=" row theme_color dialog_header" style="height: 56px; padding: 8px 24px;">
             <div class="text-subtitle1 header_text" style="margin-top: 5px;">Simple Receive<br></div>
             <q-space />
             <q-btn icon="close" flat round dense @click="close()" :disable="false"/>
         </q-card-section>
 
-        <q-card-section class="upload_container">
+        <q-card-section class=""><!--upload_container-->
           <q-form ref="save_edit_pochild_form">
-            <div class="row upload_separator_first">
+            <div class="row upload_separator_first"> <!--bg-pink-2 -->
               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                <div class="row input_wrapper_right">
+                <div class="row col-12" style="gap:16px; justify-items:center;">
                   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                    <div class="row dialog_separator">
-                      <div class="offset-md-2 col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4 four_column_left two_column_left">
-                        <div class="row">
-                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                            <div class="row">
-                              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                                <Input
-                                :autofocusclick="true"
-                                :no_label="false"
-                                label="Invoice #"
-                                :readonly="showAddButton"
-                                v-on:change="handleChange"
-                                v-model="json.InvNo"
-                                :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4 col-xl-4">
-                        <div class="row">
-                          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 dialog_separator">
-                            <div class="row">
-                              <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                                <Input
-                                :autofocusclick="true"
-                                :no_label="false"
-                                label="D/O #"
-                                :readonly="showAddButton"
-                                v-on:change="handleChange"
-                                v-model="json.DONo"
-                                :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                        <Input
+                        :autofocusclick="true"
+                        :no_label="false"
+                        label="Invoice #"
+                        :readonly="showAddButton"
+                        v-on:change="handleChange"
+                        v-model="json.InvNo"
+                        :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
+                  </div>
+                  <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <Input
+                        :autofocusclick="true"
+                        :no_label="false"
+                        label="D/O #"
+                        :readonly="showAddButton"
+                        v-on:change="handleChange"
+                        v-model="json.DONo"
+                        :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior.text_required : oridbComponentBehavior.text" />
                   </div>
                 </div>
               </div>
@@ -306,9 +287,9 @@
           </q-form>
         </q-card-section>
 
-        <q-card-actions class="dialog_action" style="padding-left: 20px;">
+        <q-card-actions class="dialog_action" style="padding-right: 16px; padding-bottom:16px; padding-top:0px">
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" align="right">
-              <Button_icon :readonly="false" :flat="true" :font_color="'white'" :color="'#094161'" :text="'CREATE'" :outline="false" size="15px"
+              <Button_icon :readonly="false" :flat="true" :font_color="'white'" :color="'#1E90FF'" :text="'CREATE'" class="custom_primary_button" :outline="false" size="15px"
               v-on:receiveClick="handleConvertPO()"/>
             </div>
         </q-card-actions>
@@ -1120,15 +1101,19 @@ export default{
 }
 .dialog_action
 {
-  height: 55px;
-  position: sticky;
+  height: 70px;
+  position: static;
   padding:0px;
-  padding-right: 20px;
-  padding-left: 20px;
+  /* padding-right: 30px; */
+  /* padding-left: 30px; */
+  /* padding-bottom: 10px; */
+  padding-top: 24px;
   bottom: 0px;
-  background-color: white;
+  /* background-color: white; */
 }
-
+*>>>.q-card__section--vert {
+    padding: 0px;
+}
 .dialog_action_mobile
 {
   height: 55px;
@@ -1152,7 +1137,10 @@ export default{
 {
   padding-left: 16px;
   padding-right: 16px;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 20px;
+  font-family: InterfontSemiBold;
+
 }
 
 @media all and (min-width: 1024px) and (max-width: 1366px){
@@ -1168,8 +1156,9 @@ export default{
 
 .card_sides
 {
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 24px;
+  padding-right: 24px;
+  padding-bottom: 24px;
 }
 
 .upload_container
@@ -1181,7 +1170,7 @@ export default{
 * >>> .q-table__container
 {
     padding: 0px;
-    border-radius: 0px;
+    border-radius: 8px;
     padding: 0px !important;
 }
 
@@ -1250,9 +1239,9 @@ export default{
 .upload_separator_first
 {
     /* border-bottom: 1px solid #DEE1E6; */
-    margin: 10px;
-    padding-top: 10px;
-    padding-bottom: 0px;
+    /* margin: 10px; */
+    /* padding-top: 10px; */
+    padding: 16px;
 }
 
 .upload_separator_first_mobile
@@ -1289,5 +1278,33 @@ export default{
 * >>> .q-field--disabled > .q-field__inner > .q-field__control
 {
   background-color: #cccccc !important;
+}
+.custom_primary_button {
+  padding: 10px 30px;
+  border-radius: 8px;
+  box-shadow: 0px 1px 3.6px 0px rgba(0, 0, 0, 0.25);
+  font-weight: 700;
+  font-family: InterfontBold;
+  width: 112px;
+  height: 48px;
+}
+
+.custom_primary_font {
+  color: var(--q-primary) !important;
+}
+*.itemtable_pagination >>>.q-field__native {
+  margin-bottom: 15px;
+}
+.dialog_done_button {
+  height: 48px;
+  padding: 16px;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 1px 3.6px 0px rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: InterfontBold;
+  font-weight: 700;
+
 }
 </style>

@@ -1,0 +1,204 @@
+Need to check format Amount for table and input fields
+
+stock type got 3
+left dropdown
+premium
+Basic
+house brand
+
+right also dropdown show item code like free 50gram or what 
+
+inventory 
+for display purpose show outright or consignment (can get from flag)
+(new fields want to add) service, inventory or non inventory 
+(using backend non inventory using flag. 1 is non inventory, 2 will be service item)
+
+status 
+have 4 status active, disable, listed delisted.
+
+Catch Weight is weight item. Auto display by weight item.
+
+information > Basic info
+
+Principal is just to display only. if got maintain the supplier.
+Purchase Group (need new table to maintain maybe group 1 group 2 for user to pick)
+- need to create new table (purchase_group one table only. Code and description only. UI will show code and description) Group them for PO purpose. different group cannot in same PO
+- UI need to have new Setup Section for this.
+
+all field with code should show code name for example Supplier, division, department, sub dept and category
+
+need to have new field in database the created by
+
+label info change to Label Info capital issues.
+Itemmaster miscellaneous previously. Create as new field as memo field data type
+
+
+Barcode table. indicator for primary barode or not,and add in barcode type 0,1,2 . like 0 is what 1 is what or 2 is what
+Type is user select. type will determine international standard. UCSII EAM . all got formula
+
+Supplier table
+Type if no use value is NA. use 0,1,2 NA,local,indent.
+Currency fields need to add in new fields.
+Ordering UOM only have Unit/Case follow header.  Unit will follow header Pack Size. Case is header Case Qty.
+- Unit is 1 , 0 is Case. Default is 1.
+minimum order unit and minimum order case default also 1.
+
+
+2024-09-12
+Product Master
+
+supplier remove basic add in one more row
+dropdown scroll horizontal for too long wording
+
+2024-09-13
+Vendor
+preference setting for auto ordering checkbox to show or not (giant setting this will turn on default)
+Site/Banner show like Product > Supplier table
+IBT/ICT Tab dc_code only available when supplier is dc
+
+
+
+Purchase Order
+
+Promotion Section need to include in new web. Price change by banner. Refer to excel P1_P2 pbase
+
+
+* extra information
+Category Dept and Subdept will have glcode new fields
+
+AO
+2024-09-17
+
+Vendor Master have place / field to select delivery frequency
+AP Supplier Mangement -> order frequency field change will auto change stock day. stock day no need to have extra field. display purpose from order frequency dropdown.
+11_AutoOrdering Line 51
+DSP - Direct Supplier
+FL - Flow Through
+
+2024-09-19
+Itemamster
+
+inventory dropdown (new fields to be created) use set master code
+
+basic, house brand and premium will be hardcoded
+
+Finished Goods
+Semi-Finished Goods
+Raw Material
+Services
+ 
+purchase Group (po_group) will be dropdown. use set_master_code. became dropdown
+label info need to change to textarea
+
+barcode table (will have extra field to priority and type)
+
+itemmaster will allow to maintain the status as dropdown. no need to disabled. other than 0 is grey colour.
+itemcode no need disabled for edit etc other fields also same
+configuration tab works like excel
+
+replenishment
+
+auto soq -> manual soq
+auto ordering -> manual ordering
+banner/site (ask jessica) will have the same design as replenishment > basic
+
+create one more table caton barcode table. add on more button under information named Case. (ask Jessica)
+
+purchase supplier > supplier. (itemmaster supcode). missing fields in table need refer Jessica.
+
+itemmaster when create save need to create change log
+
+upload function excel
+
+all table can be sorting
+
+itemmaster stock days can be edit and save. new fields
+
+view mode for itemmaster no need disabled but cannot save
+
+barcode table add button row make it smaller
+data show more row
+
+
+put one more parameter for enable pagination or no need
+
+
+Vendor Supplier
+currency dropdown show code instead of description
+
+vendor stock day fields follow buffer stock day
+
+order frequency is dropdown to determin how many can toggle how many day. 
+lead time (days) maintained in exe. delivery term
+
+status by site
+only add in active outlet
+delivery frequency add in status by site
+
+
+replenishment = conventional, ibt/ict = flowthrough
+
+replenishment > banner/site
+no need show Code
+will have column for order day 1,2,3,4,5,6,7
+
+ibt/ict (Jessica will create new table)
+ibt basic no need site need api to join supplier name
+all table have created and updated info
+
+ADS parameter dropdown need check why undefined
+
+order frequencycfield is come from table dropdown
+
+Auto Ordering
+
+SOQ Systme suggested ordering qty
+
+ADS Formula
+setting preference have checkbox for them to pick
+3+1 Month
+Exclude Non-Sale Day
+Minimum Day
+POS Sales
+SI Sales
+Online Sales
+IBT Sales
+Exclude ICT Qty
+Exclude Promo Qty
+Threshold for Normal Sales Day
+Exlude RTC Sales
+
+
+SOQ Formula
+Site
+Min Day
+Max Day
+ADS
+Lead Time
+Stock Day 
+Buffer Stock Day
+Top Sales Buffer Day
+
+import PO function
+will have dashboard or worker like Mr Tay exe.
+
+
+20240920
+
+ibt/ict (what table)
+
+no |type |suppler |dept| subdept| lead tme |order frequecnvt |stock day |delivery freq| FT buffer day |FT Min day
+
+item is
+by article by site
+by article by banner
+by article
+by suopluer by site
+by supplier by banner
+by supplier
+
+
+itemmaster puchase  > Supplier
+need to add in supplier_site column beside priority
+
+

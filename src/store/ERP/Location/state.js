@@ -13,6 +13,7 @@ export default function () {
     mc_district: [],
     mc_district_status: {},
     cp_set_branch: {},
+    cp_set_branch_general: {},
   }
 }
 

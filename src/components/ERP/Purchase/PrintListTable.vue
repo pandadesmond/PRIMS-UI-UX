@@ -316,6 +316,27 @@
   {
       padding: 0px;
   }
+  *>>>.q-table th {
+    font-weight: 700;
+    font-size: 12px;
+    -webkit-user-select: none;
+    user-select: none;
+    font-family: InterfontBold;
+    color: black;
+    text-align: center !important;
+    background-color: #D7E2E9;
+}
+* >>> .q-table td
+  {
+      padding: 10px !important;
+      padding-left: 20px !important;
+      padding-right:  20px !important;
+      font-size: 12px !important;
+      height: 24px !important;
+       text-align: center !important;
+      font-family: InterfontMedium;
+      font-weight: 500;
+  }
   </style>
 
 <style lang="sass">
@@ -324,7 +345,7 @@
   max-height: 380px
 
   thead tr:first-child th
-    background-color: #dee1e6
+    background-color: #D7E2E9
 
   thead tr th
     position: sticky
