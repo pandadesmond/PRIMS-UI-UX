@@ -1,0 +1,505 @@
+// app global css in SCSS form
+.q-stepper__header--standard-labels .q-stepper__tab
+{
+  min-height: auto;
+}
+
+.fixed-full
+{
+  top: -20px !important;
+}
+
+.q-drawer {
+    // background-color: #474b4e;
+    background-color: #474b4e;
+}
+
+// .q-drawer > .q-drawer__content > .q-list > a > div > .q-item__section > .q-icon {
+//     color: red !important;
+// }
+
+// .q-drawer > .q-drawer__content > .q-list > a > div > .q-icon{
+//     color: white;
+// }
+
+//toolbar
+.q-toolbar
+{
+    // background-color: #094161;
+    // background-color: #273655;
+    background-color: white;
+    border-bottom: 1px solid #CFCFCF;
+    // background: linear-gradient(87deg,#11cdef,#1171ef);
+
+    // background: #ffffff;
+    // color: #888;
+    // border-bottom: 1px solid rgba(0,0,0,.1);
+}
+.q-layout__section--marginal {
+  background-color: var(--q-primary);
+  color: #000000;
+}
+// .q-drawer
+// {
+//     background-color: #212120;
+// }
+
+//side bar tite
+.q-drawer > .q-drawer__content > .q-item__label{
+    // color: white;
+    color: white;
+}
+
+.q-drawer__content
+{
+    color: white;
+}
+
+
+//side bar main link
+.q-drawer > .q-drawer__content > .q-list > .q-item__label
+{
+    color: white;
+    // color: #5e5876;
+}
+
+//side bar icon and description
+.q-drawer > .q-drawer__content > .q-list > a{
+    color: white !important;
+    // color: #5e5876 !important;
+}
+
+//side bar most smaller string
+.q-drawer > .q-drawer__content > .q-list > a > div > .q-item__label{
+    color: white;
+    // color: #5e5876;
+}
+
+
+
+//footer text
+.footer_text
+{
+    font-size: 12px;
+}
+
+
+//component divider
+
+.component_div
+{
+    padding-top: 8px;
+    padding-right:8px;
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}
+
+body::-webkit-scrollbar {
+    display: none;
+}
+
+.q-page-container
+{
+    background-color: #F4F7FE !important;
+    background-color: rgba(203,203,210,.15);
+}
+
+
+// .q-layout {
+//   zoom: 90%;
+// }
+.text-red {
+  color: #B22222;
+}
+
+.custom_font
+{
+    color:#51486c;
+}
+
+// @font-face
+// {
+//     font-family: myfont;
+//     src: url(../fonts/redressed/Redressed-Regular.ttf);
+// }
+
+//   // declare a class which applies it
+//   .my-font {
+//     font-family: 'myfont';
+//   }
+
+.filter_dropdown {
+    width: 100%!important;
+}
+
+/* button save color*/
+.button_save
+{
+    background-color: #094161;
+    color: white;
+}
+
+/*overwrite index.html body css header*/
+body {
+    overflow-y: auto;
+}
+
+html {
+    touch-action: auto;
+}
+
+.theme_color
+{
+    // background-color: #183d84 !important;
+    // background-color: #273655 !important;
+    background-color: rgb(9, 65, 97);
+    color: white;
+}
+
+@media screen and (max-width: 599px) {
+  .q-chip {
+    margin: 0px;
+  }
+  .dialog_confirmation_question_font {
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    font-family: InterfontMedium;
+  }
+  .card_sides{
+    padding: 16px 16px 80px 16px;
+  }
+  .card-container {
+    border-radius: 16px;
+    background: #FFF;
+    box-shadow: 0px 1px 11.3px 0px rgba(0, 0, 0, 0.09);
+    padding: 16px;
+    /* margin-top: 10px; */
+  }
+
+  .q-field__marginal {
+    height: 0% !important;
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 24px;
+  }
+  .q-field--filled .q-field__control
+  {
+    border-radius: 5px;
+  }
+  .q-field--square .q-field__control {
+    border-radius: 5px !important;
+  }
+
+  .q-field__control {
+    border-radius: 5px;
+    // padding: 4px !important;
+    // padding-top: 3px !important;
+    // background-color: aliceblue !important;
+    min-height: 35px !important;
+    // height: 35px !important;
+  }
+  .q-field__inner {
+    border-radius: 5px;
+  }
+  .q-field {
+    border-radius: 5px;
+  }
+  .q-field__native
+  {
+      padding: 0px;
+      min-height: 35px !important;
+      overflow-y: scroll;
+  }
+
+  //size box dropdown icon size
+  .q-field__append
+  {
+      min-height: 35px !important;
+      // height: 35px !important;
+  }
+
+  .q-select__dialog .q-field__native
+  {
+    padding-top: 10px !important;
+    min-height: 35px !important;
+    overflow-y: scroll;
+  }
+}
+.dialog_confirm_delete_button {
+  padding: 0px 8px;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px !important;
+  font-style: normal;
+  font-weight: 700;
+  font-family: InterfontBold;
+  border-radius: 8px;
+  color: #FFFFFF;
+  background-color: #D81111;
+  // box-shadow: 0px 1px 3.6px 0px rgba(0, 0, 0, 0.25);
+  width: 112px;
+  height: 48px;
+}
+.dialog_confirm_cancel_button {
+  padding: 0px 8px;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px !important;
+  font-style: normal;
+  font-weight: 700;
+  font-family: InterfontBold;
+  border: 2px solid #D9D9D9;
+  border-radius: 8px;
+  background: #FFFFFF;
+  /* box-shadow: 0px 1px 3.6px 0px rgba(0, 0, 0, 0.25); */
+  width: 112px;
+  height: 48px;
+}
+.dialog_confirm_print_button {
+  padding: 16px;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px !important;
+  font-style: normal;
+  font-weight: 700;
+  font-family: InterfontBold;
+  /* border: 2px solid #1E90FF; */
+  background-color: rgb(9, 65, 97);
+  border-radius: 8px;
+  /* box-shadow: 0px 1px 3.6px 0px rgba(0, 0, 0, 0.25); */
+  width: 112px;
+  height: 48px;
+}
+@media screen and (min-width: 600px) {
+  .dialog_confirmation_question_font {
+    font-size: 20px;
+    /* padding: 32px 24px; */
+    font-style: normal;
+    font-weight: 500;
+    font-family: InterfontMedium;
+  }
+  .primary_actions_button {
+    padding: 10px 30px;
+    border-radius: 8px;
+    background: rgb(9, 65, 97);
+    color: white;
+    // box-shadow: 0px 1px 3.6px 0px rgba(0, 0, 0, 0.25);
+    font-weight: 700;
+    font-family: InterfontBold;
+    width: 112px;
+    height: 48px;
+  }
+  .secondary_actions_button {
+    padding: 10px 30px;
+    border-radius: 8px;
+    color: rgb(9, 65, 97);
+    background: white;
+    border: 1px solid rgb(9, 65, 97);
+    // box-shadow: 0px 1px 3.6px 0px rgba(0, 0, 0, 0.25);
+    font-weight: 700;
+    font-family: InterfontBold;
+    width: 112px;
+    height: 48px;
+  }
+
+  .card-container {
+    border-radius: 16px;
+    background: #FFF;
+    box-shadow: 0px 1px 11.3px 0px rgba(0, 0, 0, 0.09);
+    padding: 25px 15px 10px;
+    /* margin-top: 10px; */
+  }
+  /*make input field smaller*/
+  // .q-field__control {
+  //     padding: 4px !important;
+  //     padding-top: 0px !important;
+  //     // background-color: aliceblue !important;
+  //     min-height: 26px !important;
+  //     height: 26px !important;
+  // }
+
+  //select box size
+  .q-field__native
+  {
+      padding: 0px;
+      min-height: 26px !important;
+      // height: 26px !important;
+  }
+
+  //size box dropdown icon size
+  .q-field__append
+  {
+      // min-height: 26px !important;
+      // // height: 26px !important;
+  }
+}
+
+/*make input field smaller*/
+.q-field {
+  // background-color: aliceblue !important;
+  font-size: 13px !important
+}
+
+.q-field--float .q-field__label {
+  // top: 7px !important;
+}
+
+.custom_label
+{
+    min-height: 28px !important;
+    height: 28px !important;
+}
+
+.dialog_font
+{
+  font-size: 13px !important;
+}
+
+.mobile_font
+{
+  font-size: 12px !important;
+  color: #928f8f;
+}
+
+.q-field--dense .q-field__label
+{
+  top: 5px !important;
+}
+
+.q-field--labeled.q-field--dense .q-field__native
+{
+  padding-bottom: 3px !important;
+}
+
+// .q-select__dialog .q-field--auto-height.q-field--labeled .q-field__control-container {
+//   padding-top: 5px !important;
+// }
+
+// .q-table thead, .q-table tr, .q-table th, .q-table td {
+//   border-color: solid rgba(83, 81, 81, 0.30);
+//   border-width: 1px;
+// }
+// .q-table--bordered {
+//   border: 2px solid rgba(0, 0, 0, 0.12);
+// }
+.q-stepper__tab {
+  padding: 16px;
+  // font-size: 14px;
+  // color: #9e9e9e;
+  // flex-direction: row;
+}
+// .q-stepper__title {
+//   font-size: 14px;
+//   font-weight: 500;
+//   font-family: InterfontMedium;
+// }
+
+.q-field--dense .q-field__control, .q-field--dense .q-field__marginal {
+  height: 60px;
+}
+.primary_button_font {
+  color: var(--q-primary) !important;
+}
+
+.primary_navigation_button
+{
+    /* border: 1px solid black; */
+  padding: 8px 10px;
+  border-radius: 8px !important;
+  // border: 2px solid #1E90FF;
+  font-family: InterfontMedium;
+  width: 36px;
+  height: 32px;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.09);
+}
+.separator-style {
+  border-top: 1px solid #BFBFBF;
+  width: 100%;
+}
+.gap-radio {
+  gap: 8px;
+}
+.gap-style {
+  gap: 16px;
+}
+.mobile_dialog_delete_btn
+{
+  color: #C10015;
+  text-decoration: none; /* Remove underline by default */
+  transition: text-decoration 0.3s;
+  position: absolute;
+  padding:0px;
+  /* padding-left: 10px; */
+  top: 24%;
+  left: 4%;
+  z-index: 1;
+}
+.selected-card {
+  border-radius: 8px;
+  border: 2px solid #90A8D6;
+  background: #FFF;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.30);
+}
+.q-toggle__inner {
+  font-size: 30px;
+}
+.chip_sty {
+  padding: 11px 10px 11px 10px; /* Adjust the padding as needed */
+  border-radius: 8px;
+  background: #FFF !important;
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+  height: 43px;
+  color: #273655;
+}
+.chip_sty .q-chip__icon {
+  font-size: 1.515em; /* Match this with the size of the Button_icon */
+  width: 18px; /* Optional, ensure the icon container is the same size */
+  height: 18px; /* Optional, ensure the icon container is the same size */
+}
+.q-chip--outline {
+  // background: transparent !important;
+  border: 0px solid currentColor;
+}
+.summary_button {
+  border-radius: 8px;
+  /* border: 1px solid #1E90FF; */
+  background: #FFF;
+  box-shadow: 0px 0px 3.9px 0px rgba(0, 0, 0, 0.25);
+  padding: 11px 8px;
+  // font-size: 13px;
+  // font-weight: 700;
+  // font-family: InterfontBold;
+  height: 43px !important;
+}
+.bold-font {
+  font-family: InterfontBold;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.dialog_header_custom
+{
+  padding: 0px;
+  padding-left: 10px;
+  border-bottom: 1px solid #e1e1e1;
+}
+
+.dialog_content
+{
+  font-size: 12px;
+}
+
+.q-card__section--vert {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.q-dialog__inner > .q-card > .q-card__section--vert
+{
+  padding-left: 16px;
+  padding-right: 16px;
+}

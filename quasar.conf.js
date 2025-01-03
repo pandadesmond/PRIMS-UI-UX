@@ -177,8 +177,8 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: `ERP`,
-        short_name: `ERP`,
+        name: `PRIMS`,
+        short_name: `PRIMS`,
         description: `A Quasar Framework app`,
         display: 'standalone',
         orientation: 'potrait',

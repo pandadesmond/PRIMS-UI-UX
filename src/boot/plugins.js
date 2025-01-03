@@ -1,7 +1,9 @@
 import { boot } from 'quasar/wrappers'
 
 
-import pluginsTableParams from 'src/plugins/ERP/pluginsTableParams';
+import pluginsTableParams from 'src/plugins/PRIMS/pluginsTableParams';
+import pluginsRimsFormatNumber from 'src/plugins/PRIMS/pluginsRimsFormatNumber.js';
+import pluginsRimsFormatNumberKeyup from 'src/plugins/PRIMS/pluginsRimsFormatNumberKeyup.js';
 
 //VUEX
 import dispatch from 'src/plugins/VUEX/dispatch.js';
@@ -15,6 +17,8 @@ export default boot(async ({app}/* { app, router, ... } */) => {
   // app.use(foo);
 
   app.config.globalProperties.$pluginsTableParams = pluginsTableParams
+  app.config.globalProperties.$pluginsRimsFormatNumber = pluginsRimsFormatNumber
+  app.config.globalProperties.$pluginsRimsFormatNumberKeyup = pluginsRimsFormatNumberKeyup
 
 
   //IMS

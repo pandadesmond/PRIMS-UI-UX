@@ -63,3 +63,18 @@ font-family: 'myfont';
 body {
   font-family: 'Poppins';
 }
+
+@media print{
+  body{
+    visibility: hidden;
+  }
+
+  #report_print, #report_print * {
+    visibility: visible;
+  }
+  #report_print {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}

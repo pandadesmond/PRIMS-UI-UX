@@ -1,7 +1,7 @@
 import { route } from 'quasar/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 
-import routes from './ERP'
+import routes from './PRIMS'
 
 import store from 'src/store'
 /*
@@ -30,13 +30,30 @@ export default route(function (/* { store, ssrContext } */) {
 
   //checking for force logout for HONDA only
   //checking for force logout for HONDA only
-  // Router.beforeEach(async (to, from, next) => {
-  //   console.log(to.path);
-  //   if(to.path.includes('/sublot/login') || to.path == '/')
-  //   {
-  //     next();
-  //     return;
-  //   }
+  Router.beforeEach(async (to, from, next) => {
+    // console.log(to.path);
+    if(to.path.includes('/PRIMS/Login') || to.path == '/')
+    {
+      next();
+      return;
+    }
+    else
+    {
+      var authenticated = localStorage.getItem("authenticated") != "" && localStorage.getItem("authenticated") != "null" && localStorage.getItem("authenticated") != null ? (localStorage.getItem("authenticated") == 1 ? true : false) : false;
+      if(authenticated)
+      {
+        console.log('authenticated user');
+        next();
+      }
+      else
+      {
+        console.log('unauthenticated user');
+        await store().dispatch('login/logout')
+        
+        next('/');
+      }
+      return;
+    }
 
   //   var online_version = '';
 
@@ -115,9 +132,9 @@ export default route(function (/* { store, ssrContext } */) {
   //     // }
   //   }//close if else checking
 
-  //   return;
+    return;
 
-  // })
+  })
 
 
   return Router

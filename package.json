@@ -1,8 +1,8 @@
 {
-  "name": "ERP",
+  "name": "PRIMS",
   "version": "0.0.1",
-  "description": "ERP",
-  "productName": "ERP",
+  "description": "PRIMS",
+  "productName": "PRIMS",
   "author": "",
   "private": true,
   "scripts": {

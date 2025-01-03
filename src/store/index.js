@@ -2,7 +2,7 @@ import { store } from 'quasar/wrappers'
 import { createStore } from 'vuex'
 import axios from 'axios';
 
-import modules from 'src/store/ERP'
+import modules from 'src/store/PRIMS'
 
 // import example from './module-example'
 

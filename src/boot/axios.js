@@ -40,8 +40,7 @@ export default boot(async({ app, router, store }) => {
       var user_guid = sessionStorage.getItem('user_guid');
 
       //sublot
-      var company_guid = sessionStorage.getItem('company_guid');
-
+      var company_guid = localStorage.getItem('company_guid');
       // ERP
       var EUser = sessionStorage.getItem('EUser');
       var getuser = sessionStorage.getItem('getuser');
@@ -180,7 +179,7 @@ export default boot(async({ app, router, store }) => {
         originalRequest._retry == true
       ) {
         store.dispatch('login/logout').then(() => {
-          // router.push('/backend_rims/login')
+          router.push('/PRIMS/Login')
         });
         return Promise.reject(error);
       } else if (error.response.status === 401 && !originalRequest._retry) {
@@ -194,7 +193,7 @@ export default boot(async({ app, router, store }) => {
           var redirect_directory = app.config.globalProperties.$global_config.module;
 
           store.dispatch('login/logout').then(() => {
-            router.push('/'+redirect_directory+'/login');
+            router.push('/'+redirect_directory+'/Login');
           });
 
         }//because cross date access token run to long already

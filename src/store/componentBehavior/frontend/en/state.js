@@ -34320,8 +34320,8 @@ export default function() {
                 },
                 text: {
                     label: '',
-                    maxlength: "50",
-                    rules: [val => val.length <= 50 || 'Please use maximum 50 character'],
+                    maxlength: "100",
+                    rules: [],
                     type: 'text',
                     prefix: '',
                     mask: '',
@@ -34329,6 +34329,44 @@ export default function() {
                     hint: '',
                     addReadonly: true,
                     editReadonly: true
+                },
+                text_required:{
+                    label: '',
+                    maxlength: "",
+                    rules: [val => !!val || 'Field is required'],
+                    type: 'text',
+                    prefix: '',
+                    mask: '',
+                    fill_mask: '',
+                    hint: '',
+                    addReadonly: true,
+                    editReadonly: true,
+                },
+                text_right:{
+                    label: '',
+                    maxlength: "",
+                    rules: [],
+                    type: 'text',
+                    prefix: '',
+                    mask: '',
+                    fill_mask: '',
+                    hint: '',
+                    addReadonly: true,
+                    editReadonly: true,
+                    input_class: "text-right"
+                },
+                email: {
+                    label: '',
+                    maxlength: "65535",
+                    rules: [val => /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/.test(val) || 'Format Incorrect'],
+                    type: 'text',
+                    prefix: '',
+                    mask: '',
+                    fill_mask: '',
+                    hint: '',
+                    addReadonly: true,
+                    editReadonly: true,
+                    input_class: ""
                 },
                 select: {
                     label: 'Please select',
@@ -34342,10 +34380,23 @@ export default function() {
                     addReadonly: true,
                     editReadonly: true
                 },
+                select_required: {
+                    label: 'Please select',
+                    maxlength: "",
+                    rules: [val => {
+                        return (Array.isArray(val) ? val.length > 0 : !!val) || '* Required'}],
+                    type: 'text',
+                    prefix: '',
+                    mask: '',
+                    fill_mask: '',
+                    hint: '',
+                    addReadonly: true,
+                    editReadonly: true
+                },
                 number: {
                     label: '',
                     maxlength: "10",
-                    rules: [val => !!val || '* Required', val => val.length <= 10 || 'Please use maximum 10 character'],
+                    rules: [val =>  ((typeof parseFloat(val) === 'number' || val) && val !== '') || '* Required'],
                     type: 'number',
                     prefix: '',
                     mask: '##########',
@@ -34354,10 +34405,51 @@ export default function() {
                     addReadonly: true,
                     editReadonly: true
                 },
+                number_right: {
+                    label: '',
+                    maxlength: "",
+                    rules: [val => (typeof parseFloat(val) === 'number' || val) || '* Required'],
+                    type: 'number',
+                    prefix: '',
+                    mask: '',
+                    fill_mask: '',
+                    hint: '',
+                    addReadonly: true,
+                    editReadonly: true,
+                    input_class: "text-right"
+                },
+                percent_right: {
+                    label: '',
+                    maxlength: "",
+                    rules: [val => (typeof parseFloat(val) === 'number' || val) || '* Required'],
+                    type: 'number',
+                    prefix: '%',
+                    mask: '',
+                    fill_mask: '',
+                    hint: '',
+                    addReadonly: true,
+                    editReadonly: true,
+                    input_class: "text-right"
+                },
+                amount_right: {
+                    label: '',
+                    maxlength: "",
+                    rules: [val => (typeof parseFloat(val) === 'number' || val) || '* Required'],
+                    type: 'number',
+                    prefix: '$',
+                    mask: '',
+                    fill_mask: '',
+                    hint: '',
+                    addReadonly: true,
+                    editReadonly: true,
+                    input_class: "text-right"
+                },
                 textarea: {
-                    label: 'Textarea',
+                    label: '',
                     maxlength: "65535",
-                    rules: [val => val.length <= 65535 || 'Please use maximum 65535 character'],
+                    rules: [
+                        val => val === "" || val.length <= 65535 || 'Please use maximum 65535 character',
+                    ],
                     type: 'textarea',
                     prefix: '',
                     mask: '',
@@ -34389,7 +34481,7 @@ export default function() {
                   hint: '',
                   addReadonly: true,
                   editReadonly: true
-              },
+                },
                 dn_loc_group: {
                     label: 'Loc Group',
                     maxlength: "20",
