@@ -6,7 +6,7 @@
         </div>
         <div class="col-xl-11 col-lg-11 col-md-11 col-sm-12 col-xs-12">
             <div class="row q-gutter-md" style="align-items: center;">
-                <div class="col-xl-2 col-lg-2 col-md-2 col-sm-5 col-xs-12">
+                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-5 col-xs-12">
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-xs-4">
                             <Select :readonly="readonly" v-model:pass_value="value.select1" :options="options.select1"
@@ -18,7 +18,7 @@
                         </div>
                     </div>                    
                 </div>
-                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-5 col-xs-12">
+                <div class="col-xl-2 col-lg-2 col-md-2 col-sm-5 col-xs-12">
                     <RadioButton v-model:pass_value="value.radio" :options="options.radio" v-on:receiveChange="handleChangeRadio" :readonly="readonly"/>
                 </div>
                 <div v-if="is_auto" class="col-xl-2 col-lg-2 col-md-2 col-sm-5 col-xs-12">
@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="row q-gutter-md" style="align-items: center;">
-                <div class="col-xl-2 col-lg-2 col-md-2 col-sm-5 col-xs-12">
+                <div class="col-xl-3 col-lg-3 col-md-3 col-sm-5 col-xs-12">
                     <div class="row">
                         <div class="col-xl-4 col-lg-4 col-md-4 col-sm-4 col-xs-4">
                             <Select :readonly="readonly" v-model:pass_value="value.select2" :options="options.select2"

@@ -11,21 +11,26 @@
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12"  style="font-size: 10px;">
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                        <LabelInput v-if="readonlyStatus|| parentReadonlyStatus" label="Vendor Name" v-model:pass_value="json.vendor_name" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
-                        <LabelSelect v-else label="Vendor Name" v-model:pass_value="json.supplier_guid" :readonly="false" :options="options.supplier_list" 
-                        @receiveChange="handleChangeVendor" :dbComponentBehavior="dbComponentBehavior.select_required"/>
+                        <LabelSelect label="Vendor Name" v-model:pass_value="json.supplier_guid" :readonly="readonlyStatus || parentReadonlyStatus" :options="options.supplier_list" 
+                        @receiveChange="handleChangeVendor" :dbComponentBehavior="dbComponentBehavior.select_required" @click="getSupplier" :loading="forceLoading.vendor"/>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                         <LabelInput label="Vendor Code" v-model:pass_value="json.vendor_code" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
                     </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                        <LabelMultiselect label="Invoice" v-model:pass_value="json.invoices" :readonly="readonlyStatus || parentReadonlyStatus" :options="options.invoices" option_label="Invoices"
-                        @receiveChange="handleChangeInvoices" :dbComponentBehavior="dbComponentBehavior.select_required"/>
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 q-px-sm q-py-xs">
+                        <LabelSelect label="Company" v-model:pass_value="json.company_info_guid" :readonly="page_function=='edit'" :options="options.company_list" 
+                        :dbComponentBehavior="dbComponentBehavior.select_required" @receiveChange="handleChangeCompany"/>
                     </div>
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                        <LabelInput v-if="readonlyStatus || parentReadonlyStatus" label="Outlet" v-model:pass_value="json.outlet_code" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
-                        <LabelSelect v-else label="Outlet" v-model:pass_value="json.retailer_outlet_guid" :readonly="false" :options="options.outlet" 
-                        @receiveChange="handleChangeOutlet" :dbComponentBehavior="dbComponentBehavior.select_required"/>
+                        <LabelMultiselect label="Invoice" v-model:pass_value="json.invoices" :readonly="readonlyStatus || parentReadonlyStatus" :options="options.invoices" option_label="Invoices"
+                        @receiveChange="handleChangeInvoices" :dbComponentBehavior="dbComponentBehavior.select_required" :select_all="true" :forceSelectAll="forceSelectAllInvoices" :loading="forceLoading.invoices"/>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
+                        <LabelCheckbox label="By Outlet" v-model:pass_value="json.by_outlet" :readonly="readonlyStatus || parentReadonlyStatus" @receiveChange="handleChangeByOutlet"/>
+                    </div>
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs" v-if="json.by_outlet">
+                        <LabelSelect label="Outlet" v-model:pass_value="json.retailer_outlet_guid" :readonly="readonlyStatus || parentReadonlyStatus" :options="options.outlet" 
+                        :dbComponentBehavior="json.by_outlet ? dbComponentBehavior.select : dbComponentBehavior.select_required" :forceSelectAll="false" :loading="forceLoading.outlet"/>
                     </div>
                 </div>
 
@@ -39,17 +44,12 @@
                             </div>
 
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 q-px-sm q-py-xs">
-                                <LabelDatepicker label="Date" :daterange="json.date" :readonly="readonlyStatus" 
+                                <LabelDatepicker label="Date" :daterange="json.date" :readonly="readonlyStatus" :dateFormat="preference.dateFormat"
                                 :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeDate"/>
                             </div>
 
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 q-px-sm q-py-xs">
                                 <LabelInput label="Total Amount" v-model:pass_value="json.total_amount" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
-                            </div>
-
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 q-px-sm q-py-xs">
-                                <LabelSelect label="Company" v-model:pass_value="json.company_info_guid" :readonly="page_function=='edit'" :options="options.company_list" 
-                                :dbComponentBehavior="dbComponentBehavior.select_required"/>
                             </div>
 
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-6 q-px-sm q-py-xs">
@@ -68,25 +68,34 @@
                         <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                                 <LabelInput label="PIP Status" v-model:pass_value="json.pip_status" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
-                            </div>       
-                                        
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                <LabelInput label="PIP at" v-model:pass_value="json.pip_at" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
                             </div>
                             
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                                 <LabelInput label="PIP Response" v-model:pass_value="json.pip_response" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
+                            </div>
+                                        
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
+                                <LabelInput label="PIP at" v-model:pass_value="json.pip_at" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
                             </div>
                             
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm">
                                 <LabelCheckbox label="PIP" v-model:pass_value="json.pip" :readonly="true" />
                             </div>
                         </div>
-                        <div class="row">                    
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
+                                <LabelInput label="P2A at" v-model:pass_value="json.p2a_navision_at" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
+                            </div>
+                            
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm">
+                                <LabelCheckbox label="P2A" v-model:pass_value="json.p2a_navision" :readonly="true" />
+                            </div>
+
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                                 <LabelInput label="LHDN Validated At" v-model:pass_value="json.lhdn_validated_at" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
                             </div>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm">
                                 <LabelCheckbox label="LHDN Validate" v-model:pass_value="json.lhdn_validated" :readonly="true" />
                             </div>
                         </div>
@@ -153,7 +162,7 @@
                         :pass_no_caps="false"
                         :pass_square="true"
                         :pass_dense="true"
-                        class="custom_button"
+                        class="action_button"
                     />
                     
                     <Button v-if="page_function == 'edit' && json.posted == 0 && json.canceled == 0" pass_label="POST"
@@ -161,15 +170,15 @@
                         :pass_no_caps="false"
                         :pass_square="true"
                         :pass_dense="true"
-                        class="custom_button"
+                        class="action_button"
                     />
 
-                    <Button v-if="page_function == 'edit' && json.posted == 0 && json.canceled == 0" pass_label="CANCEL"
+                    <Button v-if="page_function == 'edit' && json.canceled == 0" pass_label="CANCEL"
                         v-on:receiveClick="dialog.cancel = true"
                         :pass_no_caps="false"
                         :pass_square="true"
                         :pass_dense="true"
-                        class="custom_button"
+                        class="action_button"
                     />
                 </div>
             </div>
@@ -186,7 +195,7 @@
         <q-card style="width: 864px; max-width: 98vw;text-align:center;margin-top: 5%;border-radius: 8px">
 
         <q-card-section class="theme_color row items-center" style="height:56px; padding: 8px 24px;border-bottom: 1px solid #a7bbcb;">
-            <div class="confirm_title">Invoice: {{json.refno}}</div>
+            <div class="confirm_title">{{transaction_type == 'cn' ? 'Credit Note' : 'Debit Note'}}: {{json.refno}}</div>
             <q-space />
             <q-btn icon="close" flat round dense @click="closeDialogChild"/>
         </q-card-section>
@@ -195,7 +204,23 @@
             <q-form ref="save_dialog">
                 <div class="row q-gutter-sm q-px-md">
                     <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10">
-                        <LabelInput label="Description" v-model:pass_value="dialog.description" :dbComponentBehavior="dbComponentBehavior.text_required"/>
+                        <LabelMultiselect v-if="!json.by_outlet && dialog.action == 'ADD'" label="Outlet" option_label="Outlets" v-model:pass_value="dialog.outlet" :options="options.outlet" :loading="forceLoading.outlet"
+                        :readonly="false" :dbComponentBehavior="!json.by_outlet ? dbComponentBehavior.select_required : dbComponentBehavior.select" :select_all="true" :forceSelectAll="forceSelectAllOutlet"/>
+
+                        <LabelSelect v-if="!json.by_outlet && dialog.action == 'EDIT'" label="Outlet" v-model:pass_value="dialog.outlet" :options="options.outlet" :readonly="false" :loading="forceLoading.outlet"
+                         :dbComponentBehavior="!json.by_outlet ? dbComponentBehavior.text_required : dbComponentBehavior.text"/>
+                    </div>
+                    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                        <LabelInputAutocomplete label="Description" v-model:pass_value="dialog.description" :options="options.desc" 
+                        :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeDesc"/>
+                    </div>
+                    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                        <LabelSelect label="Division" v-model:pass_value="dialog.division" :options="options.division" :readonly="false"
+                            :dbComponentBehavior="dbComponentBehavior.text_required"/>
+                    </div>
+                    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                        <LabelSelect label="GL Code" v-model:pass_value="dialog.glcode" :options="options.glcode" :readonly="false"
+                            :dbComponentBehavior="dbComponentBehavior.text_required"/>
                     </div>
                     <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10">
                         <div class="row">
@@ -324,6 +349,7 @@
 import Label from 'src/components/PRIMS/Main/Label'
 import Input from 'src/components/PRIMS/Main/Input'
 import LabelInput from 'src/components/PRIMS/General/LabelInput'
+import LabelInputAutocomplete from 'src/components/PRIMS/General/LabelInputAutocomplete'
 import LabelDatepicker from 'src/components/PRIMS/General/LabelDatepicker'
 import LabelCheckbox from 'src/components/PRIMS/General/LabelCheckbox'
 import LabelTextarea from 'src/components/PRIMS/General/LabelTextarea'
@@ -338,6 +364,7 @@ export default {
         Label,
         Input,
         LabelInput,
+        LabelInputAutocomplete,
         LabelDatepicker,
         LabelCheckbox,
         LabelTextarea,
@@ -352,6 +379,7 @@ export default {
             page_function: "",
             username: localStorage.getItem("username") != "" && localStorage.getItem("username") != "null" && localStorage.getItem("username") != null ? localStorage.getItem("username") : "",
             company_guid: localStorage.getItem("company_guid") != "" && localStorage.getItem("company_guid") != "null" && localStorage.getItem("company_guid") != null ? localStorage.getItem("company_guid") : "",
+            preference: {},
             json: {
                 remarks: "",
                 supplier_guid: "",
@@ -359,6 +387,8 @@ export default {
                 invoices: [],
                 total_amount: 0.00,
                 total_incl_tax: 0.00,
+                by_outlet: false,
+                company_info_guid: "",
             },
             dialog: {
                 child: false,
@@ -381,29 +411,41 @@ export default {
                 supplier_list: [],
                 invoice_list: [],
                 outlet_list: [],
+                glcode_list: [],
+                division_list: [],
                 outlet: [],
                 invoices: [],
                 invoices_child: [],
                 company_list: [],
+                desc: [],
+                glcode: [],
+                division: [],
             },            
             currentTrans: "",
             readonlyStatus: false,
             parentReadonlyStatus: false,
             loading: false,
+            forceLoading: {
+                vendor: false,
+                outlet: false,
+                invoices: false,
+            },
         }
     },
     computed: {
         dbComponentBehavior() {
             return this.$store.getters["dbComponentBehavior/byLanguage"]("tta");
         },
-        invoiceOptions()
-        {
-            var options = [];
-            if(this.json.supplier_guid != "")
-            {
-                options = this.options.invoice_list.filter((entry)=>entry.supplier_guid == this.json.supplier_guid);
-            }
-            return options;
+        forceSelectAllInvoices(){
+            return this.options.invoices.length > 0 ? this.json.invoices.length == this.options.invoices.length : false;
+        },
+        forceSelectAllOutlet(){
+            return this.options.outlet.length > 0 ? this.dialog.outlet.length == this.options.outlet.length : false;
+        },
+        glcode_options(){
+            return this.options.glcode.filter(entry => {
+                return entry.company_info_guid == this.json.company_info_guid;
+            });
         },
         // invoiceChildOptions()   // filter invoice options for table row (based on selected invoices)
         // {
@@ -423,6 +465,40 @@ export default {
     async mounted(){
         this.loading = true;
 
+        if(!localStorage.getItem("preference_setting"))
+        {
+            var pass_obj = {
+                "dispatch": 'general/trigger_get_company',
+                "getter": 'general/get_company',
+                "app": this,
+                "payload": {
+                    "company_guid": this.company_guid
+                },
+            }
+
+            var company = await this.$dispatch(pass_obj);
+
+            if(!company.status)
+            {
+                this.showNotify('negative', "Preference setting failed.");
+                this.$router.push({name: "tta"});
+            }
+
+            this.preference = {
+                "dateFormat": company.response.data.date_format_setting,
+                "default_date_to": company.response.data.date_to_setting,
+                "division_setting": company.response.data.division_setting == 1 ? true : false,
+                "banner_setting": company.response.data.banner_option_setting,
+                "displayBanner": company.response.data.display_banner_setting == 1 ? true : false,
+                "settlement_discount_setting": company.response.data.settlement_discount_setting == 1 ? true : false,
+            };
+            localStorage.setItem("preference_setting", JSON.stringify(this.preference));
+        }
+        else
+        {
+            this.preference = JSON.parse(localStorage.getItem("preference_setting"));
+        }
+
         if(this.$route.name.endsWith('CN'))
         {
             this.transaction_type = 'cn';
@@ -430,97 +506,6 @@ export default {
         else if(this.$route.name.endsWith('DN'))
         {
             this.transaction_type = 'dn';
-        }
-
-        // set supplier options
-        var payload = {
-            params: {
-                "limit": 99999,
-                "ordering": 'name',
-            }
-        }
-
-        var pass_obj = {
-            "dispatch": 'general/trigger_get_supplier_list',
-            "getter": 'general/get_supplier',
-            "app": this,
-            "payload": payload,
-        };
-
-        var supplier_list = await this.$dispatch(pass_obj);
-
-        if(supplier_list.status)
-        {
-            var array_options = [];
-            for(const supplier of supplier_list.response.data.results)
-            {
-                const obj = {
-                    "label": `${supplier.code} - ${supplier.name}`,
-                    "value": supplier.supplier_guid,
-                }
-                array_options.push(obj);
-            }
-            this.options.supplier_list = array_options;
-        }
-
-        // set invoice options
-        var payload = {
-            params: {
-                "limit": 99999,
-                "ordering": 'refno',
-            }
-        }
-
-        var pass_obj = {
-            "dispatch": 'transaction/trigger_get_invoice_list',
-            "getter": 'transaction/get_invoice',
-            "app": this,
-            "payload": payload,
-        };
-
-        var invoice_list = await this.$dispatch(pass_obj);
-
-        if(invoice_list.status)
-        {
-            var array_options = [];
-            for(const invoice of invoice_list.response.data.results)
-            {
-                var obj = invoice;
-                obj.label = invoice.refno;
-                obj.value = invoice.invoice_guid;
-                array_options.push(obj);
-            }
-            this.options.invoice_list = array_options;
-        }
-
-        // set outlet options
-        var payload = {
-            params: {
-                "limit": 99999,
-            }
-        }
-
-        var pass_obj = {
-            "dispatch": 'general/trigger_get_banner_outlet_list',
-            "getter": 'general/get_banner_outlet',
-            "app": this,
-            "payload": payload,
-        }
-
-        var outlet_list = await this.$dispatch(pass_obj);
-
-        if(outlet_list.status)
-        {
-            var array_options = [];
-            for(var i in outlet_list.response.data.results)
-            {
-                var obj = outlet_list.response.data.results[i].retailer_outlet;
-                obj.value = obj.retailer_outlet_guid;
-                obj.label = `${obj.code} - ${obj.name}`;
-                obj.concept_guid = outlet_list.response.data.results[i].concept_guid;
-                array_options.push(obj);
-            }
-            this.options.outlet_list = array_options;
         }
 
         // set company options
@@ -561,195 +546,90 @@ export default {
                 this.$router.push({name: this.transaction_type});
             }
 
+            // set glcode options
             var payload = {
-                'cndn_guid': this.currentTrans,
+                params: {
+                    "limit": 99999,
+                    "ordering": "code",
+                }
             }
 
             var pass_obj = {
-                "dispatch": 'transaction/trigger_get_cndn',
-                "getter": 'transaction/get_cndn_note',
+                "dispatch": 'general/trigger_get_glcode_list',
+                "getter": 'general/get_glcode',
                 "app": this,
                 "payload": payload,
             }
 
-            var cndn_details = await this.$dispatch(pass_obj);
-            
-            if(cndn_details.status)
+            var glcode = await this.$dispatch(pass_obj);
+
+            if(glcode.status)
             {
-                var obj = cndn_details.response.data;
-
-                if(obj.posted == 1 || obj.canceled == 1)
+                for(var i in glcode.response.data.results)
                 {
-                    this.readonlyStatus = true;
+                    var obj = glcode.response.data.results[i];
+                    obj.value = obj.glcode_guid;
+                    obj.label = `${obj.code} - ${obj.name}`;
+                    this.options.glcode_list.push(obj);
                 }
+            }
 
-                var payload = {
-                    params: {
-                        'cndn_guid': this.currentTrans,
-                    }
-                }
+            // set division options
+            var pass_obj = {
+                "dispatch": 'general/trigger_get_division_list',
+                "getter": 'general/get_division',
+                "app": this,
+                "payload": payload,
+            }
 
-                var pass_obj = {
-                    "dispatch": 'transaction/trigger_get_cndn_invoice_list',
-                    "getter": 'transaction/get_cndn_note',
-                    "app": this,
-                    "payload": payload,
-                }
+            var division = await this.$dispatch(pass_obj);
 
-                var cndn_invoices = await this.$dispatch(pass_obj);
-
-                obj.invoices = [];
-                
-                if(cndn_invoices.status)
+            if(division.status && division.response.data.count > 0)
+            {
+                for(var i in division.response.data.results)
                 {
-                    obj.invoices = cndn_invoices.response.data.results.map(entry=>entry.invoice_guid);
+                    var obj = division.response.data.results[i];
+                    obj.value = obj.division_guid;
+                    obj.label = `${obj.code} - ${obj.name}`;
+                    this.options.division_list.push(obj);
                 }
-                await this.handleChangeInvoices(obj.invoices);
-                this.json = obj;
-                this.handleChangeVendor();
-            }            
+            }
 
-            console.log(this.json)
-            this.table_function(this.ori_params);
+            await this.getCNDN();
         }
         else if(this.$route.name.startsWith('create'))
         {
             this.page_function = 'create';
-            this.table_column = [
-                {
-                    name: 'action',
-                    required: true,
-                    label: 'Action',
-                    align: 'center',
-                    sortable: false,
-                    field: 'action',
-                    headerStyle: 'text-align: center;',
-                    filter_type: 'input',
-                    filter_options: [],
-                    filter_value: '',
-                },
-                {
-                    name: 'line',
-                    required: true,
-                    label: 'Line',
-                    align: 'center',
-                    sortable: true,
-                    field: 'line',
-                    headerStyle: 'text-align: center; width: 1%;',
-                    filter_type: 'input',
-                    filter_options: [],
-                    filter_value: '',
-                },
-                // {
-                //     name: 'inv_no',
-                //     required: true,
-                //     label: 'Invoice No',
-                //     align: 'center',
-                //     sortable: true,
-                //     field: 'inv_no',
-                //     data_type: 'select',
-                //     headerStyle: 'text-align: center; width: 1%;',
-                //     filter_type: 'input',
-                //     filter_options: [],
-                //     filter_value: '',
-                // },
-                {
-                    name: 'description',
-                    required: true,
-                    label: 'Description',
-                    align: 'left',
-                    sortable: true,
-                    field: 'description',
-                    data_type: 'input_text',
-                    headerStyle: 'text-align: center; width: 1%;',
-                    filter_type: 'input',
-                    filter_options: [],
-                    filter_value: '',
-                },
-                {
-                    name: 'purchase_value',
-                    required: true,
-                    label: 'Amount',
-                    align: 'center',
-                    sortable: true,
-                    field: 'purchase_value',
-                    data_type: 'input_number',
-                    headerStyle: 'text-align: center; width: 1%;',
-                    filter_type: 'input',
-                    filter_options: [],
-                    filter_value: '',
-                },
-                {
-                    name: 'qty',
-                    required: true,
-                    label: 'Qty',
-                    align: 'center',
-                    sortable: true,
-                    field: 'qty',
-                    format: (val) => this.formatAmount(val,'qty'),
-                    headerStyle: 'text-align: center; width: 1%;',
-                    filter_type: 'input',
-                    filter_options: [],
-                    filter_value: '',
-                },
-                {
-                    name: 'tax_code',
-                    required: true,
-                    label: 'Tax Code',
-                    align: 'center',
-                    sortable: true,
-                    field: 'tax_code',
-                    headerStyle: 'text-align: center; width: 1%;',
-                    filter_type: 'input',
-                    filter_options: [],
-                    filter_value: '',
-                },
-                {
-                    name: 'tax_rate',
-                    required: true,
-                    label: 'Tax Rate',
-                    align: 'center',
-                    sortable: true,
-                    field: 'tax_rate',
-                    format: (val) => this.formatAmount(val,'$'),
-                    headerStyle: 'text-align: center; width: 1%;',
-                    filter_type: 'input',
-                    filter_options: [],
-                    filter_value: '',
-                },
-                {
-                    name: 'tax_amount',
-                    required: true,
-                    label: 'Tax Amount',
-                    align: 'center',
-                    sortable: true,
-                    field: 'tax_amount',
-                    format: (val) => this.formatAmount(val,'$'),
-                    headerStyle: 'text-align: center; width: 1%;',
-                    filter_type: 'input',
-                    filter_options: [],
-                    filter_value: '',
-                },
-            ];
-            this.table_data = {
-                data: {
-                    results: [],
-                }
-            };
+            this.readonlyStatus = false;
+            this.parentReadonlyStatus = false;
+            this.getSupplier();
         }
 
         this.loading = false;
     },
     methods:{
+        handleChangeDate(newVal)
+        {
+            this.json.date = newVal;
+        },
         handleAdd()
         {
-            if(this.json.retailer_outlet_guid == "")
+            if(this.json.by_outlet && (!this.json.retailer_outlet_guid || this.json.retailer_outlet_guid == ""))
             {
                 this.showNotify('negative','Please select outlet before adding child.');
                 return;
             }
+
+            if(!this.json.by_outlet && this.json.invoices.length == 0)
+            {
+                this.showNotify('negative','Please select at least one invoice before adding child.');
+                return;
+            }
             // console.log(this.options.invoices_child)
             this.dialog.action = "ADD";
+            this.dialog.outlet = [];
+            this.dialog.glcode = "";
+            this.dialog.division = "";
             this.dialog.child = true;
             // const line = this.table_data.data.results.length + 1;
             // const obj = {
@@ -783,6 +663,9 @@ export default {
         handleEdit(payload)
         {
             this.dialog.action = "EDIT";
+            this.dialog.outlet = payload.row.retailer_outlet_guid;
+            this.dialog.glcode = payload.row.glcode_guid;
+            this.dialog.division = payload.row.division_guid;
             this.dialog.amount = payload.row.amount;
             this.dialog.qty = payload.row.qty;
             this.dialog.description = payload.row.description;
@@ -815,13 +698,32 @@ export default {
 
             if(this.dialog.action == "ADD")
             {
-                const new_child = {
-                    "description": this.dialog.description,
-                    "amount": parseFloat(this.dialog.amount),
-                    "qty": parseInt(this.dialog.qty),
-                    "retailer_outlet_guid": this.json.retailer_outlet_guid,
+                if(this.dialog.outlet.length > 0)
+                {
+                    this.dialog.outlet.forEach(entry => {
+                        const new_child = {
+                            "description": typeof this.dialog.description === 'object' ? this.dialog.description.label : this.dialog.description,
+                            "amount": parseFloat(this.dialog.amount),
+                            "qty": parseInt(this.dialog.qty),
+                            "retailer_outlet_guid": entry,
+                            "glcode_guid": this.dialog.glcode,
+                            "division_guid": this.dialog.division,
+                        }
+                        this.json.cndn_child.push(new_child);
+                    })
                 }
-                this.json.cndn_child.push(new_child);
+                else
+                {
+                    const new_child = {
+                        "description": typeof this.dialog.description === 'object' ? this.dialog.description.label : this.dialog.description,
+                        "amount": parseFloat(this.dialog.amount),
+                        "qty": parseInt(this.dialog.qty),
+                        "retailer_outlet_guid": this.json.retailer_outlet_guid,
+                        "glcode_guid": this.dialog.glcode,
+                        "division_guid": this.dialog.division,
+                    }
+                    this.json.cndn_child.push(new_child);
+                }
             }
             else if(this.dialog.action == "EDIT"){
                 this.json.cndn_child.map((entry)=>{
@@ -829,8 +731,10 @@ export default {
                     {
                         entry.amount = parseFloat(this.dialog.amount);
                         entry.qty = parseInt(this.dialog.qty);
-                        entry.description = this.dialog.description;
-                        entry.retailer_outlet_guid = this.json.retailer_outlet_guid;
+                        entry.description = typeof this.dialog.description === 'object' ? this.dialog.description.label : this.dialog.description;
+                        entry.retailer_outlet_guid = this.json.by_outlet ? this.json.retailer_outlet_guid : this.dialog.outlet;
+                        entry.glcode_guid = this.dialog.glcode;
+                        entry.division_guid = this.dialog.division;
                     }
                 })
             }
@@ -848,7 +752,8 @@ export default {
                 pass_json: {
                     "cndn_guid": this.json.cndn_guid,
                     "company_guid": this.company_guid,
-                    "retailer_outlet_guid": this.json.retailer_outlet_guid,
+                    "company_info_guid": this.json.company_info_guid,
+                    "retailer_outlet_guid": this.json.by_outlet ? this.json.retailer_outlet_guid : null,
                     "supplier_guid": this.json.supplier_guid,
                     "date": this.json.date,
                     "doctype": this.transaction_type,
@@ -860,7 +765,6 @@ export default {
                     "cndn_child": this.json.cndn_child,
                 }
             }
-            console.log(payload);
 
             var pass_obj = {
                 "dispatch": 'transaction/trigger_update_cndn_bulk',
@@ -879,7 +783,7 @@ export default {
             }
 
             this.showNotify('positive','Successfully updated.');
-            await this.reloadCNDN();
+            await this.getCNDN();
             this.dialog.loading = false;
             this.closeDialogChild();
         },
@@ -908,7 +812,7 @@ export default {
             }
 
             this.showNotify('positive','Successfully deleted.');
-            await this.reloadCNDN();
+            await this.getCNDN();
             this.dialog.loading = false;
             this.dialog.confirm = false;
         },
@@ -927,13 +831,58 @@ export default {
         //     }
         //     console.log('remove row', this.table_data.data.results);
         // },
-        handleChangeVendor()
+        async handleChangeVendor(newVal)
         {
-            this.options.invoices = this.invoiceOptions;
+            this.json.supplier_guid = newVal;
+            var vendor = this.options.supplier_list.filter(entry => entry.value == newVal);
+            if(vendor.length>0)
+            {
+                this.json.vendor_code = vendor[0].code ? vendor[0].code : "";
+            }
+            this.json.invoices = [];
+            this.json.retailer_outlet_guid = "";
+            this.options.invoices = await this.filterInvoice();
+        },
+        async handleChangeCompany()
+        {
+            this.json.invoices = [];
+            this.options.invoices = await this.filterInvoice();
         },
         async handleChangeInvoices(newVal)    
         {
+            if(this.options.outlet_list.length == 0)
+            {
+                // set outlet options
+                var payload = {
+                    params: {
+                        "limit": 99999,
+                    }
+                }
+
+                var pass_obj = {
+                    "dispatch": 'general/trigger_get_retailer_outlet_list',
+                    "getter": 'general/get_retailer_outlet',
+                    "app": this,
+                    "payload": payload,
+                }
+
+                var outlet_list = await this.$dispatch(pass_obj);
+
+                if(outlet_list.status)
+                {
+                    var array_options = [];
+                    for(var i in outlet_list.response.data.results)
+                    {
+                        var obj = outlet_list.response.data.results[i];
+                        obj.value = obj.retailer_outlet_guid;
+                        obj.label = `${obj.code} - ${obj.name}`;
+                        array_options.push(obj);
+                    }
+                    this.options.outlet_list = array_options;
+                }
+            }
             this.json.invoices = newVal;
+            this.json.retailer_outlet_guid = "";
             this.options.outlet = await this.filterOutlet();
             // // change options for table row
             // this.options.invoices_child = this.invoiceChildOptions;
@@ -942,10 +891,18 @@ export default {
             //     this.table_data.data.results[i].input_options_inv_no = this.options.invoices_child;
             // }
         },
-        // handleChangeSelect(pass_data)
-        // {
-        //     console.log(pass_data);
-        // },
+        handleChangeByOutlet(newVal)
+        {
+            if(!newVal) this.json.retailer_outlet_guid = "";
+        },
+        handleChangeDesc(newVal)
+        {
+            if(newVal && typeof newVal === 'object')
+            {
+                this.dialog.glcode = newVal.glcode_guid ? newVal.glcode_guid : "";
+                this.dialog.division = newVal.division_guid ? newVal.division_guid : "";
+            }
+        },
         handleTableChange(newVal)
         {
             var new_params = this.$pluginsTableParams(newVal)
@@ -959,15 +916,10 @@ export default {
             this.table_function(payload);
         },
         async table_function(payload){
-            this.showLoading = true;
 
-            if(this.rearrange_column.length > 0)
+            if(!this.json.cndn_guid)
             {
-                var column = this.rearrange_column;
-            }
-            else
-            {
-                var column = [
+                this.table_column = [
                     {
                         name: 'line',
                         required: true,
@@ -1000,6 +952,233 @@ export default {
                         sortable: true,
                         field: 'outlet_code',
                         headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'amount',
+                        required: true,
+                        label: 'Amount',
+                        align: 'center',
+                        sortable: true,
+                        field: 'amount',
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'qty',
+                        required: true,
+                        label: 'Qty',
+                        align: 'center',
+                        sortable: true,
+                        field: 'qty',
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'rate',
+                        required: true,
+                        label: 'Rate',
+                        align: 'center',
+                        sortable: true,
+                        field: 'rate',
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'tax_code',
+                        required: true,
+                        label: 'Tax Code',
+                        align: 'center',
+                        sortable: true,
+                        field: 'tax_code',
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'tax_rate',
+                        required: true,
+                        label: 'Tax Rate',
+                        align: 'center',
+                        sortable: true,
+                        field: 'tax_rate',
+                        format: (val) => this.formatAmount(val,'$'),
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'tax_amount',
+                        required: true,
+                        label: 'Tax Amount',
+                        align: 'center',
+                        sortable: true,
+                        field: 'tax_amount',
+                        format: (val) => this.formatAmount(val,'$'),
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'total_amount',
+                        required: true,
+                        label: 'Total Amount',
+                        align: 'center',
+                        sortable: true,
+                        field: 'total_amount',
+                        format: (val) => this.formatAmount(val,'$'),
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'total_incl_tax',
+                        required: true,
+                        label: 'Total Incl Tax',
+                        align: 'center',
+                        sortable: true,
+                        field: 'total_incl_tax',
+                        format: (val) => this.formatAmount(val,'$'),
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'created_at',
+                        required: true,
+                        label: 'Create At',
+                        align: 'center',
+                        sortable: true,
+                        field: 'created_at',
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'created_by',
+                        required: true,
+                        label: 'Created By',
+                        align: 'center',
+                        sortable: true,
+                        field: 'created_by',
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'updated_at',
+                        required: true,
+                        label: 'Updated At',
+                        align: 'center',
+                        sortable: true,
+                        field: 'updated_at',
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'updated_by',
+                        required: true,
+                        label: 'Updated By',
+                        align: 'center',
+                        sortable: true,
+                        field: 'updated_by',
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                ];
+
+                this.table_data = {
+                    data: {
+                        results: [],
+                    }
+                };
+                return;
+            }
+
+            if(this.rearrange_column.length > 0)
+            {
+                var column = this.rearrange_column;
+            }
+            else
+            {
+                var column = [
+                    {
+                        name: 'line',
+                        required: true,
+                        label: 'Line',
+                        align: 'center',
+                        sortable: true,
+                        field: 'line',
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'description',
+                        required: true,
+                        label: 'Description',
+                        align: 'left',
+                        sortable: true,
+                        field: 'description',
+                        headerStyle: 'text-align: center; min-width: 250px;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'outlet_code',
+                        required: true,
+                        label: 'Outlet',
+                        align: 'center',
+                        sortable: true,
+                        field: 'outlet_code',
+                        headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'division_guid',
+                        required: true,
+                        label: 'Division',
+                        align: 'left',
+                        sortable: true,
+                        field: 'division_guid',
+                        format: (val) => this.options.division.find(entry => entry.value == val) ? this.options.division.find(entry => entry.value == val).label : val,
+                        headerStyle: 'text-align: center; min-width: 150px',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'glcode_guid',
+                        required: true,
+                        label: 'GL Code',
+                        align: 'left',
+                        sortable: true,
+                        field: 'glcode_guid',
+                        format: (val) => this.options.glcode.find(entry => entry.value == val) ? this.options.glcode.find(entry => entry.value == val).label : val,
+                        headerStyle: 'text-align: center; min-width: 250px; max-width: 300px',
                         filter_type: 'input',
                         filter_options: [],
                         filter_value: '',
@@ -1192,7 +1371,7 @@ export default {
 
             if(cndn_child_list.status)
             {
-                console.log("cndn child",cndn_child_list.response.data.results)
+                // console.log("cndn child",cndn_child_list.response.data.results)
                 var rows = cndn_child_list.response;
                 var child = [];
                 for(var i in rows.data.results)
@@ -1203,6 +1382,8 @@ export default {
                         description: rows.data.results[i].description,
                         retailer_outlet_guid: rows.data.results[i].retailer_outlet_guid,
                         cndn_child_guid: rows.data.results[i].cndn_child_guid,
+                        glcode_guid: rows.data.results[i].glcode_guid,
+                        division_guid: rows.data.results[i].division_guid,
                     }
                     child.push(obj);
                 }
@@ -1238,8 +1419,6 @@ export default {
             this.parentReadonlyStatus = this.json.cndn_child.length>0 ? true : false;
 
             this.table_data = rows;
-            
-            this.showLoading = false;
         },
         handleColumnRearrange(pass_payload)
         {
@@ -1314,7 +1493,7 @@ export default {
                 };
 
                 var data_response = await this.$dispatch(pass_obj);
-                console.log(data_response)
+
                 if(data_response.status)
                 {
                     this.showNotify('positive','Successfully created.');
@@ -1347,16 +1526,33 @@ export default {
                 var data_response = await this.$dispatch(pass_obj);
                 if(!data_response.status)
                 {
-                    this.showNotify('negative','Update failed.');
-                    this.loading = false;
                     console.log(data_response);
+                    const valid = this.isValidJSON(data_response.response);
+                    var message = 'Update failed.';
+                    if(valid)
+                    {
+                        const response = JSON.parse(data_response.response);
+                        if(response.error)
+                        {
+                            message = response.error;
+                        }
+                        else if(response.message)
+                        {
+                            message = response.message;
+                        }
+                    }
+                    else
+                    {
+                        message = JSON.stringify(data_response.response);
+                    }
+                    this.showNotify('negative', message);
+                    this.loading = false;
                     return ;
                 }
 
                 this.showNotify('positive','Successfully updated.');
                 this.$router.push({name: this.transaction_type});
             }
-            console.log(payload);
             
             this.loading = false;
         },
@@ -1395,14 +1591,19 @@ export default {
                 console.log(data_response);
                 const valid = this.isValidJSON(data_response.response);
                 var message = 'Cancel failed.';
-                console.log(valid)
                 if(valid)
                 {
                     const response = JSON.parse(data_response.response);
-                    if(response.error)
+                    var message = response.message ? response.message : '';
+                    var data_message = '';
+
+                    if(response && response.data && response.data.errors)
                     {
-                        message = response.error;
+                        for (const index in response.data.errors) {
+                            data_message += "<br>"+response.data.errors[index];
+                        }
                     }
+                    message = message + data_message
                 }
                 else
                 {
@@ -1427,7 +1628,6 @@ export default {
                     "cndn_guid": this.json.cndn_guid,
                 }
             }
-            console.log(payload);
 
             var pass_obj = {
                 "dispatch": 'transaction/trigger_post_cndn',
@@ -1440,8 +1640,25 @@ export default {
 
             if(!data_response.status)
             {
-                this.showNotify('negative',`Post ${this.transaction_type=='cn'?'credit note':'debit note'} failed.`);
-                console.log(data_response.response);
+                const valid = this.isValidJSON(data_response.response);
+                var message = `Post ${this.transaction_type=='cn'?'credit note':'debit note'} failed.`;
+                if(valid)
+                {
+                    const response = JSON.parse(data_response.response);
+                    var message = '';
+
+                    if(response && response.errors)
+                    {
+                        for (const index in response.errors) {
+                            message += response.errors[index]+"<br>";
+                        }
+                    }
+                }
+                else
+                {
+                    message = JSON.stringify(data_response.response);
+                }
+                this.showNotify('negative', message);
                 this.dialog.loading = false;
                 return
             }
@@ -1451,7 +1668,7 @@ export default {
             this.dialog.post = false;
             this.$router.push({name: this.transaction_type});
         },
-        async reloadCNDN()
+        async getCNDN()
         {
             var payload = {
                 'cndn_guid': this.currentTrans,
@@ -1470,27 +1687,19 @@ export default {
             {
                 var obj = cndn_details.response.data;
 
-                var payload = {
-                    params: {
-                        'cndn_guid': this.currentTrans,
-                    }
-                }
+                if(obj.posted == 1 || obj.canceled == 1) this.readonlyStatus = true;
 
-                var pass_obj = {
-                    "dispatch": 'transaction/trigger_get_cndn_invoice_list',
-                    "getter": 'transaction/get_cndn_note',
-                    "app": this,
-                    "payload": payload,
-                }
+                if(obj.retailer_outlet_guid && obj.retailer_outlet_guid != "") obj.by_outlet = true;
 
-                var cndn_invoices = await this.$dispatch(pass_obj);
-
-                obj.invoices = [];
-                
-                if(cndn_invoices.status)
-                {
-                    obj.invoices = cndn_invoices.response.data.results.map(entry=>entry.invoice_guid);
-                }
+                obj.invoices = obj.cndn_invoice.map(entry=>entry.invoice_guid);
+                this.options.supplier_list.push({
+                    label: `${obj.vendor_code} - ${obj.vendor_name}`,
+                    value: obj.supplier_guid,
+                    supplier_guid: obj.supplier_guid,
+                })
+                this.json.company_info_guid = obj.company_info_guid;
+                await this.handleChangeVendor(obj.supplier_guid);
+                await this.handleChangeInvoices(obj.invoices);
                 this.json = obj;
             }
             this.table_function(this.ori_params);
@@ -1499,15 +1708,18 @@ export default {
         {
             if(this.transaction_type == 'cn')
             {
-                this.$router.push({name: 'printCN', query: { guid: row.row.cndn_guid }});
+                this.$router.push({name: 'printCN', query: { guid: this.json.cndn_guid }});
             }
             else if(this.transaction_type == 'dn')
             {
-                this.$router.push({name: 'printDN', query: { guid: row.row.cndn_guid }});
+                this.$router.push({name: 'printDN', query: { guid: this.json.cndn_guid }});
             }
         },
         closeDialogChild()
         {
+            this.dialog.outlet = [];
+            this.dialog.glcode = "";
+            this.dialog.division = "";
             this.dialog.amount = 0;
             this.dialog.qty = 1;
             this.dialog.description = "";
@@ -1521,42 +1733,163 @@ export default {
         },
         async filterOutlet()
         {
-            var options = [];
+            if(this.json.invoices.length == 0) return [];
 
-            var tta = this.options.invoice_list.filter(entry=>this.json.invoices.includes(entry.invoice_guid)).map(entry=>entry.tta_guid);
+            this.forceLoading.outlet = true;
 
             var payload = {
                 params: {
                     "limit": 99999,
-                    "tta_guid__in": tta.join(','),
+                    "invoice_guid__in": this.json.invoices.join(','),
                 }
             }
 
             var pass_obj = {
-                "dispatch": 'tta/trigger_get_tta_banner_list',
-                "getter": 'tta/get_banner',
+                "dispatch": 'transaction/trigger_get_invoice_child_list',
+                "getter": 'transaction/get_invoice_child',
                 "app": this,
                 "payload": payload,
             }
 
-            var banner = await this.$dispatch(pass_obj);
+            var invoice_child = await this.$dispatch(pass_obj);
 
-            var banner_list = [];
-
-            if(banner.status)
+            var child = [];
+            if(invoice_child.status)
             {
-                banner_list = banner.response.data.results;
+                child = invoice_child.response.data.results;
             }
 
-            if(banner_list.length>0)
+            var options = [];
+            this.options.desc = [];
+            if(child.length>0)
             {
+                this.options.desc = [...new Set(child.map(entry=>entry.description))].map(entry=>({
+                    label: entry, 
+                    value: entry, 
+                    glcode_guid: child.find(child_entry=>child_entry.description == entry)?.glcode_guid || "",
+                    division_guid: child.find(child_entry=>child_entry.description == entry)?.division_guid || "",
+                }));
+
+                this.options.glcode = this.options.glcode_list.filter(entry=>child.map(entry=>entry.glcode_guid).includes(entry.value));
+                this.options.division = this.options.division_list.filter(entry=>child.map(entry=>entry.division_guid).includes(entry.value));
+                var invoice_outlets = child.map(entry=>entry.retailer_outlet_guid);
                 options = this.options.outlet_list.filter((entry)=>{
-                    return banner_list.map(entry=>entry.concept_guid).includes(entry.concept_guid);
+                    return invoice_outlets.includes(entry.retailer_outlet_guid);
+                });
+
+                options.sort((a,b)=>{
+                    const alphaA = a.label.match(/([A-Za-z]+)\s*-\s*/);
+                    const alphaB = b.label.match(/([A-Za-z]+)\s*-\s*/);
+                    const numA = a.label.match(/(\d+)\s*-\s*/);
+                    const numB = b.label.match(/(\d+)\s*-\s*/);
+                    
+                    if (alphaA != null && alphaB != null) {
+                        return alphaA[0].localeCompare(alphaB[0]); // Sort alphabetically
+                    } else if (alphaA != null) {
+                        return -1; // a is alphabetic, b is numeric
+                    } else if (alphaB != null) {
+                        return 1; // b is alphabetic, a is numeric
+                    } else if (numA != null && numB != null) {
+                        return parseInt(numA[0]) - parseInt(numB[0]); // Sort numerically
+                    }
+
+                    return 0;
                 });
             };
-            console.log(options)
+            // console.log("outlet options",options.length)
+            this.forceLoading.outlet = false;
 
-            return options
+            return options;
+        },
+        async filterInvoice()
+        {
+            if(!this.json.supplier_guid || this.json.supplier_guid == "" || !this.json.company_info_guid || this.json.company_info_guid == "") return [];
+
+            this.forceLoading.invoices = true;
+
+            // set invoice options
+            var payload = {
+                params: {
+                    "limit": 99999,
+                    "ordering": 'refno',
+                    "supplier_guid": this.json.supplier_guid,
+                    "company_info_guid": this.json.company_info_guid,
+                    "posted": 1,
+                }
+            }
+
+            if(!this.readonlyStatus)
+            {
+                payload.params.canceled = 0;
+            }
+
+            var pass_obj = {
+                "dispatch": 'transaction/trigger_get_invoice_list',
+                "getter": 'transaction/get_invoice',
+                "app": this,
+                "payload": payload,
+            };
+
+            var invoice_list = await this.$dispatch(pass_obj);
+
+            var options = [];
+            if(invoice_list.status)
+            {
+                var array_options = [];
+                for(const invoice of invoice_list.response.data.results)
+                {
+                    var obj = invoice;
+                    obj.label = invoice.refno;
+                    obj.value = invoice.invoice_guid;
+                    array_options.push(obj);
+                }
+                options = array_options;
+            }
+            
+            this.forceLoading.invoices = false;
+
+            return options;
+        },
+        async getSupplier()
+        {
+            if(this.options.supplier_list.length>1) return;
+
+            this.forceLoading.vendor = true;
+
+            // set supplier options
+            var payload = {
+                params: {
+                    "limit": 99999,
+                    "type__in": 'S,P',
+                    "ordering": 'name',
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": 'general/trigger_get_supplier_list',
+                "getter": 'general/get_supplier',
+                "app": this,
+                "payload": payload,
+            };
+
+            var supplier_list = await this.$dispatch(pass_obj);
+
+            if(supplier_list.status)
+            {
+                var array_options = [];
+                for(const supplier of supplier_list.response.data.results)
+                {
+                    const obj = {
+                        "label": `${supplier.code} - ${supplier.name}`,
+                        "value": supplier.supplier_guid,
+                        "code": supplier.code,
+                    }
+                    array_options.push(obj);
+                }
+                this.options.supplier_list = array_options;
+            }
+
+            this.forceLoading.vendor = false;
         },
         isValidJSON(str) {
             try {
@@ -1581,7 +1914,7 @@ export default {
             if (type === "$") {
                 value = value.toFixed(2);
             } else if (type === "%") {
-                value = value.toFixed(1);
+                value = value == parseInt(value) ? value.toFixed(1) : value;
             } else if (type === "qty") {
                 value = value.toFixed(0);
             }
@@ -1685,6 +2018,15 @@ export default {
 {
     font-size: 14px;
     background-color: #273655;
+    color: white;
+    padding: 5px;
+    min-width: 100px;
+}
+
+.action_button
+{
+    font-size: 14px;
+    background-color: #e37a05;
     color: white;
     padding: 5px;
     min-width: 100px;

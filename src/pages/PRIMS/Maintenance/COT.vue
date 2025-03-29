@@ -29,7 +29,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 q-py-md">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <Table
                 :row_per_page="[10,50,100,1000]"
                 :table_data="table_data"
@@ -83,7 +83,6 @@
 
 <script>
 import Button from 'src/components/PRIMS/Main/Button';
-import MultipleSelect from 'src/components/PRIMS/Main/MultipleSelect';
 import Input from 'src/components/PRIMS/Main/Input';
 import Table from 'src/components/PRIMS/Main/Table.vue';
 import { Notify } from "quasar";
@@ -91,7 +90,6 @@ import { Notify } from "quasar";
 export default {
     components: {
         Button,
-        MultipleSelect,
         Input,
         Table,
     },
@@ -127,7 +125,7 @@ export default {
             this.table_function(payload);
         },
         async table_function(payload){
-            this.showLoading = true;
+            this.forceLoading = true;
 
 
             if(this.rearrange_column.length > 0)
@@ -246,7 +244,7 @@ export default {
 
             if(cot_list.status)
             {
-                console.log(cot_list)
+                // console.log(cot_list)
                 var rows = cot_list.response;
             }
             else
@@ -260,7 +258,7 @@ export default {
 
             this.table_data = rows;
             
-            this.showLoading = false;
+            this.forceLoading = false;
         },
         handleColumnRearrange(pass_payload)
         {
@@ -323,7 +321,6 @@ export default {
                 console.log("Delete fail",delete_response.response);
                 const valid = this.isValidJSON(delete_response.response);
                 var message = 'Delete fail. Try again.';
-                console.log(valid)
                 if(valid)
                 {
                     const response = JSON.parse(delete_response.response);
@@ -413,6 +410,7 @@ export default {
   background-color: #273655;
   color: white;
   margin-left: 5px;
+  padding: 0px 10px;
 }
 
 .active_section_button

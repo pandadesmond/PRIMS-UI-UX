@@ -561,3 +561,111 @@ export function trigger_delete_glcode ({ commit,state }, payload) {
 
   return payload.app.$actions({ commit,state }, object_pass);
 }
+
+// report actions
+export function trigger_generate_report ({ commit,state }, payload) {
+  var object_pass = {
+      "url": '/generate_report/',
+      "update_path": 'update_results',
+      "type": 'GET',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": {},
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+// setting actions
+export function trigger_get_setting ({ commit,state }, payload) {
+  var object_pass = {
+      "url": '/setting/setting/',
+      "update_path": 'update_setting',
+      "type": 'GET',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": {},
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+// Item master actions
+export function trigger_get_itemcode_list ({ commit,state }, payload) {
+  var object_pass = {
+      "url": '/backend_itemmaster/backend_itemmaster/',
+      "update_path": 'update_itemcode',
+      "type": 'GET',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": {},
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+// document actions
+export function trigger_get_document_list ({ commit,state }, payload) {
+  var object_pass = {
+      "url": '/ml_document/ml_document/',
+      "update_path": 'update_document',
+      "type": 'GET',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": {},
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+export function trigger_get_document ({ commit,state }, payload) {
+  var object_pass = {
+      "url": `/ml_document/ml_document/${payload.payload.document_guid}/`,
+      "update_path": 'update_document',
+      "type": 'GET',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": {},
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+export function trigger_create_document ({ commit,state }, payload) {
+  var object_pass = {
+      "url": '/ml_document/ml_document/',
+      "update_path": 'update_document',
+      "type": 'POST',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": payload.payload.pass_json,
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+export function trigger_update_document ({ commit,state }, payload) {
+  var object_pass = {
+      "url": `/ml_document/ml_document/${payload.payload.document_guid}/`,
+      "update_path": 'update_document',
+      "type": 'PATCH',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": payload.payload.pass_json,
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
+export function trigger_delete_document ({ commit,state }, payload) {
+  var object_pass = {
+      "url": `/ml_document/ml_document/${payload.payload.document_guid}/`,
+      "update_path": 'update_document',
+      "type": 'DELETE',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": {},
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}

@@ -5,7 +5,7 @@ import tta from 'src/store/PRIMS/TTA'
 import general from 'src/store/PRIMS/General'
 import user from 'src/store/PRIMS/User'
 import transaction from 'src/store/PRIMS/Transaction'
-import maintenance from 'src/store/PRIMS/Maintenance'
+import claim from 'src/store/PRIMS/Claim'
 /*
  * If not building with SSR mode, you can
  * directly export the Store instantiation;
@@ -25,7 +25,7 @@ var modules = {
         general,
         user,
         transaction,
-        maintenance,
+        claim,
     },
 
     // enable strict mode (adds overhead!)

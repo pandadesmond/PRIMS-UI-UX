@@ -45,3 +45,19 @@ export const update_tab_article = (state, payload) => {
 export const update_glcode = (state, payload) => {
   state.glcode = payload
 }
+
+export const update_results = (state, payload) => {
+  state.results = payload
+}
+
+export const update_setting = (state, payload) => {
+  state.setting = payload
+}
+
+export const update_itemcode = (state, payload) => {
+  state.itemcode = payload
+}
+
+export const update_document = (state, payload) => {
+  state.document = payload
+}

@@ -41,3 +41,7 @@ export const update_banner = (state, payload) => {
 export const update_upload = (state, payload) => {
   state.upload = payload
 }
+
+export const update_query = (state, payload) => {
+  state.query = payload
+}

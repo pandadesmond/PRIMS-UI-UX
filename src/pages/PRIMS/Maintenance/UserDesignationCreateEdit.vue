@@ -51,7 +51,6 @@
 <script>
 import Label from 'src/components/PRIMS/Main/Label'
 import LabelInput from 'src/components/PRIMS/General/LabelInput'
-import LabelMultiselect from 'src/components/PRIMS/General/LabelMultiselect'
 import LabelSelect from 'src/components/PRIMS/General/LabelSelect'
 import LabelCheckbox from 'src/components/PRIMS/General/LabelCheckbox'
 import Button from 'src/components/PRIMS/Main/Button'
@@ -62,7 +61,6 @@ export default {
         Label,
         LabelInput,
         LabelSelect,
-        LabelMultiselect,
         LabelCheckbox,
         Button,
     },
@@ -120,7 +118,7 @@ export default {
             {
                 this.json = details.response.data;
             }
-            console.log(this.json)
+            // console.log(this.json)
         }
         else if(this.$route.name == 'createUserDesignation')
         {
@@ -169,7 +167,7 @@ export default {
                 };
 
                 var data_response = await this.$dispatch(pass_obj);
-                console.log(data_response);
+                // console.log(data_response);
 
                 if(data_response.status)
                 {
@@ -194,7 +192,7 @@ export default {
                 };
 
                 var data_response = await this.$dispatch(pass_obj);
-                console.log(data_response);
+                // console.log(data_response);
 
                 if(data_response.status)
                 {

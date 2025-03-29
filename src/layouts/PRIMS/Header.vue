@@ -54,6 +54,20 @@ export default {
           link: '/PRIMS/TTA',
         },
         {
+          name: 'Claim',
+          link: '/PRIMS/Claim',
+          child: [
+            {
+              name: 'Event Driven Claim',
+              link: '/PRIMS/Claim/EDC',
+            },
+            {
+              name: 'Promotion Claim',
+              link: '/PRIMS/Claim/PD',
+            },
+          ]
+        },
+        {
           name: 'Transaction',
           link: '/PRIMS/Transaction',
           child: [
@@ -93,6 +107,10 @@ export default {
           {
             name: 'Condition of Trade',
             link: '/PRIMS/Setting/ConditionTrade',
+          },
+          {
+            name: 'Document',
+            link: '/PRIMS/Setting/Document',
           },
           {
             name: 'GL Code',

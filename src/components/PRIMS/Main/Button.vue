@@ -1,8 +1,8 @@
 <template>
-    <q-btn @click="handleClick" :no-caps="pass_no_caps" :square="pass_square" :dense="pass_dense" :icon="pass_icon" :flat="pass_flat" :tooltip="tooltip">
-        <div style="display: flex; align-items: center;">
+    <q-btn @click="handleClick" :no-caps="pass_no_caps" :square="pass_square" :dense="pass_dense" :icon="pass_icon" :flat="pass_flat" :tooltip="tooltip" :label="pass_label">
+        <!-- <div style="display: flex; align-items: center;">
             {{ label_value }}
-        </div>
+        </div> -->
         <q-tooltip v-if="tooltip">
           {{ tooltip_value }}
         </q-tooltip>

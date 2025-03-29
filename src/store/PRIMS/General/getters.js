@@ -46,4 +46,18 @@ export function get_glcode (state) {
   return state.glcode
 }
 
+export function get_results (state) {
+  return state.results
+}
 
+export function get_setting (state) {
+  return state.setting
+}
+
+export function get_itemcode (state) {
+  return state.itemcode
+}
+
+export function get_document (state) {
+  return state.document
+}

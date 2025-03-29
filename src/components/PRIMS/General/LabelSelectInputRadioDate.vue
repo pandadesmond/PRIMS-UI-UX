@@ -22,7 +22,7 @@
                 </div>
                 <div class="col-xl-2 col-lg-2 col-md-2 col-sm-5 col-xs-12">
                     <Daterange v-model:daterange="value.date" :optionsFn="options.date" :componentBehavior="dbComponentBehavior.text_required" 
-                    v-on:receiveChange="handleChangeDate" :readonly="readonly" :range="false" show="from"/>
+                    v-on:receiveChange="handleChangeDate" :readonly="readonly" :range="false" show="from" :dateFormat="dateFormat"/>
                 </div>
                 <div v-if="is_auto" class="col-xl-2 col-lg-2 col-md-2 col-sm-5 col-xs-12">
                     <Select :readonly="readonly" v-model:pass_value="value.type" :options="options.type"
@@ -53,7 +53,8 @@ export default {
             return this.$store.getters['dbComponentBehavior/byLanguage']('tta')
         },
     },
-    props: ['label','selectOptions', 'radioOptions', 'dateOptions','typeOptions','input','select', 'radio', 'date_from', 'date_to','type','allow_remove','readonly','is_auto'],
+    props: ['label','selectOptions', 'radioOptions', 'dateOptions','typeOptions','input','select', 'radio', 'date_from', 'date_to','type',
+    'allow_remove','readonly','is_auto','dateFormat'],
     data(){
         return {
             value: {

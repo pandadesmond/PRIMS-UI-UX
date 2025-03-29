@@ -10,11 +10,11 @@
                         <div class="row small_text" ><span>Invoice Issued By</span></div>
                         <div class="row text-bold q-my-md"><span>{{json.company.name}}</span></div>
                         <div class="row q-my-sm medium_text" >
-                            <div class="col-6">
-                                <span>{{json.company.address_1}}</span><br/>
-                                <span>{{json.company.address_2}}</span><br/>
-                                <span>{{json.company.address_3}}</span><br/>
-                                <span>{{json.company.address_4}}</span>
+                            <div class="col-9 text-uppercase">
+                                <span>{{json.company.address_1}}</span><br v-if="json.company.address_2"/>
+                                <span>{{json.company.address_2}}</span><br v-if="json.company.address_3"/>
+                                <span>{{json.company.address_3}}</span><br v-if="json.company.address_4 || json.company.address_5"/>
+                                <span>{{json.company.address_4}} {{json.company.address_5}}</span>
                             </div>
                         </div>
                         <div class="row q-my-sm medium_text" >
@@ -25,7 +25,7 @@
                         </div>
                         
                         <div class="row q-mt-sm medium_text" >
-                            <div class="col-12">
+                            <div class="col-9">
                                 <div class="row">
                                     <div class="col-6">
                                         <span>TIN: {{json.company.tin}}</span>
@@ -52,10 +52,11 @@
                         </div>
                         <div class="row border" style="height:60%">
                             <div class="col-12 small_text" ><span>Invoice Refno</span></div>
-                            <div class="col-12">
-                                <q-card class="q-ma-md text-center" bordered flat>Invoice Bardcode</q-card>
+                            <div class="col-12 text-center" width="100%">
+                                <q-card v-if="barcode_src==''" class="q-ma-md text-center" bordered flat>{{transaction_name}} Barcode</q-card>
+                                <img v-else :src="barcode_src" alt="Barcode" style="max-width: 100%; height: auto;" />
                             </div>
-                            <div class="col-12 text-center"><span>{{json.refno}}</span></div>
+                            <div v-if="barcode_src==''" class="col-12 text-center"><span>{{json.refno}}</span></div>
                         </div>
                     </div>
                 </div>
@@ -65,11 +66,11 @@
                         <div class="row small_text" ><span>Invoice Issued To</span></div>
                         <div class="row text-bold q-my-md"><span>{{json.vendor.name}}</span></div>
                         <div class="row q-my-sm medium_text" >
-                            <div class="col-6">
-                                <span>{{json.vendor.address1}}</span><br/>
-                                <span>{{json.vendor.address2}}</span><br/>
-                                <span>{{json.vendor.address3}}</span><br/>
-                                <span>{{json.vendor.postcode}} {{json.vendor.city}}</span>
+                            <div class="col-9 text-uppercase">
+                                <span>{{json.vendor.address1}}</span><br v-if="json.vendor.address2"/>
+                                <span>{{json.vendor.address2}}</span><br v-if="json.vendor.address3"/>
+                                <span>{{json.vendor.address3}}</span><br v-if="json.vendor.postcode || json.vendor.city || json.vendor.country"/>
+                                <span>{{json.vendor.postcode}} {{json.vendor.city}} {{json.vendor.country}}</span>
                             </div>
                         </div>
                         <div class="row q-my-sm medium_text" >
@@ -80,7 +81,7 @@
                         </div>
                         
                         <div class="row q-mt-sm medium_text" >
-                            <div class="col-12">
+                            <div class="col-9">
                                 <div class="row">
                                     <div class="col-6">
                                         <span>TIN: {{json.vendor.tin}}</span>
@@ -100,11 +101,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-4">
-                        <div class="row border" style="display: flex; flex-direction: column; gap: 8px; font-size: 10px;">
+                    <div class="col-4" style="display: flex; flex-direction: column;">
+                        <div class="row border small_text" style="display: flex; flex-direction: column; gap: 1px;">
                             <div class="col-12"><span>Reference: </span></div>
-                            <div class="col-12"><span>Invoice Date: {{displayDate(json.date,'yyyy-mm-dd')}}</span></div>
-                            <div class="col-12"><span>Calculation Period: {{displayDate(json.effective_date_from,'yyyy-mm-dd')}} to {{displayDate(json.effective_date_to,'yyyy-mm-dd')}}</span></div>
+                            <div class="col-12"><span>Invoice Date: {{displayDate(json.date,preference.dateFormat)}}</span></div>
+                            <div class="col-12"><span>Calculation Period: {{displayDate(json.effective_date_from,preference.dateFormat)}} to {{displayDate(json.effective_date_to,preference.dateFormat)}}</span></div>
                             <div class="col-12"><span>Vendor ID: {{json.vendor_code}}</span></div>
                             <div class="col-12"><span>TTA No: {{json.tta_refno}}</span></div>
                             <div class="col-12"><span>TTA PIC: {{json.tta_pic}}</span></div>
@@ -121,10 +122,12 @@
                     <div v-if="json.child" class="col-8">
                         <div class="q-my-lg">
                             <table class="col-12">
-                                <tr class="text-center">
+                                <tr class="text-center header_row">
                                     <td><span>Line</span></td>
                                     <td style="width:30%"><span>Description</span></td>
                                     <td><span>Outlet</span></td>
+                                    <td style="width:30%"><span>Division</span></td>
+                                    <td style="width:30%"><span>GL Code</span></td>
                                     <td><span>Amount</span></td>
                                     <td><span>Qty</span></td>
                                     <td><span>Rate</span></td>
@@ -139,6 +142,8 @@
                                     <td><span>{{index+1}}</span></td>
                                     <td class="text-left"><span>{{child.description}}</span></td>
                                     <td><span>{{child.outlet_code}}</span></td>
+                                    <td class="text-left"><span>{{displayDivision(child.division_guid)}}</span></td>
+                                    <td class="text-left"><span>{{displayGlcode(child.glcode_guid)}}</span></td>
                                     <td><span>{{formatAmount(child.amount,'$')}}</span></td>
                                     <td><span>{{formatAmount(child.qty,'qty')}}</span></td>
                                     <td><span>{{formatAmount(child.rate,'%')}}</span></td>
@@ -148,10 +153,14 @@
                                     <td><span>{{formatAmount(child.tax_amount,'$')}}</span></td>
                                     <td><span>{{formatAmount(child.total_incl_tax,'$')}}</span></td>
                                 </tr>
+                                
+                                <tr v-if="json.child.length==0" class="text-center" style="height: 15px">
+                                    <td v-for="index in 11" :key="index"><span></span></td>
+                                </tr>
                             </table>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-4 full-width">
                         <div><span> PLEASE QUOTE THE ABOVE INVOICE NO. IN YOUR CORRESPONDENCE TO US </span></div>
                         <div class="text-italic" small_text><span> This is a computer generated document. No signature is required.</span></div>
                     </div>
@@ -159,10 +168,17 @@
             </div>
         </div>
     </div>
+
+    <q-inner-loading
+        :showing="loading"
+        class="showLoading"
+        color="primary"
+    />
 </template>
 
 <script>
 import Button from 'src/components/PRIMS/Main/Button';
+import JsBarcode from 'jsbarcode';
 import { Notify } from "quasar";
 
 export default {
@@ -171,29 +187,14 @@ export default {
     },
     data() {
        return {
+            company_guid: localStorage.getItem("company_guid") != "" && localStorage.getItem("company_guid") != "null" && localStorage.getItem("company_guid") != null ? localStorage.getItem("company_guid") : "",
+            preference: {},
             json: {},
+            glcode_list: [],
+            division_list: [],
+            barcode_src: "",
             currentInv: "",
             loading: true,
-            report_print_obj: {
-                id: 'report_print',
-                popTitle: 'test',
-                closeCallback (vue) {
-                    console.log('close1')
-                    vue.redirectFunction();
-                }
-            },
-            report_print_obj_preview: {
-                id: 'report_print',
-                preview: true,
-                previewTitle: 'Preview',
-                previewPrintBtnLabel: 'Print',
-                popTitle: 'test',
-                previewOpenCallback (vue) {
-                    let e = document.getElementById("vue-print-nb-previewBox");
-                    let previewCloseButton = e.querySelector(".previewClose");
-                    previewCloseButton.addEventListener("click", vue.redirectFunction());
-                }
-            },
        } 
     },
     async mounted(){
@@ -205,7 +206,78 @@ export default {
             this.$router.push({name: "invoice"});
         }
 
+        if(!localStorage.getItem("preference_setting"))
+        {
+            var pass_obj = {
+                "dispatch": 'general/trigger_get_company',
+                "getter": 'general/get_company',
+                "app": this,
+                "payload": {
+                    "company_guid": this.company_guid
+                },
+            }
+
+            var company = await this.$dispatch(pass_obj);
+
+            if(!company.status)
+            {
+                this.showNotify('negative', "Preference setting failed.");
+                this.$router.push({name: "invoice"});
+            }
+
+            this.preference = {
+                "dateFormat": company.response.data.date_format_setting,
+                "default_date_to": company.response.data.date_to_setting,
+                "division_setting": company.response.data.division_setting == 1 ? true : false,
+                "banner_setting": company.response.data.banner_option_setting,
+                "displayBanner": company.response.data.display_banner_setting == 1 ? true : false,
+                "settlement_discount_setting": company.response.data.settlement_discount_setting == 1 ? true : false,
+            };
+            localStorage.setItem("preference_setting", JSON.stringify(this.preference));
+        }
+        else
+        {
+            this.preference = JSON.parse(localStorage.getItem("preference_setting"));
+        }
+
         this.currentInv = this.$route.query.invoice_guid;
+
+        // get glcode list
+        var payload = {
+            params: {
+                "limit": 99999,
+                "ordering": "code",
+            }
+        }
+
+        var pass_obj = {
+            "dispatch": 'general/trigger_get_glcode_list',
+            "getter": 'general/get_glcode',
+            "app": this,
+            "payload": payload,
+        }
+
+        var glcode = await this.$dispatch(pass_obj);
+
+        if(glcode.status)
+        {
+            this.glcode_list = glcode.response.data.results;
+        }
+
+        // get division list
+        var pass_obj = {
+            "dispatch": 'general/trigger_get_division_list',
+            "getter": 'general/get_division',
+            "app": this,
+            "payload": payload,
+        }
+
+        var division = await this.$dispatch(pass_obj);
+
+        if(division.status && division.response.data.count > 0)
+        {
+            this.division_list = division.response.data.results;
+        }
 
         var payload = {
             'invoice_guid': this.currentInv,
@@ -282,13 +354,16 @@ export default {
             }
 
         }
-        console.log(this.json)
+        // console.log(this.json)
         this.$nextTick(()=>{
+            this.loading = false;
             setTimeout(()=>{
-                this.handlePrint();
+                this.generateBarcode();
+                setTimeout(()=>{
+                    this.handlePrint();
+                },500)
             },500)
         })
-        this.loading = false;
     },
     methods:{
         formatAmount(value, type) {
@@ -305,7 +380,7 @@ export default {
             if (type === "$") {
                 value = value.toFixed(2);
             } else if (type === "%") {
-                value = value.toFixed(1);
+                value = value == parseInt(value) ? value.toFixed(1) : value;
             } else if (type === "qty") {
                 value = value.toFixed(0);
             }
@@ -321,13 +396,38 @@ export default {
         },
         handlePrint()
         {
-            window.onafterprint = () => {
-                this.$router.go(-1);
-            };
+            // window.onafterprint = () => {
+            //     this.$router.go(-1);
+            // };
             window.print();
+        },
+        generateBarcode() {
+            const canvas = document.createElement('canvas');
+            JsBarcode(canvas, this.json.refno, {
+                format: "CODE128",
+                width: 2,
+                height: 40,
+                fontSize: 15,
+                fontOptions: "bold",
+                margin: 5,
+                displayValue: true,
+            });
+            this.barcode_src = canvas.toDataURL('image/png');
+        },
+        displayDivision(value)
+        {
+            var division = this.division_list.find(entry=>entry.division_guid == value);
+            return division ? `${division.code} - ${division.name}` : "-";
+        },
+        displayGlcode(value)
+        {
+            var glcode = this.glcode_list.find(entry=>entry.glcode_guid == value);
+            return glcode ? `${glcode.code} - ${glcode.name}` : "-";
         },
         displayDate(date, format)
         {
+            if(!date || date == "") return "";
+
             var curDate = new Date(date);
             var day = curDate.getDate();
             var month = curDate.getMonth() +1;
@@ -335,7 +435,7 @@ export default {
 
             const formatRegex = /dd|mm|yyyy|yy/g;
 
-            const formattedDate = format.replace(formatRegex, (match) => {
+            const formattedDate = format.toLowerCase().replace(formatRegex, (match) => {
                 switch (match) {
                     case 'dd': return day;
                     case 'mm': return month;
@@ -413,11 +513,11 @@ td {
 }
 
 .small_text{
-    font-size: 10px;
+    font-size: 8px;
 }
 
 .medium_text{
-    font-size: 11px;;
+    font-size: 10px;;
 }
 
 .border {

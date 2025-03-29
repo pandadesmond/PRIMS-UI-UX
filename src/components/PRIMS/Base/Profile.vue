@@ -1,50 +1,41 @@
 <template>
-    <q-btn-dropdown :unelevated="true" :content-class="'profile_class'">
-        <template v-slot:label>
+    <q-btn-dropdown :unelevated="true" icon="person" :content-class="'profile_class'">
+        <!-- <template v-slot:label>
             <div class="row items-center no-wrap">
                 <q-avatar size="30px">
                     <img src="https://cdn.quasar.dev/img/boy-avatar.png">
                 </q-avatar>
             </div>
-        </template>
-        <div>
-            <div class="row" style=" width: 200px;">
-
-                <div class="row">
-
-                    <div class="col-12">
-                    <q-btn 
-                    no-caps 
-                    flat 
-                    @click="changePassword()" 
-                    text-color="#000000" 
-                    style="height: 40px;"
-                    label="Change Password" 
-                    icon="lock" 
-                    class="custom-btn" 
-                    />
-                    </div>
-
-                    <q-separator class="separator-style"></q-separator>
-
-                    <div class="col-12">
-                    <q-btn 
-                    no-caps 
-                    flat 
-                    color="white" 
-                    text-color="black" 
-                    style="height: 40px;"
-                    label="Logout" 
-                    icon="fa fa-sign-out-alt"
-                    class="custom-btn" 
-                    @click="logout()" 
-                    />
-                    </div>
-                    <div class="col-12">
-                        <q-btn class="full-width" v-if="outlet_code" outline style="color: black;" :label="outlet_code" @click="handleClickOutlet"/>
-                    </div>
-                </div>
-    
+        </template> -->
+        <div style="width: 200px;">
+            <!-- <div class="row">
+                <q-btn 
+                no-caps 
+                flat 
+                @click="changePassword()" 
+                text-color="#000000" 
+                style="height: 40px;"
+                label="Change Password" 
+                icon="lock" 
+                class="custom-btn" 
+                />
+            </div>
+            <q-separator class="separator-style"></q-separator> -->
+            <div class="row">
+                <q-btn 
+                no-caps 
+                flat 
+                color="white" 
+                text-color="red" 
+                style="height: 40px;"
+                label="Logout" 
+                icon="fa fa-sign-out-alt"
+                class="custom-btn" 
+                @click="logout()" 
+                />
+            </div>
+            <div class="row" v-if="outlet_code">
+                <q-btn class="full-width" outline style="color: black;" :label="outlet_code" @click="handleClickOutlet"/>
             </div>
         </div>
     

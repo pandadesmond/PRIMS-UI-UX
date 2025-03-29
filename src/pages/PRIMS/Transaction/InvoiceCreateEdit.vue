@@ -13,8 +13,8 @@
                     </div>
                     
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
-                        <LabelSelect label="Vendor Name" v-model:pass_value="json.supplier_guid" :options="supplier_list" :readonly="readonlyStatus || parentReadonlyStatus" 
-                        :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeVendor"/>
+                        <LabelSelect label="Vendor Name" v-model:pass_value="json.supplier_guid" :options="supplier_list" :readonly="page_function=='edit'" 
+                        :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeVendor" @click="getSupplier" :loading="forceLoading.vendor"/>
                     </div>
 
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
@@ -42,8 +42,8 @@
                     </div>
                     
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
-                        <LabelSelect label="Ref No" v-model:pass_value="json.tta_guid" :options="tta_option_list"
-                        :readonly="readonlyStatus || parentReadonlyStatus" :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeTTA"/>
+                        <LabelSelect label="Ref No" v-model:pass_value="json.tta_guid" :options="tta_option_list" :loading="forceLoading.refno"
+                        :readonly="page_function=='edit'" :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeTTA"/>
                     </div>
                     
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
@@ -63,18 +63,18 @@
                     </div>
 
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
-                        <LabelDatepicker label="Invoice Date" :daterange="json.date" :readonly="readonlyStatus" 
+                        <LabelDatepicker label="Invoice Date" :daterange="json.date" :readonly="readonlyStatus" :dateFormat="preference.dateFormat"
                         :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeInvoiceDate"/>
                     </div>
 
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
                         <LabelDatepicker label="Effective Date From" :daterange="json.effective_date_from" :readonly=" readonlyStatus" :optionsFn="startDateOptions"
-                        :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeDateFrom"/>
+                        :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeDateFrom" :dateFormat="preference.dateFormat"/>
                     </div>
 
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
                         <LabelDatepicker label="Effective Date To" :daterange="json.effective_date_to" :readonly="readonlyStatus" :optionsFn="endDateOptions"
-                        :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeDateTo"/>
+                        :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeDateTo" :dateFormat="preference.dateFormat"/>
                     </div>
 
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
@@ -92,7 +92,7 @@
 
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
                         <LabelSelect label="Company" v-model:pass_value="json.company_info_guid" :options="company_options"
-                        :readonly="page_function=='edit'" :dbComponentBehavior="dbComponentBehavior.text_required"/>
+                        :readonly="page_function=='edit'" :dbComponentBehavior="dbComponentBehavior.text_required" :loading="forceLoading.company"/>
                     </div>
 
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
@@ -108,25 +108,34 @@
                 <div class="row">
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                         <LabelInput label="PIP Status" v-model:pass_value="json.pip_status" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
-                    </div>       
-                                  
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                        <LabelInput label="PIP at" v-model:pass_value="json.pip_at" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
                     </div>
                     
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                         <LabelInput label="PIP Response" v-model:pass_value="json.pip_response" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
+                    </div>
+                                  
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
+                        <LabelInput label="PIP at" v-model:pass_value="json.pip_at" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
                     </div>
                     
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm">
                         <LabelCheckbox label="PIP" v-model:pass_value="json.pip" :readonly="true" />
                     </div>
                 </div>
-                <div class="row">                    
+                <div class="row">
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
+                        <LabelInput label="P2A at" v-model:pass_value="json.p2a_navision_at" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
+                    </div>
+                    
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm">
+                        <LabelCheckbox label="P2A" v-model:pass_value="json.p2a_navision" :readonly="true" />
+                    </div>
+
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                         <LabelInput label="LHDN Validated At" v-model:pass_value="json.lhdn_validated_at" :readonly="true" :dbComponentBehavior="dbComponentBehavior.text"/>
                     </div>
-                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
+
+                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm">
                         <LabelCheckbox label="LHDN Validate" v-model:pass_value="json.lhdn_validated" :readonly="true" />
                     </div>
                 </div>
@@ -187,7 +196,7 @@
                         :pass_no_caps="false"
                         :pass_square="true"
                         :pass_dense="true"
-                        class="custom_button"
+                        class="action_button"
                     />
                     
                     <Button v-if="page_function == 'edit' && json.posted == 0 && json.canceled == 0" pass_label="POST"
@@ -195,15 +204,15 @@
                         :pass_no_caps="false"
                         :pass_square="true"
                         :pass_dense="true"
-                        class="custom_button"
+                        class="action_button"
                     />
 
-                    <Button v-if="page_function == 'edit' && json.posted == 0 && json.canceled == 0" pass_label="CANCEL"
+                    <Button v-if="page_function == 'edit' && json.canceled == 0" pass_label="CANCEL"
                         v-on:receiveClick="dialog.cancel = true"
                         :pass_no_caps="false"
                         :pass_square="true"
                         :pass_dense="true"
-                        class="custom_button"
+                        class="action_button"
                     />
                 </div>
             </div>
@@ -229,11 +238,25 @@
             <q-form ref="save_dialog">
                 <div class="row q-gutter-sm q-px-md">
                     <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10">
-                        <LabelSelect label="Outlet" v-model:pass_value="dialog.retailer_outlet_guid" :options="outlet_options"
-                        :dbComponentBehavior="dbComponentBehavior.text_required"/>
+                        <LabelMultiselect v-if="dialog.action == 'ADD'" label="Outlet" v-model:pass_value="dialog.outlet" :options="outlet_options" 
+                            v-model:pass_type="dialog.banner" :options_type="banner_options" option_label="Outlets" :select_all="false"  :forceSelectAll="forceSelectAll" 
+                            :dbComponentBehavior="dbComponentBehavior.select_required" :filter="true" @receiveChangeType="handleChangeBanner"/>
+                            
+                        <LabelSelect v-if="dialog.action == 'EDIT'" label="Outlet" v-model:pass_value="dialog.outlet" :options="outlet_options" 
+                            v-model:pass_type="dialog.banner" :options_type="banner_options"
+                            :dbComponentBehavior="dbComponentBehavior.select_required" :filter="true" @receiveChangeType="handleChangeBanner"/>
                     </div>
                     <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10">
-                        <LabelInput label="Description" v-model:pass_value="dialog.description" :dbComponentBehavior="dbComponentBehavior.text_required"/>
+                        <LabelInputAutocomplete label="Description" v-model:pass_value="dialog.description" :options="desc_options" 
+                        :dbComponentBehavior="dbComponentBehavior.text_required" @receiveChange="handleChangeDesc"/>
+                    </div>
+                    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                        <LabelSelect label="Division" v-model:pass_value="dialog.division" :options="division_options"
+                            :dbComponentBehavior="dbComponentBehavior.text_required"/>
+                    </div>
+                    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10">
+                        <LabelSelect label="GL Code" v-model:pass_value="dialog.glcode" :options="glcode_options"
+                            :dbComponentBehavior="dbComponentBehavior.text_required"/>
                     </div>
                     <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 col-xs-10">
                         <div class="row">
@@ -342,6 +365,7 @@
             <span class="col-12">Are you sure want to cancel this record?</span>
             <div class="col-12 q-pt-lg q-pr-xl">
                 <LabelTextarea label="Reason" v-model:pass_value="dialog.reason" :readonly="false" :dbComponentBehavior="dbComponentBehavior.textarea"/>
+                <LabelCheckbox label="Generate Credit Note" v-model:pass_value="dialog.generate_cn"/>
             </div>
         </q-card-section>
 
@@ -362,6 +386,8 @@
 import Label from 'src/components/PRIMS/Main/Label'
 import Select from 'src/components/PRIMS/Main/Select'
 import Input from 'src/components/PRIMS/Main/Input'
+import LabelInputAutocomplete from 'src/components/PRIMS/General/LabelInputAutocomplete'
+import LabelMultiselect from 'src/components/PRIMS/General/LabelMultiselect'
 import LabelSelect from 'src/components/PRIMS/General/LabelSelect'
 import LabelInput from 'src/components/PRIMS/General/LabelInput'
 import LabelDatepicker from 'src/components/PRIMS/General/LabelDatepicker'
@@ -376,6 +402,8 @@ export default {
         Label,
         Select,
         Input,
+        LabelInputAutocomplete,
+        LabelMultiselect,
         LabelInput,
         LabelSelect,
         LabelDatepicker,
@@ -409,6 +437,7 @@ export default {
                 tta_pic: "",
                 effective_date_from: "",
                 effective_date_to: "",
+                company_info_guid: "",
             },
             ori_params: {},
             table_column: [],
@@ -426,18 +455,33 @@ export default {
                 qty: 1,
                 invoice_child_guid: "",
                 reason: "",
+                generate_cn: false,
             },
             page_function: "",
             username: localStorage.getItem("username") != "" && localStorage.getItem("username") != "null" && localStorage.getItem("username") != null ? localStorage.getItem("username") : "",
             company_guid: localStorage.getItem("company_guid") != "" && localStorage.getItem("company_guid") != "null" && localStorage.getItem("company_guid") != null ? localStorage.getItem("company_guid") : "",
+            preference: {},
             supplier_list: [],
             tta_list: [],
             tta_option_list: [],
+            tta_banner_list: [],
             outlet_list: [],
             outlet_options: [],
             company_options: [],
-            type_list: [{label:'TTA',value:'tta'},{label:'Adhoc', value: 'adhoc'},{label:'Auto Calculation', value: 'auto_calc'},,{label:'Auto Tier Calculation', value: 'tier'}],
+            company_list:[],
+            desc_options:[],
+            glcode_options:[],
+            division_options:[],
+            banner_options: [],
+            type_list: [{label:'TTA',value:'tta'},{label:'Adhoc', value: 'adhoc'},{label:'Auto Calculation', value: 'auto_calc'},{label:'Auto Tier Calculation', value: 'tier'},
+                {label:'EDC',value:'edc'},{label:'PD by Scan Sales',value:'pd_scan'},{label:'PD by Purchase',value:'pd_purchase'}
+            ],
             loading: false,
+            forceLoading: {
+                vendor: false,
+                refno: false,
+                company: false,
+            },
             readonlyStatus: false,
             parentReadonlyStatus: false,
         }
@@ -445,14 +489,6 @@ export default {
     computed: {
         dbComponentBehavior() {
             return this.$store.getters["dbComponentBehavior/byLanguage"]("tta");
-        },
-        ttaOptions(){
-            var options = this.tta_list;
-            if(this.json.supplier_guid != "")
-            {
-                options = this.tta_list.filter(entry => entry.supplier_to == this.json.supplier_guid);
-            }
-            return options;
         },
         typeOptions(){
             var options = this.type_list;
@@ -471,7 +507,7 @@ export default {
                     start_date = start_date.replaceAll('-','/');
                     var end_date = tta.effective_date_to.split(' ')[0];
                     end_date = end_date.replaceAll('-','/');
-                    return date >= start_date && date < end_date;
+                    return date >= start_date && date <= end_date;
                 }
                 return date;
             };
@@ -495,65 +531,47 @@ export default {
                         var start_date = `${tta.effective_date_from.split('-')[0]}-01-01`;
                         start_date = start_date.replaceAll('-','/');
                     }
-                    return date > start_date && date <= end_date;
+                    return date >= start_date && date <= end_date;
                 }
                 return date;
             };
-        }
+        },
     },
     async mounted(){
         this.loading = true;
 
-        // set tta options
-        var payload = {
-            params: {
-                "limit": 99999,
-            }
-        }
-
-        var pass_obj = {
-            "dispatch": 'tta/trigger_get_tta_list',
-            "getter": 'tta/get_tta',
-            "app": this,
-            "payload": payload,
-        }
-
-        var tta_list = await this.$dispatch(pass_obj);
-
-        if(tta_list.status)
+        if(!localStorage.getItem("preference_setting"))
         {
-            var array_options = [];
-            for(var i in tta_list.response.data.results)
-            {
-                var obj = tta_list.response.data.results[i];
-                obj.value = tta_list.response.data.results[i].tta_guid;
-                obj.label = tta_list.response.data.results[i].refno;
-                array_options.push(obj);
+            var pass_obj = {
+                "dispatch": 'general/trigger_get_company',
+                "getter": 'general/get_company',
+                "app": this,
+                "payload": {
+                    "company_guid": this.company_guid
+                },
             }
-            this.tta_list = array_options;
+
+            var company = await this.$dispatch(pass_obj);
+
+            if(!company.status)
+            {
+                this.showNotify('negative', "Preference setting failed.");
+                this.$router.push({name: "tta"});
+            }
+
+            this.preference = {
+                "dateFormat": company.response.data.date_format_setting,
+                "default_date_to": company.response.data.date_to_setting,
+                "division_setting": company.response.data.division_setting == 1 ? true : false,
+                "banner_setting": company.response.data.banner_option_setting,
+                "displayBanner": company.response.data.display_banner_setting == 1 ? true : false,
+                "settlement_discount_setting": company.response.data.settlement_discount_setting == 1 ? true : false,
+            };
+            localStorage.setItem("preference_setting", JSON.stringify(this.preference));
         }
-
-        // set supplier options
-        var pass_obj = {
-            "dispatch": 'general/trigger_get_supplier_list',
-            "getter": 'general/get_supplier',
-            "app": this,
-            "payload": payload,
-        }
-
-        var supplier_list = await this.$dispatch(pass_obj);
-
-        if(supplier_list.status)
+        else
         {
-            var array_options = [];
-            for(var i in supplier_list.response.data.results)
-            {
-                var obj = supplier_list.response.data.results[i];
-                obj.value = obj.supplier_guid;
-                obj.label = `${obj.code} - ${obj.name}`;
-                array_options.push(obj);
-            }
-            this.supplier_list = array_options;
+            this.preference = JSON.parse(localStorage.getItem("preference_setting"));
         }
 
         // set company options
@@ -576,7 +594,7 @@ export default {
                 obj.label = `${obj.code} - ${obj.name}`;
                 array_options.push(obj);
             }
-            this.company_options = array_options;
+            this.company_list = array_options;
         }
 
         if(this.$route.name == 'createInvoice')
@@ -586,7 +604,8 @@ export default {
 
             var current_date = new Date();
             current_date = `${current_date.getFullYear()}-${('0' + (current_date.getMonth() + 1)).slice(-2)}-${('0' + current_date.getDate()).slice(-2)}`;
-            this.json.date = current_date
+            this.json.date = current_date;
+            this.getSupplier();
         }
         else if(this.$route.name == 'editInvoice')
         {
@@ -603,27 +622,53 @@ export default {
                 this.$router.push({name: "invoice"});
             }
 
+            // set glcode options
+            var payload = {
+                params: {
+                    "limit": 99999,
+                    "ordering": "code",
+                }
+            }
+
             var pass_obj = {
-                "dispatch": 'general/trigger_get_banner_outlet_list',
-                "getter": 'general/get_banner_outlet',
+                "dispatch": 'general/trigger_get_glcode_list',
+                "getter": 'general/get_glcode',
                 "app": this,
                 "payload": payload,
             }
 
-            var outlet_list = await this.$dispatch(pass_obj);
+            var glcode = await this.$dispatch(pass_obj);
 
-            if(outlet_list.status)
+            if(glcode.status)
             {
-                var array_options = [];
-                for(var i in outlet_list.response.data.results)
+                for(var i in glcode.response.data.results)
                 {
-                    var obj = outlet_list.response.data.results[i].retailer_outlet;
-                    obj.value = obj.retailer_outlet_guid;
+                    var obj = glcode.response.data.results[i];
+                    obj.value = obj.glcode_guid;
                     obj.label = `${obj.code} - ${obj.name}`;
-                    obj.concept_guid = outlet_list.response.data.results[i].concept_guid;
-                    array_options.push(obj);
+                    this.glcode_options.push(obj);
                 }
-                this.outlet_list = array_options;
+            }
+
+            // set division options
+            var pass_obj = {
+                "dispatch": 'general/trigger_get_division_list',
+                "getter": 'general/get_division',
+                "app": this,
+                "payload": payload,
+            }
+
+            var division = await this.$dispatch(pass_obj);
+
+            if(division.status && division.response.data.count > 0)
+            {
+                for(var i in division.response.data.results)
+                {
+                    var obj = division.response.data.results[i];
+                    obj.value = obj.division_guid;
+                    obj.label = `${obj.code} - ${obj.name}`;
+                    this.division_options.push(obj);
+                }
             }
 
             var payload = {
@@ -641,18 +686,26 @@ export default {
             
             if(invoice_details.status)
             {
-                console.log(invoice_details)
-                this.json = invoice_details.response.data;
-                this.json.remarks = this.json.remarks ? this.json.remarks : "";
-                this.json.invoice_child = [];
+                // console.log(invoice_details);
+                var obj = invoice_details.response.data;
+                obj.remarks = obj.remarks ? obj.remarks : "";
+                obj.invoice_child = [];
 
-                if(this.json.type == 'auto_calc' || this.json.type == 'tier' || this.json.posted == 1 || this.json.canceled == 1)
+                if(obj.type == 'auto_calc' || obj.type == 'tier' || obj.posted == 1 || obj.canceled == 1)
                 {
                     this.readonlyStatus = true;
                 }
-                this.tta_option_list = this.ttaOptions;
-                this.table_function(this.ori_params);
+                
+                this.supplier_list.push({
+                    label: `${obj.vendor_code} - ${obj.vendor_name}`,
+                    value: obj.supplier_guid,
+                    supplier_guid: obj.supplier_guid,
+                })
+                this.handleChangeVendor(obj.supplier_guid)
+                this.handleChangeTTA(obj.tta_guid)
+                this.json = obj;
             }
+            this.table_function(this.ori_params);
         }       
 
         this.loading = false;
@@ -665,16 +718,14 @@ export default {
         handleChangeDateFrom(newVal)
         {
             this.json.effective_date_from = newVal;
-            console.log(newVal)
         },
         handleChangeDateTo(newVal)
         {
             this.json.effective_date_to = newVal;
-            console.log(newVal)
         },
-        handleChangeVendor(newVal)
+        async handleChangeVendor(newVal)
         {
-            this.tta_option_list = this.ttaOptions;
+            this.json.supplier_guid = newVal;
             var vendor = this.supplier_list.filter(entry => entry.supplier_guid == newVal);
             if(vendor.length>0)
             {
@@ -685,13 +736,105 @@ export default {
             }
             this.json.tta_guid = "";
             this.json.tta_pic = "";
+            this.json.company_info_guid = "";
+            this.company_options = [];
+            this.tta_option_list = await this.filterInvoice();
         },
-        handleChangeTTA(newVal)
+        async handleChangeTTA(newVal)
         {
             var tta = this.tta_list.filter(entry => entry.tta_guid == newVal);
             if(tta.length>0)
             {
                 this.json.tta_pic = tta[0].authorised_by ? tta[0].authorised_by : "";
+            }
+            this.json.company_info_guid = "";
+            this.company_options = [];
+            
+            if(!newVal || newVal == "") return;
+
+            this.forceLoading.company = true;
+
+            var payload = {
+                params: {
+                    "limit": 99999,
+                    "tta_guid": newVal,
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": 'tta/trigger_get_tta_banner_list',
+                "getter": 'tta/get_banner',
+                "app": this,
+                "payload": payload,
+            }
+
+            var banner = await this.$dispatch(pass_obj);
+
+            if(banner.status)
+            {
+                this.tta_banner_list = banner.response.data.results;
+                const unique_company = [...new Set(this.tta_banner_list.map((val)=>val.company_info_guid))];
+                this.company_options = this.company_list.filter(entry => unique_company.includes(entry.value))
+            }
+
+            this.forceLoading.company = false;
+        },
+        handleChangeBanner(newVal)
+        {
+            if(this.dialog.action == 'EDIT') this.dialog.outlet = "";
+
+            if(newVal == 'all' || !newVal)
+            {
+                if(!newVal) this.$nextTick(() => this.dialog.banner = 'all');
+                var options = this.banner_options[0].options;
+                // console.log('all', options);
+            }
+            else if(newVal == 'else')
+            {
+                var options = this.banner_options[0].options.filter(entry=>entry.concept_guid==entry.code);
+                // console.log('else', options);
+            }
+            else
+            {
+                var options = this.banner_options[0].options.filter(entry=>entry.concept_guid==newVal);
+                // console.log(newVal, options);
+            }
+
+            // remove duplicate outlet
+            options = options.filter((obj, index, self) => index === self.findIndex((entry) => (entry.value === obj.value)));
+
+            // sort outlet
+            options.sort((a,b)=>{
+                const alphaA = a.label.match(/([A-Za-z]+)\s*-\s*/);
+                const alphaB = b.label.match(/([A-Za-z]+)\s*-\s*/);
+                const numA = a.label.match(/(\d+)\s*-\s*/);
+                const numB = b.label.match(/(\d+)\s*-\s*/);
+                
+                if (alphaA != null && alphaB != null) {
+                    return alphaA[0].localeCompare(alphaB[0]); // Sort alphabetically
+                } else if (alphaA != null) {
+                    return -1; // a is alphabetic, b is numeric
+                } else if (alphaB != null) {
+                    return 1; // b is alphabetic, a is numeric
+                } else if (numA != null && numB != null) {
+                    return parseInt(numA[0]) - parseInt(numB[0]); // Sort numerically
+                }
+
+                return 0;
+            });
+            this.outlet_options = options;
+            // console.log(this.outlet_options);
+        },
+        handleChangeDesc(newVal)
+        {
+            if(newVal && typeof newVal === 'object')
+            {
+                this.dialog.amount = newVal.option1 == '$' ? newVal.value1 : newVal.option2 == '$' ? newVal.value2 : 0;
+                this.dialog.glcode = newVal.tab_article_info && newVal.tab_article_info.glcode_guid ? newVal.tab_article_info.glcode_guid : "";
+            }
+            else
+            {
+                this.dialog.amount = this.dialog.action == "EDIT" ? this.dialog.amount : 0;
             }
         },
         handleTableChange(newVal)
@@ -707,8 +850,6 @@ export default {
             this.table_function(payload);
         },
         async table_function(payload){
-            this.showLoading = true;
-
             if(!this.json.invoice_guid)
             {
                 this.table_column = [
@@ -926,10 +1067,10 @@ export default {
                         name: 'description',
                         required: true,
                         label: 'Description',
-                        align: 'center',
+                        align: 'left',
                         sortable: true,
                         field: 'description',
-                        headerStyle: 'text-align: center; width: 1%;',
+                        headerStyle: 'text-align: center; min-width: 250px;',
                         filter_type: 'input',
                         filter_options: [],
                         filter_value: '',
@@ -942,6 +1083,32 @@ export default {
                         sortable: true,
                         field: 'outlet_code',
                         headerStyle: 'text-align: center; width: 1%;',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'division_guid',
+                        required: true,
+                        label: 'Division',
+                        align: 'left',
+                        sortable: true,
+                        field: 'division_guid',
+                        format: (val) => this.division_options.find(entry => entry.value == val) ? this.division_options.find(entry => entry.value == val).label : val,
+                        headerStyle: 'text-align: center; min-width: 150px',
+                        filter_type: 'input',
+                        filter_options: [],
+                        filter_value: '',
+                    },
+                    {
+                        name: 'glcode_guid',
+                        required: true,
+                        label: 'GL Code',
+                        align: 'left',
+                        sortable: true,
+                        field: 'glcode_guid',
+                        format: (val) => this.glcode_options.find(entry => entry.value == val) ? this.glcode_options.find(entry => entry.value == val).label : val,
+                        headerStyle: 'text-align: center; min-width: 250px; max-width: 300px',
                         filter_type: 'input',
                         filter_options: [],
                         filter_value: '',
@@ -1163,18 +1330,19 @@ export default {
 
             if(invoice_child_list.status)
             {
-                console.log("inv child",invoice_child_list)
+                // console.log("inv child",invoice_child_list)
                 var rows = invoice_child_list.response;
-                this.json.invoice_child = rows.data.results;
                 var invoice_child = [];
-                for(var i in this.json.invoice_child)
+                for(var i in rows.data.results)
                 {
                     const obj = {
-                        invoice_child_guid: this.json.invoice_child[i].invoice_child_guid,
-                        amount: parseFloat(this.json.invoice_child[i].amount),
-                        qty: parseInt(this.json.invoice_child[i].qty),
-                        description: this.json.invoice_child[i].description,
-                        retailer_outlet_guid: this.json.invoice_child[i].retailer_outlet_guid,
+                        invoice_child_guid: rows.data.results[i].invoice_child_guid,
+                        amount: parseFloat(rows.data.results[i].amount),
+                        qty: parseInt(rows.data.results[i].qty),
+                        description: rows.data.results[i].description,
+                        retailer_outlet_guid: rows.data.results[i].retailer_outlet_guid,
+                        glcode_guid: rows.data.results[i].glcode_guid,
+                        division_guid: rows.data.results[i].division_guid,
                     }
 
                     invoice_child.push(obj);
@@ -1190,11 +1358,9 @@ export default {
                 };
             }
 
-            this.parentReadonlyStatus = this.json.invoice_child.length>0 ? true : false;
+            // this.parentReadonlyStatus = this.json.invoice_child.length>0 ? true : false;
 
             this.table_data = rows;
-            
-            this.showLoading = false;
         },
         handleColumnRearrange(pass_payload)
         {
@@ -1214,20 +1380,38 @@ export default {
         },
         async handleAdd()
         {
+            if(!this.json.tta_guid || this.json.tta_guid == "")
+            {
+                this.showNotify('negative','Please select TTA.');
+                return;
+            }
+            this.loading = true;
             this.dialog.action = "ADD";
-            this.outlet_options = await this.filterOutlet();
+            this.dialog.banner = "all";
+            this.dialog.outlet = [];
+            this.dialog.glcode = "";
+            this.dialog.division = "";
+            await this.filterOutlet();
+            this.desc_options = await this.getDescription();
             this.dialog.child = true;
+            this.loading = false;
         },
         async handleEdit(payload)
         {
+            this.loading = true;
             this.dialog.action = "EDIT";
             this.dialog.amount = payload.row.amount;
             this.dialog.qty = payload.row.qty;
             this.dialog.description = payload.row.description;
-            this.dialog.retailer_outlet_guid = payload.row.retailer_outlet_guid;
+            this.dialog.banner = "all";
+            await this.filterOutlet();
+            this.dialog.outlet = payload.row.retailer_outlet_guid;
             this.dialog.invoice_child_guid = payload.row.invoice_child_guid;
-            this.outlet_options = await this.filterOutlet();
+            this.desc_options = await this.getDescription();
+            this.dialog.glcode = payload.row.glcode_guid;
+            this.dialog.division = payload.row.division_guid;
             this.dialog.child = true;
+            this.loading = false;
         },
         handleDelete(payload)
         {
@@ -1284,13 +1468,17 @@ export default {
 
             if(this.dialog.action == "ADD")
             {
-                const new_child = {
-                    "description": this.dialog.description,
-                    "amount": parseFloat(this.dialog.amount),
-                    "qty": parseInt(this.dialog.qty),
-                    "retailer_outlet_guid": this.dialog.retailer_outlet_guid,
-                }
-                this.json.invoice_child.push(new_child);
+                this.dialog.outlet.forEach(entry => {
+                    const new_child = {
+                        "description": typeof this.dialog.description == 'object' ? this.dialog.description.label : this.dialog.description,
+                        "amount": parseFloat(this.dialog.amount),
+                        "qty": parseInt(this.dialog.qty),
+                        "retailer_outlet_guid": entry,
+                        "glcode_guid": this.dialog.glcode,
+                        "division_guid": this.dialog.division,
+                    }
+                    this.json.invoice_child.push(new_child);
+                })
             }
             else if(this.dialog.action == "EDIT"){
                 this.json.invoice_child.map((entry)=>{
@@ -1298,8 +1486,10 @@ export default {
                     {
                         entry.amount = parseFloat(this.dialog.amount);
                         entry.qty = parseInt(this.dialog.qty);
-                        entry.description = this.dialog.description;
-                        entry.retailer_outlet_guid = this.dialog.retailer_outlet_guid;
+                        entry.description = typeof this.dialog.description == 'object' ? this.dialog.description.label : this.dialog.description;
+                        entry.retailer_outlet_guid = this.dialog.outlet;
+                        entry.glcode_guid = this.dialog.glcode;
+                        entry.division_guid = this.dialog.division;
                     }
                 })
             }            
@@ -1308,6 +1498,7 @@ export default {
                 pass_json: {
                     "invoice_guid": this.json.invoice_guid,
                     "company_guid": this.company_guid,
+                    "company_info_guid": this.json.company_info_guid,
                     "tta_guid": this.json.tta_guid,
                     "supplier_guid": this.json.supplier_guid,
                     "date": this.json.date,
@@ -1389,7 +1580,6 @@ export default {
                     "invoice_guid": this.json.invoice_guid,
                 }
             }
-            console.log(payload);
 
             var pass_obj = {
                 "dispatch": 'transaction/trigger_post_invoice',
@@ -1402,8 +1592,25 @@ export default {
 
             if(!data_response.status)
             {
-                this.showNotify('negative','Post invoice failed.');
-                console.log(data_response.response);
+                const valid = this.isValidJSON(data_response.response);
+                var message = 'Post invoice failed.';
+                if(valid)
+                {
+                    const response = JSON.parse(data_response.response);
+                    var message = '';
+
+                    if(response && response.errors)
+                    {
+                        for (const index in response.errors) {
+                            message += response.errors[index]+"<br>";
+                        }
+                    }
+                }
+                else
+                {
+                    message = JSON.stringify(data_response.response);
+                }
+                this.showNotify('negative', message);
                 this.dialog.loading = false;
                 return
             }
@@ -1430,6 +1637,7 @@ export default {
                         {
                             "invoice_guid": this.json.invoice_guid,
                             "cancel_reason": this.dialog.reason,
+                            "generate_cn": this.dialog.generate_cn,
                         },
                     ]
                 }
@@ -1448,14 +1656,19 @@ export default {
                 console.log(data_response);
                 const valid = this.isValidJSON(data_response.response);
                 var message = 'Cancel failed.';
-                console.log(valid)
                 if(valid)
                 {
                     const response = JSON.parse(data_response.response);
-                    if(response.error)
+                    var message = response.message ? response.message : '';
+                    var data_message = '';
+
+                    if(response && response.data && response.data.errors)
                     {
-                        message = response.error;
+                        for (const index in response.data.errors) {
+                            data_message += "<br>"+response.data.errors[index];
+                        }
                     }
+                    message = message + data_message
                 }
                 else
                 {
@@ -1507,6 +1720,7 @@ export default {
                     "remarks": this.json.remarks,
                     "updated_by": this.username,
                     "invoice_child": this.json.invoice_child,
+                    "invoice_post": 'manual',
                 }
             }
 
@@ -1586,51 +1800,199 @@ export default {
             this.dialog.amount = 0;
             this.dialog.qty = 1;
             this.dialog.description = "";
-            this.dialog.retailer_outlet_guid = "";
+            this.dialog.outlet = [];
+            this.dialog.glcode = "";
+            this.dialog.division = "";
             this.dialog.invoice_child_guid = "";
             this.dialog.child = false;
         },
         closeDialogCancel()
         {
             this.dialog.reason = "";
+            this.dialog.generate_cn = false;
             this.dialog.cancel = false;
         },
         async filterOutlet()
         {
+            // get all outlets only once
+            if(this.outlet_list.length == 0)
+            {
+                var payload = {
+                    params: {
+                        "limit": 99999,
+                    }
+                }
+
+                var pass_obj = {
+                    "dispatch": 'general/trigger_get_banner_outlet_list',
+                    "getter": 'general/get_banner_outlet',
+                    "app": this,
+                    "payload": payload,
+                }
+
+                var outlet_list = await this.$dispatch(pass_obj);
+
+                if(outlet_list.status)
+                {
+                    var array_options = [];
+                    for(var i in outlet_list.response.data.results)
+                    {
+                        var obj = outlet_list.response.data.results[i].retailer_outlet;
+                        obj.value = obj.retailer_outlet_guid;
+                        obj.label = `${obj.code} - ${obj.name}`;
+                        obj.concept_guid = outlet_list.response.data.results[i].concept_guid;
+                        obj.concept = outlet_list.response.data.results[i].concept;
+                        array_options.push(obj);
+                    }
+                    this.outlet_list = array_options;
+                }
+            }
+
+            // filter tta banner based on selected company
+            var banner_list = this.tta_banner_list.filter(entry=>entry.company_info_guid == this.json.company_info_guid);
+
+            // filter outlets based on tta banner
             var options = [];
+            if(banner_list.length>0)
+            {
+                options = this.outlet_list.filter((entry)=>{
+                    return banner_list.map(entry=>entry.concept_guid).includes(entry.concept_guid) && entry;
+                });
+                console.log('outlet by tta banner', options)
+
+                // get major banner included in outlet list
+                const major_banner = options
+                    .filter(entry => entry.concept_guid !== entry.code)
+                    .map(entry => [entry.concept_guid, { label: `${entry.concept.code} - ${entry.concept.name}`, value: entry.concept_guid }]);
+                
+                // make major banner unique
+                const unique_banner = [...new Map(major_banner).values()].sort((a, b) => a.label.localeCompare(b.label));
+
+                // concat major banner to banner options
+                var banner_options = [{label:'Select All',value:'all'},{label:'Others',value:'else'}];
+                banner_options.splice(1,0,...unique_banner);
+                this.banner_options = banner_options;
+                this.banner_options[0].options = options;
+                console.log(this.banner_options)
+            };
+            console.log('outlet',options.length);
+            this.handleChangeBanner('all');
+        },
+        async filterInvoice(){
+            if(!this.json.supplier_guid || this.json.supplier_guid == "")
+            {
+                return [];
+            }
+
+            this.forceLoading.refno = true;
 
             var payload = {
                 params: {
                     "limit": 99999,
-                    "tta_guid": this.json.tta_guid,
+                    "ordering": 'refno',
+                    "supplier_to": this.json.supplier_guid,
+                    "approved": 1,
+                    "terminated": 0,
+                    "renewed": 0,
                 }
             }
 
             var pass_obj = {
-                "dispatch": 'tta/trigger_get_tta_banner_list',
-                "getter": 'tta/get_banner',
+                "dispatch": 'tta/trigger_get_tta_list',
+                "getter": 'tta/get_tta',
                 "app": this,
                 "payload": payload,
             }
 
-            var banner = await this.$dispatch(pass_obj);
+            var tta_list = await this.$dispatch(pass_obj);
 
-            var banner_list = [];
-
-            if(banner.status)
+            var array_options = [];
+            if(tta_list.status)
             {
-                banner_list = banner.response.data.results;
+                for(var i in tta_list.response.data.results)
+                {
+                    var obj = tta_list.response.data.results[i];
+                    obj.value = tta_list.response.data.results[i].tta_guid;
+                    obj.label = tta_list.response.data.results[i].refno;
+                    array_options.push(obj);
+                }
+            }
+            this.tta_list = array_options;
+            this.forceLoading.refno = false;
+            return array_options;
+        },
+        async getSupplier()
+        {
+            if(this.supplier_list.length>1) return;
+
+            this.forceLoading.vendor = true;
+
+            var payload = {
+                params: {
+                    "limit": 99999,
+                    "type__in": "S,P",
+                }
             }
 
-            if(banner_list.length>0)
-            {
-                options = this.outlet_list.filter((entry)=>{
-                    return banner_list.map(entry=>entry.concept_guid).includes(entry.concept_guid);
-                });
-            };
-            console.log(options);
+            // set supplier options
+            var pass_obj = {
+                "dispatch": 'general/trigger_get_supplier_list',
+                "getter": 'general/get_supplier',
+                "app": this,
+                "payload": payload,
+            }
 
-            return options
+            var supplier_list = await this.$dispatch(pass_obj);
+
+            if(supplier_list.status)
+            {
+                var array_options = [];
+                for(var i in supplier_list.response.data.results)
+                {
+                    var obj = supplier_list.response.data.results[i];
+                    obj.value = obj.supplier_guid;
+                    obj.label = `${obj.code} - ${obj.name}`;
+                    array_options.push(obj);
+                }
+                this.supplier_list = array_options;
+            }
+
+            this.forceLoading.vendor = false;
+        },
+        async getDescription()
+        {
+            if(this.desc_options.length>0) return this.desc_options;
+
+            // set description options with tta articles
+            var payload = {
+                params: {
+                    "limit": 99999,
+                    "tta_guid": this.json.tta_guid,
+                    "calc_type": 'manual'
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": 'tta/trigger_get_tta_tab_article_list',
+                "getter": 'tta/get_article',
+                "app": this,
+                "payload": payload,
+            }
+
+            var article = await this.$dispatch(pass_obj);
+
+            var array_options = [];
+            if(article.status)
+            {
+                for(var i in article.response.data.results)
+                {
+                    var obj = article.response.data.results[i];
+                    obj.value = obj.tta_tab_article_guid;
+                    obj.label = obj.name;
+                    array_options.push(obj);
+                }
+            }
+            return array_options;
         },
         formatAmount(value, type) {
             if (value === null || value === undefined) {
@@ -1646,7 +2008,7 @@ export default {
             if (type === "$") {
                 value = value.toFixed(2);
             } else if (type === "%") {
-                value = value.toFixed(1);
+                value = value == parseInt(value) ? value.toFixed(1) : value;
             } else if (type === "qty") {
                 value = value.toFixed(0);
             }
@@ -1757,13 +2119,18 @@ export default {
     min-width: 100px;
 }
 
+.action_button
+{
+    font-size: 14px;
+    background-color: #e37a05;
+    color: white;
+    padding: 5px;
+    min-width: 100px;
+}
+
 .showLoading
 {
   z-index: 3;
-}
-
-* >>> .q-field--outlined.q-field--readonly .q-field__control:before {
-    border-style: solid;
 }
 
 

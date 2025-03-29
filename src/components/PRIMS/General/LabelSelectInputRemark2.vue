@@ -122,7 +122,6 @@ export default {
     },
     watch:{
         input1(newVal){
-            console.log("input1",newVal)
             this.value.input1 = newVal;
         },
         select1(newVal){
@@ -132,7 +131,6 @@ export default {
             this.value.radio1 = newVal;
         },
         input2(newVal){
-            console.log("input2",newVal)
             this.value.input2 = newVal;
         },
         select2(newVal){

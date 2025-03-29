@@ -98,6 +98,30 @@
         class="showLoading"
         color="primary"
     />
+
+    <q-dialog v-model="dialog.alert" persistent position="top">
+        <q-card style="width: 864px; max-width: 98vw;text-align:center;margin-top: 5%;border-radius: 8px">
+
+        <q-card-section class="theme_color row items-center" style="height:56px; padding: 8px 24px;border-bottom: 1px solid #a7bbcb;">
+            <div class="confirm_title">Confirmation</div>
+            <q-space />
+            <q-btn icon="close" flat round dense v-close-popup :disable="dialog.loading"/>
+        </q-card-section>
+
+        <q-card-section style="padding: 32px 24px">
+            <span class="confirmation_line_font">{{dialog.message}}</span>
+        </q-card-section>
+
+        <q-card-actions align="right" style="padding-top:0px;padding-bottom:16px;padding-right:16px">
+            <q-btn flat label="OK" font_color="white" color="'#D81111'" size="12px" class="primary_actions_button" v-close-popup />
+        </q-card-actions>
+
+        <q-inner-loading
+            :showing="dialog.loading"
+            color="primary"
+        />
+        </q-card>
+    </q-dialog>
 </template>
 
 <script>
@@ -137,16 +161,22 @@ export default {
             tabTypeOptions: [{label:'Amount ($)', value: 'amount'},{label:'Percentage (%)', value: 'percentage'},{label:'Amount Percentage', value: 'amount_percentage'},{label:'Target Incentive Rebate', value: 'tir'},
                 {label:'Period (%)', value: 'period_percentage'},{label:'Site Group (%)', value: 'sitegroup_percentage'},{label:'Period ($ / %)', value: 'period_amount_percentage'},{label:'Store Type / Period ($ / %)', value: 'storetype_period'}],
             componentTypeOptions: [{label:'Backdated Purchase Rebate', value: 'rate_purgrossnet_date'},{label:'Purchase Rebate', value: 'rate_purgrossnet'},{label:'Backdated Consignment Sales Rebate', value: 'rate_cogsinvnet_date'},
-                {label:'Consignment Sales Rebate', value: 'rate_cogsinvnet'},{label:'Fixed Amount Rebate', value: 'dollar_rate_remark'}, {label:'Service Level Rebate', value: 'target_ratetype_rate_remark'},
-                {label:'New Store (Days) Rebate', value: 'days_rate_percentage'},{label:'New Store (Months) Rebate', value: 'months_rate_percentage'},{label:'Target Incentive Rebate', value: 'tir'},
-                {label:'Promotion (Months) Rebate %', value: 'promotion_percentage'},{label:'Promotion (Month) Rebates (%/$)', value: 'promotion_percentage_amount'}
+                {label:'Consignment Sales Rebate', value: 'rate_cogsinvnet'},{label:'Fixed Amount Rebate', value: 'dollar_rate_remark'},{label:'Fixed Amount Rebate Without Remark', value: 'dollar_rate'}, 
+                {label:'Service Level Rebate', value: 'target_ratetype_rate_remark'},{label:'New Store (Days) Rebate', value: 'days_rate_percentage'},{label:'New Store (Months) Rebate', value: 'months_rate_percentage'},
+                {label:'Target Incentive Rebate', value: 'tir'},{label:'Promotion (Months) Rebate %', value: 'promotion_percentage'},{label:'Promotion (Month) Rebates (%/$)', value: 'promotion_percentage_amount'}
             ],
             calcTypeOptions: [{label:'Auto',value:'auto'},{label:'Manual',value:'manual'}],
             optionTypeOptions: [{label:'%',value:'%'},{label:'$',value:'$'}],
             marginTypeOptions: [{label: 'Backend', value: 'backend'},{label: 'Frontend',value: 'frontend'}],
-            billingTypeOptions: [{value:'monthly',label:'Monthly'},{value:'quarterly',label:'Quarterly'},{value:'half-year',label:'Half Year'},{value:'yearly',label:'Yearly'},{value:'end_of_tta',label:'End of TTA'}],
+            billingTypeOptions: [{value: 'none',label:'None'},{value:'monthly',label:'Monthly'},{value:'quarterly',label:'Quarterly'},{value:'half-year',label:'Half Year'},{value:'yearly',label:'Yearly'},{value:'end_of_tta',label:'End of TTA'}],
             username: localStorage.getItem("username") != "" && localStorage.getItem("username") != "null" && localStorage.getItem("username") != null ? localStorage.getItem("username") : "",
             company_guid: localStorage.getItem("company_guid") != "" && localStorage.getItem("company_guid") != "null" && localStorage.getItem("company_guid") != null ? localStorage.getItem("company_guid") : "",
+            dialog: {
+                alert: false,
+                message: "",
+                loading: false,
+            },
+            forceLoading: false,
             loading: false,
             readonlyStatus: false,
         }
@@ -263,7 +293,7 @@ export default {
                     this.json.tab_article = tab_article.response.data.results;
                 }
                 this.table_function(this.ori_params);
-                console.log(this.json);
+                // console.log(this.json);
             }
         }
         else
@@ -317,9 +347,9 @@ export default {
                     return;
                 }
                 
-                if(article[i].calc_type == 'auto' && (this.json.component_type != 'rate_purgrossnet_date' && this.json.component_type != 'rate_purgrossnet'))
+                if(article[i].calc_type == 'auto' && (this.json.component_type != 'rate_purgrossnet_date' && this.json.component_type != 'rate_purgrossnet' && this.json.component_type != 'rate_cogsinvnet_date' && this.json.component_type != 'rate_cogsinvnet' && this.json.component_type != 'dollar_rate'))
                 {
-                    this.showNotify('negative', 'Auto calculation for component type below not available: <br/> <li>Backdated Consignment Sales Rebate</li><li>Consignment Sales Rebate</li><li>Fixed Amount Rebate</li><li>Service Level Rebate</li><li>New Store (Days) Rebate</li><li>New Store (Months) Rebate</li><li>Promotion (Months) Rebate %</li><li>Promotion (Month) Rebates (%/$)</li>');
+                    this.showNotify('negative', 'Auto calculation for component type below not available: <br/> <li>Fixed Amount Rebate</li><li>Service Level Rebate</li><li>New Store (Days) Rebate</li><li>New Store (Months) Rebate</li><li>Promotion (Months) Rebate %</li><li>Promotion (Month) Rebates (%/$)</li>');
                     this.loading = false;
                     return;
                 }
@@ -374,7 +404,7 @@ export default {
                                 "name": article.name,
                                 "calc_type": article.calc_type,
                                 "option_type": article.option_type,
-                                "billing_type": article.billing_type,
+                                "billing_type": article.billing_type == 'none' ? null : article.billing_type,
                                 "margin": article.margin,
                                 "visible": article.visible,
                                 "label1": article.label1,
@@ -434,7 +464,7 @@ export default {
                         for(const entry of original_article)
                         {
                             if(!new_article.map(entry => entry.tab_article_guid).includes(entry.tab_article_guid)){
-                                console.log('delete article',entry)
+                                // console.log('delete article',entry)
                                 var payload = {
                                     'tab_article_guid': entry.tab_article_guid,
                                 }
@@ -473,7 +503,7 @@ export default {
                         // Create article if it does not include in original list
                         for(const entry of new_article){
                             if(!entry.tab_article_guid){
-                                console.log('create article', entry)
+                                // console.log('create article', entry)
 
                                 var payload = {
                                     pass_json: {
@@ -481,7 +511,7 @@ export default {
                                         "name": entry.name,
                                         "calc_type": entry.calc_type,
                                         "option_type": entry.option_type,
-                                        "billing_type": entry.billing_type,
+                                        "billing_type": entry.billing_type == 'none' ? null : entry.billing_type,
                                         "margin": entry.margin,
                                         "visible": entry.visible,
                                         "label1": entry.label1,
@@ -516,7 +546,7 @@ export default {
                         for(const new_entry of new_article){
                             const entry = original_article.find(original_entry => original_entry.tab_article_guid === new_entry.tab_article_guid);
                             if(entry){
-                                console.log("edit article",new_entry)
+                                // console.log("edit article",new_entry)
                                 var payload = {
                                     tab_article_guid: new_entry.tab_article_guid,
                                     pass_json: {
@@ -524,7 +554,7 @@ export default {
                                         "name": new_entry.name,
                                         "calc_type": new_entry.calc_type,
                                         "option_type": new_entry.option_type,
-                                        "billing_type": new_entry.billing_type,
+                                        "billing_type": new_entry.billing_type == 'none' ? null : new_entry.billing_type,
                                         "margin": new_entry.margin,
                                         "visible": new_entry.visible,
                                         "label1": new_entry.label1,
@@ -565,7 +595,6 @@ export default {
         },
         async handleChangeComponentType()
         {
-            console.log(this.json.component_type)
             await this.table_function(this.ori_params);
             for(const index in this.table_data.data.results)
             {
@@ -591,17 +620,16 @@ export default {
                 "label2": null,
             }
             this.table_data.data.results.push(article);
-            console.log('add article',this.table_data);
+            // console.log('add article',this.table_data);
             for(const index in this.table_data.data.results)
             {
+                this.table_data.data.results[index].input_options_billing_type = this.billingTypeOptions;
                 this.table_data.data.results[index].readonly_label1 = this.json.component_type == 'dollar_rate_remark' || this.json.component_type == 'target_ratetype_rate_remark' ? false : true;
                 this.table_data.data.results[index].readonly_label2 = this.json.component_type == 'target_ratetype_rate_remark' ? false : true;
             }
         },
         handleRemoveArticle(data)
         {
-            console.log(data);
-
             const index = this.table_data.data.results.findIndex(entry => entry.index === data.row.index);
             if (index !== -1) {
                 this.table_data.data.results.splice(index, 1);
@@ -610,21 +638,30 @@ export default {
                     this.table_data.data.results[i].index = parseInt(i)+1;
                 }
             }
-            console.log('remove row', this.table_data.data.results);
+            // console.log('remove row', this.table_data.data.results);
         },
         handleChangeSelect(data)
         {
-            console.log(data);
             if(data.col.name == 'calc_type')
             {
+                data.row.billing_type = '';
                 if(data.col.value == 'manual')
                 {
-                    data.row.billing_type = 'monthly';
-                    data.row.readonly_billing_type = true;
+                    data.row.input_options_billing_type = this.billingTypeOptions;
+                    if(this.json.component_type == 'dollar_rate')
+                    {
+                        data.row.label1 =  null;
+                    }
                 }
                 else
                 {
-                    data.row.readonly_billing_type = false;
+                    data.row.input_options_billing_type = this.billingTypeOptions.slice(1);
+                    if(this.json.component_type == 'dollar_rate')
+                    {
+                        data.row.label1 =  "amount_qty";
+                        this.dialog.message = "Auto calculation for enabling Amount X GRN quantity calculation.";
+                        this.dialog.alert = true;
+                    }                    
                 }
             }
         },
@@ -662,7 +699,7 @@ export default {
             this.table_function(payload);
         },
         async table_function(payload){
-            this.showLoading = true;
+            this.forceLoading = true;
 
             if(!this.json.tab_guid)
             {
@@ -714,18 +751,6 @@ export default {
                         filter_value: '',
                     },
                     {
-                        name: 'option_type',
-                        required: true,
-                        label: 'Option',
-                        align: 'center',
-                        sortable: true,
-                        field: 'option_type',
-                        data_type: 'select',
-                        style: 'max-width: 50px;',
-                        filter_type: 'input',
-                        input_options: this.optionTypeOptions,
-                    },
-                    {
                         name: 'calc_type',
                         required: true,
                         label: 'Calc Type',
@@ -747,7 +772,7 @@ export default {
                         data_type: 'select',
                         style: 'max-width: 50px;',
                         filter_type: 'input',
-                        input_options: this.billingTypeOptions,
+                        // input_options: this.billingTypeOptions,
                     },
                     {
                         name: 'margin',
@@ -816,6 +841,23 @@ export default {
                         filter_value: '',
                     },
                 ];
+
+                if(this.json.component_type != 'dollar_rate_remark' && this.json.component_type != 'dollar_rate' && this.json.component_type != 'rate_purgrossnet_date' && this.json.component_type != 'rate_purgrossnet' && this.json.component_type != 'promotion_percentage')
+                {
+                    var obj1 = {
+                        name: 'option_type',
+                        required: true,
+                        label: 'Option',
+                        align: 'center',
+                        sortable: true,
+                        field: 'option_type',
+                        data_type: 'select',
+                        style: 'max-width: 50px;',
+                        filter_type: 'input',
+                        input_options: this.optionTypeOptions,
+                    }
+                    column.splice(3,0,obj1);
+                }
                 
                 if(this.json.component_type == 'dollar_rate_remark' || this.json.component_type == 'target_ratetype_rate_remark')
                 {
@@ -910,18 +952,6 @@ export default {
                         filter_value: '',
                     },
                     {
-                        name: 'option_type',
-                        required: true,
-                        label: 'Option',
-                        align: 'center',
-                        sortable: true,
-                        field: 'option_type',
-                        data_type: 'select',
-                        style: 'max-width: 50px;',
-                        filter_type: 'input',
-                        input_options: this.optionTypeOptions,
-                    },
-                    {
                         name: 'calc_type',
                         required: true,
                         label: 'Calc Type',
@@ -943,7 +973,7 @@ export default {
                         data_type: 'select',
                         style: 'max-width: 120px;',
                         filter_type: 'input',
-                        input_options: this.billingTypeOptions,
+                        // input_options: this.billingTypeOptions,
                     },
                     {
                         name: 'margin',
@@ -1016,6 +1046,23 @@ export default {
                 ];
             }
 
+            if(this.json.component_type != 'dollar_rate_remark' && this.json.component_type != 'dollar_rate' && this.json.component_type != 'rate_purgrossnet_date' && this.json.component_type != 'rate_purgrossnet' && this.json.component_type != 'promotion_percentage')
+            {
+                var obj1 = {
+                    name: 'option_type',
+                    required: true,
+                    label: 'Option',
+                    align: 'center',
+                    sortable: true,
+                    field: 'option_type',
+                    data_type: 'select',
+                    style: 'max-width: 50px;',
+                    filter_type: 'input',
+                    input_options: this.optionTypeOptions,
+                }
+                column.splice(3,0,obj1);
+            }
+
             if(this.json.component_type == 'dollar_rate_remark' || this.json.component_type == 'target_ratetype_rate_remark')
             {
                 var obj1 = {
@@ -1069,7 +1116,9 @@ export default {
                 for(var i in rows.data.results)
                 {
                     rows.data.results[i].index = parseInt(i)+1;
-                    rows.data.results[i].readonly_billing_type = rows.data.results[i].calc_type == 'manual' ? true : false;
+                    rows.data.results[i].billing_type = rows.data.results[i].billing_type ? rows.data.results[i].billing_type : 'none';
+                    rows.data.results[i].input_options_billing_type = rows.data.results[i].calc_type == 'auto' ? this.billingTypeOptions.slice(1) : this.billingTypeOptions;
+                    // rows.data.results[i].readonly_billing_type = rows.data.results[i].calc_type == 'manual' ? true : false;
                     rows.data.results[i].readonly_label1 = this.json.component_type == 'dollar_rate_remark' || this.json.component_type == 'target_ratetype_rate_remark' ? false : true;
                     rows.data.results[i].readonly_label2 = this.json.component_type == 'target_ratetype_rate_remark' ? false : true;
                 }
@@ -1085,9 +1134,9 @@ export default {
 
             this.table_data = rows;
 
-            console.log("article",this.table_data.data.results);
+            // console.log("article",this.table_data.data.results);
             
-            this.showLoading = false;
+            this.forceLoading = false;
         },
         handleColumnRearrange(pass_payload)
         {

@@ -4,6 +4,7 @@ import { createRouter, createMemoryHistory, createWebHistory, createWebHashHisto
 import routes from './PRIMS'
 
 import store from 'src/store'
+import axios from 'axios'
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;
@@ -40,9 +41,17 @@ export default route(function (/* { store, ssrContext } */) {
     else
     {
       var authenticated = localStorage.getItem("authenticated") != "" && localStorage.getItem("authenticated") != "null" && localStorage.getItem("authenticated") != null ? (localStorage.getItem("authenticated") == 1 ? true : false) : false;
+      // var company_guid = localStorage.getItem("company_guid") != "" && localStorage.getItem("company_guid") != "null" && localStorage.getItem("company_guid") != null ? true : false;
       if(authenticated)
       {
         console.log('authenticated user');
+        if(to.path.includes('/Transaction/') || to.path.includes('/Setting/'))
+        {
+          if(sessionStorage.getItem('tta_payload'))
+          {
+            sessionStorage.removeItem('tta_payload')
+          }
+        }
         next();
       }
       else

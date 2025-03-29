@@ -11,5 +11,6 @@ export default function () {
     cot: {},
     banner: {},
     upload: {},
+    query: {},
   }
 }

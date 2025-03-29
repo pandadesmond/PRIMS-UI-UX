@@ -1,6 +1,78 @@
 <template>
     <div class="row q-pa-md" v-if="company_list.length>0">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            Company Profile
+        </div>
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 bg-white q-my-sm q-pa-md">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 q-px-md q-pb-xl q-pt-md" style="font-size: 10px;">
+                <q-form ref="save_form_preference">
+                    <div class="q-pb-md">
+                        <Label pass_value="Preference" class="text-h6"/>
+                    </div>
+
+                    <div class="row justify-between">
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-pr-md">
+
+                            <div class="q-px-sm">
+                                <LabelToggle label="Banner Display" v-model:pass_value="json.display_banner_setting" :readonly="false" showIcon="help"
+                                iconTooltip="Display banner at header of TTA report."/>
+                            </div>
+
+                            <q-separator inset/>
+                            
+                            <div class="q-px-sm">
+                                <LabelToggle label="Division Options" v-model:pass_value="json.division_setting" :readonly="false" showIcon="help"
+                                iconTooltip="Enable type of division (division/ dept/ subdept/ category)"/>
+                            </div>
+                            
+                            <q-separator inset/>
+
+                            <div class="q-px-sm">
+                                <LabelToggle label="Settlement Discount" v-model:pass_value="json.settlement_discount_setting" :readonly="false" showIcon="help"
+                                iconTooltip="Enable settlement discount in TTA agreement."/>
+                            </div>
+
+                            <q-separator inset/>
+                            
+                            <div class="q-px-sm">
+                                <LabelToggle label="Auto Post" v-model:pass_value="json.auto_post" :readonly="false" showIcon="help"
+                                iconTooltip="Enable automatic post for auto-generated invoices."/>
+                            </div>
+
+                        </div>
+
+                        <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12 q-pr-md">
+
+                            <div class="q-px-sm q-py-xs">
+                                <LabelSelect label="Date Format" v-model:pass_value="json.date_format_setting" :options="dateFormatOptions"
+                                :readonly="readonlyStatus" :dbComponentBehavior="dbComponentBehavior.text_required"/>
+                            </div>
+
+                            <div class="q-px-sm q-py-xs">
+                                <LabelDatepicker label="Default Effective End Date" :daterange="json.date_to_setting" v-on:receiveChange="handleChangeDateTo" 
+                                :dbComponentBehavior="dbComponentBehavior.date" :dateFormat="preference.dateFormat"/>
+                            </div>
+                        
+                            <div class="q-px-sm q-py-xs">
+                                <LabelSelect label="Banner Options" v-model:pass_value="json.banner_option_setting" :options="bannerTypeOptions"
+                                :readonly="readonlyStatus" :dbComponentBehavior="dbComponentBehavior.text_required"/>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row justify-end q-gutter-md q-mt-md">
+                        <Button pass_label="Save"
+                            v-on:receiveClick="savePreference"
+                            :pass_no_caps="false"
+                            :pass_square="true"
+                            :pass_dense="true"
+                            class="custom_button"
+                        />
+                    </div>
+                </q-form>
+            </div>
+
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 q-px-md">
                 <q-toolbar class="custom_toolbar">
                     <q-tabs :model-value="currentTab" @update:model-value="handleChangeTab" active-class="active_class_tab" indicator-color="transparent" align="justify" inline-label dense narrow-indicator shrink stretch no-caps>
@@ -10,6 +82,7 @@
                     </q-tabs>
                 </q-toolbar>
             </div>
+
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 q-px-md" style="font-size: 10px;">
                 <q-tab-panels v-model="currentTab" :animated="false" keep-alive ref="tabs">
                     <template v-for="(company_info,index) in company_list" :key="index">
@@ -82,6 +155,7 @@
                                                     <div>
                                                         {{banner.banner}}
                                                         <q-badge v-if="!banner.active && showCompanyLabel(banner)" :label="banner.company_code" class="q-ml-md" style="background-color: #26A69A" align="middle"></q-badge>
+                                                        <q-badge v-if="!banner.active && !showCompanyLabel(banner)" label="No Company" class="q-ml-md text-uppercase" style="background-color: #53131e" align="middle"></q-badge>
                                                     </div>
                                                 </div>
                                             </template>
@@ -121,6 +195,8 @@
 import LabelInput from 'src/components/PRIMS/General/LabelInput'
 import LabelSelect from 'src/components/PRIMS/General/LabelSelect'
 import LabelCheckbox from 'src/components/PRIMS/General/LabelCheckbox'
+import LabelDatepicker from 'src/components/PRIMS/General/LabelDatepicker'
+import LabelToggle from 'src/components/PRIMS/General/LabelToggle'
 import Checkbox from 'src/components/PRIMS/Base/Checkbox'
 import Button from 'src/components/PRIMS/Main/Button'
 import Label from 'src/components/PRIMS/Main/Label'
@@ -132,6 +208,8 @@ export default {
         LabelInput,
         LabelSelect,
         LabelCheckbox,
+        LabelDatepicker,
+        LabelToggle,
         Checkbox,
         Button,
         Label,
@@ -140,11 +218,16 @@ export default {
     data(){
         return{
             currentTab: "",
+            preference: {},
+            json: {},
             company_list: [],
             banner_options: [],
             active_banner: [],
+            bannerTypeOptions: [{label: "By Banner/Site", value: "banner"},{label: "By Company", value: "company"}],
+            dateFormatOptions: [{label: "YYYY-MM-DD", value: "YYYY-MM-DD"},{label: "DD-MM-YYYY", value:"DD-MM-YYYY"}],
             username: localStorage.getItem("username") != "" && localStorage.getItem("username") != "null" && localStorage.getItem("username") != null ? localStorage.getItem("username") : "",
             company_guid: localStorage.getItem("company_guid") != "" && localStorage.getItem("company_guid") != "null" && localStorage.getItem("company_guid") != null ? localStorage.getItem("company_guid") : "",
+            preference: {},
             loading: false,
             edited: false,
         }
@@ -157,82 +240,120 @@ export default {
     async mounted(){
         this.loading = true;
             
-            if(this.company_guid == "")
-            {
-                this.showNotify('negative', 'Unable to identify company guid.');
-                this.$router.push({name: "tta"});
-            }
-            
-            var pass_obj = {
-                "dispatch": 'general/trigger_get_banner_list',
-                "getter": 'general/get_banner',
-                "app": this,
-                "payload": {
-                    "params": {
-                        'limit': 99999,
-                        'isactive': 1,
-                    }
-                },
-            }
+        if(this.company_guid == "")
+        {
+            this.showNotify('negative', 'Unable to identify company guid.');
+            this.$router.push({name: "tta"});
+        }
 
-            var banner = await this.$dispatch(pass_obj);
+        var pass_obj = {
+            "dispatch": 'general/trigger_get_company',
+            "getter": 'general/get_company',
+            "app": this,
+            "payload": {
+                "company_guid": this.company_guid
+            },
+        }
 
-            if(banner.status)
-            {
-                this.banner_options = banner.response.data.results;
-            }
+        var company = await this.$dispatch(pass_obj);
 
-            var pass_obj = {
-                "dispatch": 'general/trigger_get_company_info_list',
-                "getter": 'general/get_company_info',
-                "app": this,
-                "payload": {},
-            }
+        if(!company.status)
+        {
+            this.showNotify('negative', "Unable to retrieve company information. Please try again.");
+            this.$router.push({name: "tta"});
+        }
 
-            var company = await this.$dispatch(pass_obj);
-            
-            if(company.status)
-            {
-                for(const company_info of company.response.data.results)
-                {
-                    company_info.search = "";
+        this.json = company.response.data;
+        this.json.auto_post = this.json.auto_post == 1 ? true : false;
+        this.json.division_setting = this.json.division_setting == 1 ? true : false;
+        this.json.display_banner_setting = this.json.display_banner_setting == 1 ? true : false;
+        this.json.settlement_discount_setting = this.json.settlement_discount_setting == 1 ? true : false;
 
-                    var payload = {
-                        params: {
-                            "company_info_guid": company_info.company_info_guid,
-                        }
-                    }
-                    var pass_obj = {
-                        "dispatch": 'general/trigger_get_banner_list',
-                        "getter": 'general/get_banner',
-                        "app": this,
-                        "payload": payload,
-                    }
-
-                    var banner = await this.$dispatch(pass_obj);
-
-                    company.banners = [];
-
-                    if(banner.status)
-                    {
-                        company_info.banners = banner.response.data.results.map(entry=>entry.concept_guid);
-                        company_info.old_banners = banner.response.data.results.map(entry=>entry.concept_guid);
-                        company_info.banner_options = JSON.parse(JSON.stringify(this.banner_options));
-                        for(const option of company_info.banner_options)
-                        {
-                            option.active = company_info.banners.includes(option.concept_guid);
-                            option.display = true;
-                        }
-                    }
-                    this.active_banner = this.active_banner.concat(company_info.banners);
-                    this.company_list.push(company_info);
-                    console.log(company_info.code, company_info.banners.length)
+        if(!localStorage.getItem("preference_setting"))
+        {
+            this.preference = {
+                "dateFormat": this.json.date_format_setting,
+                "default_date_to": this.json.date_to_setting,
+                "division_setting": this.json.division_setting == 1 ? true : false,
+                "banner_setting": this.json.banner_option_setting,
+                "displayBanner": this.json.display_banner_setting == 1 ? true : false,
+                "settlement_discount_setting": this.json.settlement_discount_setting == 1 ? true : false,
+            };
+            localStorage.setItem("preference_setting", JSON.stringify(this.preference));
+        }
+        else
+        {
+            this.preference = JSON.parse(localStorage.getItem("preference_setting"));
+        }
+        
+        var pass_obj = {
+            "dispatch": 'general/trigger_get_banner_list',
+            "getter": 'general/get_banner',
+            "app": this,
+            "payload": {
+                "params": {
+                    'limit': 99999,
+                    'isactive': 1,
                 }
-                console.log('selected banners',this.active_banner.length)
-                console.log('total banners',this.banner_options.length)
+            },
+        }
+
+        var banner = await this.$dispatch(pass_obj);
+
+        if(banner.status)
+        {
+            this.banner_options = banner.response.data.results;
+        }
+
+        var pass_obj = {
+            "dispatch": 'general/trigger_get_company_info_list',
+            "getter": 'general/get_company_info',
+            "app": this,
+            "payload": {},
+        }
+
+        var company = await this.$dispatch(pass_obj);
+        
+        if(company.status)
+        {
+            for(const company_info of company.response.data.results)
+            {
+                company_info.search = "";
+                var payload = {
+                    params: {
+                        "company_info_guid": company_info.company_info_guid,
+                    }
+                }
+                var pass_obj = {
+                    "dispatch": 'general/trigger_get_banner_list',
+                    "getter": 'general/get_banner',
+                    "app": this,
+                    "payload": payload,
+                }
+
+                var banner = await this.$dispatch(pass_obj);
+
+                company.banners = [];
+
+                if(banner.status)
+                {   
+                    company_info.banners = banner.response.data.results.map(entry=>entry.concept_guid);
+                    company_info.old_banners = banner.response.data.results.map(entry=>entry.concept_guid);
+                    company_info.banner_options = JSON.parse(JSON.stringify(this.banner_options));
+                    for(const option of company_info.banner_options)
+                    {
+                        option.active = company_info.banners.includes(option.concept_guid);
+                        option.display = true;
+                    }
+                }
+                this.active_banner = this.active_banner.concat(company_info.banners);
+                this.company_list.push(company_info);
+                console.log(company_info.code, company_info.banners.length)
             }
-            console.log(this.company_list)
-            this.currentTab = this.company_list.length>0 ? this.company_list[0].company_info_guid : "";
+            console.log('selected banners',this.active_banner.length)
+            console.log('total banners',this.banner_options.length)
+        }
+        this.currentTab = this.company_list.length>0 ? this.company_list[0].company_info_guid : "";
             
 
         this.loading = false;
@@ -306,7 +427,7 @@ export default {
 
             if(remove_banner.length>0)
             {
-                console.log("remove",remove_banner)
+                // console.log("remove",remove_banner)
                 var payload = {
                     pass_json: remove_banner,
                 }
@@ -341,7 +462,7 @@ export default {
 
             if(add_banner.length>0)
             {
-                console.log("add",add_banner)
+                // console.log("add",add_banner)
                 var payload = {
                     pass_json: add_banner,
                 }
@@ -369,6 +490,75 @@ export default {
             this.loading = false;
             location.reload();
         },
+        async savePreference()
+        {
+            this.loading = true;
+
+            const form = this.$refs.save_form_preference;
+            
+            var error = 0;
+            await form.validate().then(valid => {
+                if (!valid) {
+                    error = 1;
+                }
+            });
+
+            var error = error == 1 ? false : true;
+
+            if(!error)
+            {
+                this.showNotify('negative', 'Please make sure all field is correct.');
+                this.loading = false;
+                return;
+            }
+
+            var payload = {
+                company_guid: this.company_guid,
+                pass_json: {
+                    "date_format_setting": this.json.date_format_setting,
+                    "date_to_setting": this.json.date_to_setting,
+                    "division_setting": this.json.division_setting ? 1 : 0,
+                    "banner_option_setting": this.json.banner_option_setting,
+                    "display_banner_setting": this.json.display_banner_setting ? 1 : 0,
+                    "settlement_discount_setting": this.json.settlement_discount_setting ? 1 : 0,
+                    "auto_post": this.json.auto_post ? 1 : 0,
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": 'general/trigger_update_company',
+                "getter": 'general/get_company',
+                "app": this,
+                "payload": payload,
+            };
+
+            var data_response = await this.$dispatch(pass_obj);
+
+            if(!data_response.status)
+            {
+                this.showNotify("negative", "Update Fail.");
+                console.log("Update fail",data_response);
+                this.loading = false;
+                return;
+            }
+
+            var preference = {
+                dateFormat: data_response.response.date_format_setting,
+                displayBanner: data_response.response.display_banner_setting == 1 ? true : false,
+                default_date_to: data_response.response.date_to_setting,
+                banner_setting: data_response.response.banner_option_setting,
+                division_setting: data_response.response.division_setting == 1 ? true : false,
+                settlement_discount_setting: data_response.response.settlement_discount_setting == 1 ? true : false,
+            }
+            localStorage.setItem("preference_setting",JSON.stringify(preference));
+
+            this.showNotify("positive", "Update Successfully.");
+            this.loading = false;
+        },
+        handleChangeDateTo(newVal)
+        {
+            this.json.date_to_setting = newVal;
+        },
         handleKeySearch(company_info)
         {
             this.$nextTick(()=>{
@@ -384,7 +574,6 @@ export default {
         {
             if(newVal)
             {
-                console.log("add banner")
                 // Check if the banner is already in another company's list
                 if (this.active_banner.includes(banner.concept_guid)) {
                     const company = this.company_list.find(entry=>entry.banners.includes(banner.concept_guid));     // Find the company name
@@ -405,7 +594,6 @@ export default {
             }
             else
             {
-                console.log('remove banner')
                 // Remove banner from company list
                 var index = company_info.banners.indexOf(banner.concept_guid);
                 if (index !== -1) {

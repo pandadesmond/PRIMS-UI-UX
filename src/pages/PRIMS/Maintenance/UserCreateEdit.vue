@@ -44,7 +44,7 @@
                 <div class="row"> -->
                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-xs-12 q-px-sm q-py-xs">
                         <LabelMultiselect label="Department" v-model:pass_value="json.department" :options="department_list" option_label="Departments"
-                            :forceSelectAll="forceSelectAll" :dbComponentBehavior="dbComponentBehavior.text" :manage_button="false"/>
+                            :select_all="true" :forceSelectAll="forceSelectAll" :dbComponentBehavior="dbComponentBehavior.text"/>
                     </div>
                 <!-- </div>
                 <div class="row"> -->
@@ -189,6 +189,7 @@ export default {
             params: {
                 'limit': 99999,
                 'ordering': 'name',
+                'isactive': 1,
             }
         }
 
@@ -269,7 +270,7 @@ export default {
                     }
                 }
             }
-            console.log(this.json)
+            // console.log(this.json)
         }
         else if(this.$route.name == 'createUser')
         {
@@ -349,8 +350,26 @@ export default {
                 }
                 else
                 {
-                    this.showNotify("negative", "Create Fail.");
-                    console.log("Create fail",create_response.response);
+                    console.log("Create fail",create_response);
+                    const valid = this.isValidJSON(create_response.response);
+                    var message = 'Create failed.';
+                    if(valid)
+                    {
+                        const response = JSON.parse(create_response.response);
+                        var message = '';
+
+                        if(Object.keys(response).length > 0)
+                        {
+                            Object.keys(response).forEach((key)=>{
+                                message += response[key][0] + "<br>";
+                            });
+                        }
+                    }
+                    else
+                    {
+                        message = JSON.stringify(create_response.response);
+                    }
+                    this.showNotify('negative', message);
                 }
             }
             else if(this.page_function == "edit")
@@ -365,7 +384,7 @@ export default {
                 };
 
                 var update_response = await this.$dispatch(pass_obj);
-                console.log(update_response);
+                // console.log(update_response);
 
                 if(update_response.status)
                 {
@@ -376,7 +395,7 @@ export default {
                         // Delete user dept from original list if it does not include in new list
                         original_user_dept.filter(async (entry)=>{
                             if(!new_user_dept.includes(entry.dept_guid)){
-                                console.log('delete',entry)
+                                // console.log('delete',entry)
 
                                 var payload = {
                                     'user_department_guid': entry.user_department_guid,
@@ -400,7 +419,7 @@ export default {
                         // Create user dept if it does not include in original list
                         new_user_dept.filter(async (entry)=>{
                             if(!original_user_dept.map(entry=>entry.dept_guid).includes(entry)){
-                                console.log('create', entry)
+                                // console.log('create', entry)
 
                                 var payload = {
                                     pass_json: {
@@ -435,12 +454,38 @@ export default {
                 }
                 else
                 {
-                    this.showNotify("negative", "Update Fail.");
-                    console.log("Update fail",update_response.response);
+                    console.log("Update fail",update_response);
+                    const valid = this.isValidJSON(update_response.response);
+                    var message = 'Update failed.';
+                    if(valid)
+                    {
+                        const response = JSON.parse(update_response.response);
+                        var message = '';
+
+                        if(Object.keys(response).length > 0)
+                        {
+                            Object.keys(response).forEach((key)=>{
+                                message += response[key][0] + "<br>";
+                            });
+                        }
+                    }
+                    else
+                    {
+                        message = JSON.stringify(update_response.response);
+                    }
+                    this.showNotify('negative', message);
                 }
             }
-            console.log(payload);
             this.loading = false;
+        },
+        isValidJSON(str) {
+            try {
+                const parsed = JSON.parse(str);
+                // Ensure the result is an object or array (valid JSON)
+                return typeof parsed === 'object' && parsed !== null;
+            } catch (e) {
+                return false;
+            }
         },
         goBack(){
             this.$router.push({name: 'user'});

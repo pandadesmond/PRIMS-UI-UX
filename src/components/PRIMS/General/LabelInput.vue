@@ -8,6 +8,7 @@
                 v-if="password_input"
                 :type="isPwd ? 'password' : 'text'"
                 v-model="value"
+                name="new_password"
                 :icon_append="eyes_display"
                 v-on:password_method="passwordMethod()"
                 v-on:receiveChange="handleChange"

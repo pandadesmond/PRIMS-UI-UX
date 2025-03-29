@@ -11,7 +11,6 @@
         :mask="componentBehavior.mask"
         :fill-mask="componentBehavior.fill_mask"
         :hint="componentBehavior.hint"
-        :disable="readonly"
         :readonly="readonly"
         @change="handleChange"
         :input-class="componentBehavior.input_class"
@@ -30,7 +29,6 @@
         :mask="componentBehavior.mask"
         :fill-mask="componentBehavior.fill_mask"
         :hint="componentBehavior.hint"
-        :disable="readonly"
         :readonly="readonly"
         @change="handleChange"
         :input-class="componentBehavior.input_class"
@@ -62,3 +60,13 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.q-field--readonly >>> .q-field__inner > .q-field__control {
+    background-color: #ebebeb !important;
+}
+
+.q-field--readonly >>> .q-field__control > div {
+    opacity: 0.6 !important;
+}
+</style>

@@ -579,3 +579,17 @@ export function trigger_delete_tta_upload ({ commit,state }, payload) {
 
   return payload.app.$actions({ commit,state }, object_pass);
 }
+
+// TIR query statistic
+export function trigger_get_query_tir_statistic ({ commit,state }, payload) {
+  var object_pass = {
+      "url": '/fetch_query/',
+      "update_path": 'update_query',
+      "type": 'GET',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": {},
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}

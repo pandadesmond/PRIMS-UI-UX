@@ -67,15 +67,15 @@ export default {
       pass_max_year: this.max_year ? this.max_year : "",
     }
   },
-  props:['daterange','componentBehavior','min_year','max_year','optionsFn','end_optionsFn','readonly','range','show'],
+  props:['daterange','componentBehavior','min_year','max_year','optionsFn','end_optionsFn','readonly','range','show','dateFormat'],
   computed:{
     displayDateRange()
     {
         var return_message = '';
         if(this.date && this.date.from && this.date.to)
         {
-            var from = this.date.from;
-            var to = this.date.to;
+            var from = this.formatDate(this.date.from,this.dateFormat);
+            var to = this.formatDate(this.date.to,this.dateFormat);
             var return_message = from+" to "+to;
         }
         
@@ -132,7 +132,43 @@ export default {
       }else{
         return this.options(date);
       }
-    }
+    },
+    formatDate(date, format)
+    {
+      const ddMmYyyyPattern = /^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[0-2])-(\d{4})$/;
+      if (ddMmYyyyPattern.test(date)) {
+        var curDate = this.parseDate(date);
+      }
+      else
+      {
+        var curDate = new Date(date);
+      }
+      
+      var day = curDate.getDate();
+      var month = curDate.getMonth() +1;
+      var year = curDate.getFullYear();
+
+      const formatRegex = /dd|mm|yyyy|yy/g;
+
+      const formattedDate = format.toLowerCase().replace(formatRegex, (match) => {
+          switch (match) {
+              case 'dd': return day;
+              case 'mm': return month;
+              case 'yyyy': return year;
+              case 'yy': return year.slice(-2);
+              default: return match;
+          }
+      });
+
+      return formattedDate;
+    },
+    parseDate(dateString) {
+        const parts = dateString.split('-');
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+    },
     // handleChange(newVal) {
 
     //   if (newVal) {
@@ -157,10 +193,15 @@ export default {
     // },
   },
   watch: {
-    daterange(newVal)
+    daterange:
     {
-      this.date = newVal;
-      // this.value = newVal.from;
+      immediate: true,
+      deep: true,
+      handler(newVal){
+        // console.log('daterange update',newVal)
+        this.date = newVal;
+        // this.value = newVal.from;
+      }
     },
   }
 }

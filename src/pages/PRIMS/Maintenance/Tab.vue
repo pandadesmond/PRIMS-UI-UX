@@ -29,7 +29,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 q-py-md">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <Table
                 :row_per_page="[10,50,100,1000]"
                 :table_data="table_data"
@@ -108,9 +108,9 @@ export default {
             ori_params: {},
             deleteItem: {},
             componentTypeOptions: [{label:'Backdated Purchase Rebate', value: 'rate_purgrossnet_date'},{label:'Purchase Rebate', value: 'rate_purgrossnet'},{label:'Backdated Consignment Sales Rebate', value: 'rate_cogsinvnet_date'},
-                {label:'Consignment Sales Rebate', value: 'rate_cogsinvnet'},{label:'Fixed Amount Rebate', value: 'dollar_rate_remark'}, {label:'Service Level Rebate', value: 'target_ratetype_rate_remark'},
-                {label:'New Store (Days) Rebate', value: 'days_rate_percentage'},{label:'New Store (Months) Rebate', value: 'months_rate_percentage'},{label:'Target Incentive Rebate', value: 'tir'},
-                {label:'Promotion (Months) Rebate %', value: 'promotion_percentage'},{label:'Promotion (Month) Rebates (%/$)', value: 'promotion_percentage_amount'}
+                {label:'Consignment Sales Rebate', value: 'rate_cogsinvnet'},{label:'Fixed Amount Rebate', value: 'dollar_rate_remark'}, {label:'Fixed Amount Rebate Without Remark', value: 'dollar_rate'},
+                {label:'Service Level Rebate', value: 'target_ratetype_rate_remark'},{label:'New Store (Days) Rebate', value: 'days_rate_percentage'},{label:'New Store (Months) Rebate', value: 'months_rate_percentage'},
+                {label:'Target Incentive Rebate', value: 'tir'},{label:'Promotion (Months) Rebate %', value: 'promotion_percentage'},{label:'Promotion (Month) Rebates (%/$)', value: 'promotion_percentage_amount'}
             ],
             delete_dialog: false,
             deleteLoading: false,
@@ -132,7 +132,7 @@ export default {
             this.table_function(payload);
         },
         async table_function(payload){
-            this.showLoading = true;
+            this.forceLoading = true;
 
 
             if(this.rearrange_column.length > 0)
@@ -260,7 +260,7 @@ export default {
             
             if(payload.params.ordering == "")
             {
-                payload.params.ordering = "number";
+                payload.params.ordering = "-updated_at";
             }
 
             var pass_obj = {
@@ -275,7 +275,7 @@ export default {
 
             if(tab_list.status)
             {
-                console.log(tab_list)
+                // console.log(tab_list)
                 var rows = tab_list.response;
             }
             else
@@ -289,7 +289,7 @@ export default {
 
             this.table_data = rows;
             
-            this.showLoading = false;
+            this.forceLoading = false;
         },
         handleColumnRearrange(pass_payload)
         {
@@ -410,7 +410,6 @@ export default {
                 console.log("Delete fail",delete_response);
                 const valid = this.isValidJSON(delete_response.response);
                 var message = 'Delete fail. Try again.';
-                console.log(valid)
                 if(valid)
                 {
                     const response = JSON.parse(delete_response.response);
@@ -499,6 +498,7 @@ export default {
   background-color: #273655;
   color: white;
   margin-left: 5px;
+  padding: 0px 10px;
 }
 
 .active_section_button

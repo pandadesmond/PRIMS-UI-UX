@@ -12,5 +12,9 @@ export default function () {
     tab: {},
     tabArticle: {},
     glcode: {},
+    results: {},
+    setting: {},
+    itemcode: {},
+    document: {},
   }
 }

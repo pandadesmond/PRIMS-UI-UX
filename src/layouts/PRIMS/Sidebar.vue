@@ -11,12 +11,12 @@
         </div>
       </q-card-section>
 
-      <q-card-section class="menu-column space-between">
+      <q-card-section class="menu-column space-between" style="max-height: 80%; overflow: auto">
         <div class="menu-container">
           <div class="row q-pt-md" v-for="menu_details in new_linksList" :key="menu_details.label">
             <div class="col-12">
               <div class="section-title" style="padding-bottom:16px;">
-                <q-icon :name="menu_details.icon" class="menu-icon" />
+                <q-icon :name="menu_details.icon" class="menu-icon" size="sm" color="grey"/>
                 <div class="menu-title">{{ menu_details.label }}</div>
               </div>
               <q-list flat class="menu-list">
@@ -26,9 +26,9 @@
                   <q-item-section class="menu-section">
                     <div class="row items-center">
                       <div class="col-11">{{ link.title }}</div>
-                      <div class="col-1">
+                      <!-- <div class="col-1">
                         <q-icon size="sm" name="chevron_right" />
-                      </div>
+                      </div> -->
                     </div>
                   </q-item-section>
                 </q-item>
@@ -69,6 +69,8 @@ export default {
   },
   data() {
     return {
+      permission: localStorage.getItem("permission") != "" && localStorage.getItem("permission") != "null" && localStorage.getItem("permission") != null ? localStorage.getItem("permission") : "",
+      company_guid: localStorage.getItem("company_guid") != "" && localStorage.getItem("company_guid") != "null" && localStorage.getItem("company_guid") != null ? localStorage.getItem("company_guid") : "",
       drawer: ref(false),
       new_linksList: [], 
       folder_path: this.$global_config.folder_path || '',
@@ -85,7 +87,7 @@ export default {
       this.new_linksList = [
         {
           label: "TTA",
-          icon: 'img:/item_master.svg',
+          icon: 'handshake',
           caption: "",
           insetLevelMenu: [
             {
@@ -95,7 +97,68 @@ export default {
             },
           ]
         },
+        {
+          label: 'Transaction',
+          icon: 'receipt_long',
+          insetLevelMenu: [
+            {
+              title: 'Invoice',
+              link: `${this.folder_path}/#/PRIMS/Transaction/Invoice`,
+            },
+            {
+              title: 'Credit Note',
+              link: `${this.folder_path}/#/PRIMS/Transaction/CN`,
+            },
+            {
+              title: 'Debit Note',
+              link: `${this.folder_path}/#/PRIMS/Transaction/DN`,
+            },
+          ]
+        },
       ];
+      if(this.permission.includes('setting'))
+      {
+        const item = {
+          label: 'Setting',
+          icon: 'settings',
+          insetLevelMenu: [
+            // {
+            //   name: 'Banner',
+            //   link: '/PRIMS/Setting/Banner',
+            // },
+            {
+              title: 'Company',
+              link: `${this.folder_path}/#/PRIMS/Setting/Company`,
+            },
+            {
+              title: 'Condition of Trade',
+              link: `${this.folder_path}/#/PRIMS/Setting/ConditionTrade`,
+            },
+            {
+              title: 'GL Code',
+              link: `${this.folder_path}/#/PRIMS/Setting/GLCode`,
+            },
+            {
+              title: 'Tab',
+              link: `${this.folder_path}/#/PRIMS/Setting/Tab`,
+            },
+            {
+              title: 'User',
+              link: `${this.folder_path}/#/PRIMS/Setting/User`,
+            },
+            {
+              title: 'User Designation',
+              link: `${this.folder_path}/#/PRIMS/Setting/UserDesignation`,
+            },
+            {
+              title: 'User Group',
+              link: `${this.folder_path}/#/PRIMS/Setting/UserGroup`,
+            },
+          ],
+        }
+        this.new_linksList.push(item);
+      }
+
     },
     logout() {
       this.$router.push('/PRIMS/Login');
@@ -193,6 +256,7 @@ export default {
 }
 
 .logout-container {
+  margin-top: 20px;
   display: flex;
   width: 100%;
   height: 40px;

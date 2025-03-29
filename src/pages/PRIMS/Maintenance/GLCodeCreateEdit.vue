@@ -117,7 +117,7 @@ export default {
             }
 
             var details = await this.$dispatch(pass_obj);
-            console.log(details)
+            // console.log(details)
             if(details.status)
             {
                 this.json = details.response.data;
@@ -188,7 +188,6 @@ export default {
             else if(this.page_function == 'edit')
             {
                 payload.glcode_guid = this.json.glcode_guid;
-                console.log(payload)
 
                 var pass_obj = {
                     "dispatch": 'general/trigger_update_glcode',

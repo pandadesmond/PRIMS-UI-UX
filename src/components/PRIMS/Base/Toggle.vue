@@ -4,6 +4,8 @@
       :readonly="readonly ? true : false"
       :id="id"
       :name="name"
+      :color="color"
+      :size="size"
       @update:model-value="handleChange"
       v-model="pass_value"
     />

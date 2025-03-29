@@ -17,7 +17,7 @@
                 v-on:keyup.enter="Login"
                 v-model="username"
                 :componentBehavior="dbComponentBehavior.text"
-                label="User ID"
+                label="User ID or Email"
                 class="input-width full-width centered-label-input"
               />
             </div>
@@ -27,6 +27,7 @@
                 v-on:keyup.enter="Login"
                 :type="isPwd ? 'password' : 'text'"
                 v-model="password"
+                name="new_password"
                 :icon_append="eyes_display"
                 v-on:password_method="passwordMethod()"
                 :componentBehavior="dbComponentBehavior.text"
@@ -44,7 +45,7 @@
     </div>
   </div>
 
-  <div v-else class="container" style="background-color: white; height: 100vh;">
+  <div v-else class="container" style="background-color: white; height: 100vh; overflow: auto;">
     <div class="content" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
         <div class="row">
           <div class="col-xs-12 col-sm-10 col-md-10 col-lg-10 col-xl-10 offset-sm-1 offset-md-1 offset-lg-1 offset-xl-1">
@@ -67,7 +68,7 @@
               <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 input container">
                 <InputBase v-on:keyup.enter="Login" v-model="username" :icon_prepend="'o_person'" 
                   :componentBehavior="dbComponentBehavior.text"
-                  label="User ID"
+                  label="User ID or Email"
                   class="input-width full-width centered-label-input" />
               </div>
 
@@ -75,6 +76,7 @@
                 <InputBase v-on:keyup.enter="Login" :type="isPwd ? 'password' : 'text'" v-model="password" :icon_prepend="'o_lock'" :icon_append="eyes_display" v-on:password_method="passwordMethod()" 
                 :componentBehavior="dbComponentBehavior.text"
                 label="Password"
+                name="new_password"
                 class="input-width full-width centered-label-input"/>
               </div>
 
@@ -124,8 +126,8 @@ export default {
     }
 
     var pass_obj = {
-        "dispatch": 'maintenance/trigger_get_setting',
-        "getter": 'maintenance/get_setting',
+        "dispatch": 'general/trigger_get_setting',
+        "getter": 'general/get_setting',
         "app": this,
         "payload": payload,
     }
@@ -201,20 +203,54 @@ export default {
 
         if(login_response.status == "failed")
         {
-          this.showNotify("negative",login_response.response);
+          console.log(login_response.response);
+          this.showNotify("negative","Fail to login. Please try again.");
           this.hideLoading();
           return;
         }
 
         if(!login_response.response.status)
         {
-            this.showNotify("negative",login_response.response.message);
-            this.hideLoading();
-            return;
+          console.log(login_response.response.message);
+          this.showNotify("negative",login_response.response.message);
+          this.hideLoading();
+          return;
         }
         
         var user = login_response.response;
-        console.log(user);
+        // console.log(user);
+
+        // get company info for preference
+        var payload = {
+            company_guid: user.company_guid,
+        }
+
+        var pass_obj = {
+            "dispatch": 'general/trigger_get_company',
+            "getter": 'general/get_company',
+            "app": this,
+            "payload": payload,
+        }
+
+        var company = await this.$dispatch(pass_obj);
+        var preference = {};
+        if(company.status)
+        {
+            preference.dateFormat = company.response.data.date_format_setting;
+            preference.displayBanner = company.response.data.display_banner_setting == 1 ? true : false;;
+            preference.default_date_to = company.response.data.date_to_setting;
+            preference.banner_setting = company.response.data.banner_option_setting;
+            preference.division_setting = company.response.data.division_setting == 1 ? true : false;
+            preference.settlement_discount_setting = company.response.data.settlement_discount_setting == 1 ? true : false;
+        }
+        else
+        {
+            console.log("Company fail",company.response);
+            this.showNotify("negative","Fail to login. Please try again.");
+            this.hideLoading();
+            return;
+        }
+
         var user_retailer = [];
 
         if(user.retailer_list)
@@ -273,6 +309,7 @@ export default {
         localStorage.setItem("authenticated",1);
         localStorage.setItem("company_guid",user.company_guid);
         localStorage.setItem("permission",JSON.stringify(permission_group));
+        localStorage.setItem("preference_setting",JSON.stringify(preference));
         localStorage.setItem("user_designation",JSON.stringify(designation));
         localStorage.setItem("user_retailer",JSON.stringify(user_retailer));
         localStorage.setItem("user_id",user.user_id);

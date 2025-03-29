@@ -16,6 +16,7 @@
         :display-value="`${handleDisplayValue(value)}`"
         popup-content-class="custom_select_menu"
         :disable="readonly"
+        :loading="loading"
     >
     <!-- :display-value="`${pass_overwrite_display ? (value ? value[pass_overwrite_display] : '') : (value ? value.label : '')}`" -->
         <template v-slot:no-option>
@@ -42,6 +43,7 @@
         :display-value="`${handleDisplayValue(value)}`"
         popup-content-class="custom_select_menu"
         :disable="readonly"
+        :loading="loading"
     >
         <template v-slot:no-option>
         <q-item>
@@ -67,7 +69,7 @@ data ()
         dense: this.pass_dense ? this.pass_dense: false,
     }
 },
-props: ['options', 'pass_value', 'dbComponentBehavior','no_label','label','no_padding_top', 'pass_overwrite_display','readonly'],
+props: ['options', 'pass_value', 'dbComponentBehavior','no_label','label','no_padding_top', 'pass_overwrite_display','readonly','loading'],
 methods:{
     handleDisplayValue(pass_payload)
     {
@@ -173,12 +175,13 @@ methods:{
   watch:{
       pass_value(newVal)
       {
-          //new add in
-          var filter_value = this.options.filter((entry)=>{
-              return entry.value == newVal
-          });
+          // //new add in
+          // var filter_value = this.options.filter((entry)=>{
+          //     return entry.value == newVal
+          // });
 
-          this.value = filter_value[0]
+          // this.value = filter_value[0]
+          this.value = newVal;
       },
       pass_label_value(newVal){
           this.label_value = newVal;
@@ -188,6 +191,10 @@ methods:{
       // },
       pass_dense(newVal){
           this.dense = newVal;
+      },
+      options(newVal)
+      {
+        this.bind_options = newVal;
       }
   },
 }

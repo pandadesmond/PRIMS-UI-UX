@@ -34,6 +34,10 @@ const routes = [
         { path: 'Tab', name: 'tab', component: () => import('src/pages/PRIMS/Maintenance/Tab.vue') },
         { path: 'Tab/create', name: 'createTab', component: () => import('src/pages/PRIMS/Maintenance/TabCreateEdit.vue') },
         { path: 'Tab/edit', name: 'editTab', component: () => import('src/pages/PRIMS/Maintenance/TabCreateEdit.vue') },
+
+        { path: 'Document', name: 'document', component: () => import('src/pages/PRIMS/Maintenance/Document.vue') },
+        { path: 'Document/create', name: 'createDocument', component: () => import('src/pages/PRIMS/Maintenance/DocumentCreateEdit.vue') },
+        { path: 'Document/edit', name: 'editDocument', component: () => import('src/pages/PRIMS/Maintenance/DocumentCreateEdit.vue') },
     ],
 }
 ]

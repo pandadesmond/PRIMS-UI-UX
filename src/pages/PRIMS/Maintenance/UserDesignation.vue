@@ -29,7 +29,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 q-py-md">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <Table
                 :row_per_page="[10,50,100,1000]"
                 :table_data="table_data"
@@ -127,7 +127,7 @@ export default {
             this.table_function(payload);
         },
         async table_function(payload){
-            this.showLoading = true;
+            this.forceLoading = true;
 
 
             if(this.rearrange_column.length > 0)
@@ -259,7 +259,7 @@ export default {
 
             this.table_data = rows;
             
-            this.showLoading = false;
+            this.forceLoading = false;
         },
         handleColumnRearrange(pass_payload)
         {
@@ -297,7 +297,7 @@ export default {
         async handleDeleteUserDesignation()
         {
             this.deleteLoading = true;
-            console.log(this.deleteItem)
+            // console.log(this.deleteItem)
             
             var payload = {
                 'designation_guid': this.deleteItem.designation_guid,
@@ -317,7 +317,6 @@ export default {
                 console.log("Delete fail",data_response.response);
                 const valid = this.isValidJSON(data_response.response);
                 var message = 'Delete fail. Try again.';
-                console.log(valid)
                 if(valid)
                 {
                     const response = JSON.parse(data_response.response);
@@ -412,6 +411,7 @@ export default {
   background-color: #273655;
   color: white;
   margin-left: 5px;
+  padding: 0px 10px;
 }
 
 .active_section_button

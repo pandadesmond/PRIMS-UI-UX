@@ -10,6 +10,8 @@
     :label="label"
     emit-value 
     map-options
+    clearable
+    lazy-rules
     :use-chips="false"
     use-input
     input-debounce="0"
@@ -26,7 +28,7 @@
     :loading="loading"
   >
 
-    <template #before-options>
+    <template #before-options v-if="select_all">
       <q-item>
         <q-item-section>
           <q-item-label>Select All</q-item-label>
@@ -47,6 +49,14 @@
         </q-item-section>
       </q-item>
     </template>
+
+    <template v-slot:no-option>
+      <q-item>
+          <q-item-section class="text-grey">
+          No results
+          </q-item-section>
+      </q-item>
+    </template>
   </q-select>
 
   <q-select v-else
@@ -59,6 +69,8 @@
     option-label="label"   
     emit-value 
     map-options
+    clearable
+    lazy-rules
     :use-chips="false"
     use-input
     input-debounce="0"
@@ -74,7 +86,7 @@
     :loading="loading"
     >
 
-    <template #before-options>
+    <template #before-options v-if="select_all">
       <q-item>
         <q-item-section>
           <q-item-label>Select All</q-item-label>
@@ -95,6 +107,14 @@
         </q-item-section>
       </q-item>
     </template>
+
+    <template v-slot:no-option>
+      <q-item>
+          <q-item-section class="text-grey">
+          No results
+          </q-item-section>
+      </q-item>
+    </template>
   </q-select>
 </template>
 
@@ -105,12 +125,13 @@ export default {
       return{
           filterOptions: this.options,
           stringOptions: this.options,
+          // allOptions: this.options.map(entry=>entry.value),
           all:false,
           // bind_value: [],
           bind_value: this.pass_value,
       }
   },
-  props: ['pass_value', 'options', 'label', 'id', 'name','componentBehavior','no_label', 'value', 'forceSelectAll', 'option_label','readonly','loading'],
+  props: ['pass_value', 'options', 'label', 'id', 'name','componentBehavior','no_label', 'value', 'select_all', 'forceSelectAll', 'option_label','readonly','loading'],
   computed:{
     displayValue()
     { 
@@ -137,35 +158,46 @@ export default {
       return "";
     },
   },
+  mounted(){
+    this.all = this.forceSelectAll;
+  },
   methods: {
     handlePopupHide()
     {
       this.$emit('receivePopupHide');
     },
-    checkAll (v) {
+    async checkAll (v) {
       if (v) {
         console.log('check', v)
-        
-        this.bind_value = this.filterOptions.filter(v => v.label !== 'Select All').map(i => i.value)
+        // // to make UI faster after selecting all options (this method possible only if no need to remove some items from all the options)
+        // if(this.filterOptions.length>50) this.filterOptions = [];
+        // this.bind_value = this.allOptions;
 
-        this.handleChange()
-        return
+        this.bind_value = this.filterOptions.map(i => i.value)
       }
-      this.bind_value = [];
+      else
+      {
+        this.bind_value = [];
+      }
       this.handleChange(this.bind_value);
     },
     handleChange (newVal) {
-      if (this.bind_value.length == this.filterOptions.length) {
-        if(this.all = true){
-          var newVal = this.bind_value;
-        }
+      if(!newVal) newVal = [];
+
+      if (this.filterOptions.length>0 && newVal.length == this.filterOptions.length) {
         this.all = true 
       } else {
-        this.all = false              
+        this.all = false;
       }
 
-      this.$emit('receiveChange', newVal)
+      this.$nextTick(()=>{
+        // // reassign the options if deselect all options
+        // console.log(this.all,this.filterOptions.length)
+        // if(!this.all) this.filterOptions = this.stringOptions;
+      })      
+
       this.$emit('update:pass_value', newVal)
+      this.$emit('receiveChange', newVal)
     },
     updateInput () {
         this.$refs.myInput.updateInputValue('')
@@ -180,9 +212,9 @@ export default {
         else {
           const needle = val.toString().toLowerCase()
           console.log(needle)
-          console.log(this.stringOptions.filter(function (entry) {
-            return entry.label.toString().toLowerCase().indexOf(needle) > -1;
-          }));
+          // console.log(this.stringOptions.filter(function (entry) {
+          //   return entry.label.toString().toLowerCase().indexOf(needle) > -1;
+          // }));
 
           this.filterOptions = this.stringOptions.filter(function (entry) {
             return entry.label.toString().toLowerCase().indexOf(needle) > -1;
@@ -196,6 +228,7 @@ export default {
       this.stringOptions = newVal;
       //added in due to label not display. it display value instead. So in mulitple mode maybe because options only promp in after click on dropdown that trigger options inside
       this.filterOptions = newVal;
+      // this.allOptions = this.filterOptions.map(entry=>entry.value)
     },
     pass_value(newVal)
     {

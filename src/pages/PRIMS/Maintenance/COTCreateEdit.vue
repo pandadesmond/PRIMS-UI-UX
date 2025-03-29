@@ -210,7 +210,6 @@ export default {
             else if(this.page_function == 'edit')
             {
                 payload.cot_guid = this.json.cot_guid;
-                console.log(payload)
 
                 var pass_obj = {
                     "dispatch": 'general/trigger_update_cot',

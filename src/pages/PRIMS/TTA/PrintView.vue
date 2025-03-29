@@ -3,23 +3,23 @@
         <div class="row justify-end q-pa-md">
             <q-btn icon="print" color="primary" text-color="white" @click="handlePrint"></q-btn>
         </div>
-        <div id="report_print" v-if="!loading" class="q-pa-md">
+        <div id="report_print" v-if="!loading && json" class="q-pa-md">
             <div class="row small_text justify-between">
                 <div class="col-8 text-bold text-left">
                     <div class="row" style="font-size:12px" v-for="company in json.company" :key="company">
                         <span>{{company}}</span>
                     </div>
-                    <div class="row" style="font-size:12px">
+                    <div v-if="preference.displayBanner" class="row" style="font-size:12px">
                         <span v-if="json.concept.length>0">{{json.concept.map(entry=>entry.banner).join(', ')}}</span>
                     </div>
                     <div class="row text-weight-light">
-                        <span>{{json.company_address ? json.company_address : ""}}</span>
+                        <span v-if="json.company.length>0">{{json.company_address ? json.company_address : ""}}</span>
                     </div>
                 </div>
                 <div class="col-2 text-bold">
                     <div>STRICTLY CONFIDENTIAL</div>
                     <div class="row text-weight-light"><span>Ref No: {{json.refno}}</span></div>
-                    <div class="row text-weight-light"><span>Date: {{displayDate(json.effective_date_from,'dd.mm.yyyy')}}</span></div>
+                    <div class="row text-weight-light"><span>Date: {{displayDate(json.effective_date_from,preference.dateFormat)}}</span></div>
                 </div>
             </div>
             <div class="row q-py-xs" style="font-size: 14px">
@@ -31,9 +31,15 @@
                 <table style="width: 100%">
                     <tr>
                         <td style="width:20%"><span>Deal To:</span></td>
-                        <td style="width:20%"><span>{{displayText(json.supplier_to_code)}}</span></td>
+                        <td style="width:20%">
+                            <span v-if="json.distributor_details">{{displayText(json.distributor_details.code)}}</span>
+                            <span v-else-if="json.supplier">{{displayText(json.supplier.code)}}</span>
+                        </td>
                         <td><span>Vendor Name:</span></td>
-                        <td colspan="3"><span>{{displayText(json.supplier_ref)}}</span></td>
+                        <td colspan="3">
+                            <span v-if="json.distributor_details">{{displayText(json.distributor_details.name)}}</span>
+                            <span v-else-if="json.supplier">{{displayText(json.supplier.name)}}</span>
+                        </td>
                     </tr>
 
                     <tr>
@@ -45,33 +51,45 @@
                     
                     <tr>
                         <td><span>Company Reg. No:</span></td>
-                        <td><span v-if="json.supplier">{{displayText(json.supplier.old_brn)}}</span></td>
+                        <td>
+                            <span v-if="json.distributor_details">{{displayText(json.distributor_details.old_brn)}}</span>
+                            <span v-else-if="json.supplier">{{displayText(json.supplier.old_brn)}}</span>
+                        </td>
                         <td><span>Address:</span></td>
-                        <td colspan="3"><span v-if="json.supplier">{{displayText(json.supplier.address1)}} {{displayText(json.supplier.address2)}} {{displayText(json.supplier.address3)}}</span></td>
+                        <td colspan="3">
+                            <span v-if="json.distributor_details">{{displayText(json.distributor_details.address1)}} {{displayText(json.distributor_details.address2)}} {{displayText(json.distributor_details.address3)}}</span>
+                            <span v-else-if="json.supplier">{{displayText(json.supplier.address1)}} {{displayText(json.supplier.address2)}} {{displayText(json.supplier.address3)}}</span>
+                        </td>
                     </tr>
                     
                     <tr>
                         <td><span>Division:</span></td>
                         <td><span>{{displayDivision}}</span></td>
                         <td><span>Tel No:</span></td>
-                        <td style="width: 15%"><span v-if="json.supplier">{{displayText(json.supplier.telephone)}}</span></td>
+                        <td style="width: 15%">
+                            <span v-if="json.distributor_details">{{displayText(json.distributor_details.telephone)}}</span>
+                            <span v-else-if="json.supplier">{{displayText(json.supplier.telephone)}}</span>
+                        </td>
                         <td style="width: 15%"><span>Fax No:</span></td>
-                        <td style="width: 15%"><span v-if="json.supplier">{{displayText(json.supplier.fax_no)}}</span></td>
+                        <td style="width: 15%">
+                            <span v-if="json.distributor_details">{{displayText(json.distributor_details.fax_no)}}</span>
+                            <span v-else-if="json.supplier">{{displayText(json.supplier.fax_no)}}</span>
+                        </td>
                     </tr>
 
                     <tr>
                         <td colspan="2"><span>Total Purchase:</span></td>
-                        <td><span>This Year (YTD)-2024 07</span></td>
+                        <td><span>This Year (YTD ) - </span></td>
                         <td><span></span></td>
-                        <td><span>This Year (YTD)-2023 07</span></td>
+                        <td><span>Last Year (YTD) - </span></td>
                         <td><span></span></td>
                     </tr>
 
-                    <tr v-if="proposal">
+                    <tr>
                         <td colspan="2"><span></span></td>
-                        <td><span>Last Year (YTD)-2023</span></td>
+                        <td><span>Last Year (Full Year) - </span></td>
                         <td><span></span></td>
-                        <td><span>Last 2 Year (YTD)-2022</span></td>
+                        <td><span>Last 2 Year (Full Year) - </span></td>
                         <td><span></span></td>
                     </tr>
                 </table>
@@ -99,8 +117,8 @@
                     
                     <tr>
                         <td><span>Agreement Effective Date</span></td>
-                        <td class="text-center" colspan="3"><span v-if="json.prev_tta && json.prev_tta.effective_date_from">{{displayDate(json.prev_tta.effective_date_from,'dd.mm.yyyy')}}</span></td>
-                        <td class="text-center" colspan="3"><span>{{displayDate(json.effective_date_from,'dd.mm.yyyy')}}</span></td>
+                        <td class="text-center" colspan="3"><span v-if="json.prev_tta && json.prev_tta.effective_date_from">{{displayDate(json.prev_tta.effective_date_from,preference.dateFormat)}}</span></td>
+                        <td class="text-center" colspan="3"><span>{{displayDate(json.effective_date_from,preference.dateFormat)}}</span></td>
                     </tr>
                     
                     <tr>
@@ -118,17 +136,17 @@
                 
                 <table v-for="(tab,index) in tableData" :key="index">
                     <tbody v-if="tab.header.component_type=='rate_purgrossnet_date' || tab.header.component_type=='rate_purgrossnet'">
-                        <tr v-if="tab.rows.length>0" class="label_row">
+                        <tr v-if="tab.rows.length>0 && tab.rows.map(entry=>entry.cur_visible || entry.prev_visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.header.tab_info.name}`}}</td>
                             <td class="text-center" colspan="3" style="width:30%"><span>%</span></td>
                             <td class="text-center" colspan="3" style="width:30%"><span>%</span></td>
                         </tr>
                         <template v-for="(article,index) in tab.rows" :key="index">
-                            <!-- <template v-if="article.cur.visible == 1 || article.prev.visible == 1"> -->
+                            <template v-if="article.cur_visible == 1 || article.prev_visible == 1">
                                 <tr>
                                     <td colspan="2"><span>{{article.cur ? article.cur.name : article.prev.name}}</span></td>
                                     <td class="text-center" colspan="3">
-                                        <span v-if="article.prev">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == '%' ? 
                                             formatAmount(article.prev.value1,article.prev.option1) : article.prev.option2 == '%' ? 
@@ -137,7 +155,7 @@
                                         </span>
                                     </td>
                                     <td class="text-center" colspan="3">
-                                        <span v-if="article.cur">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == '%' ? 
                                             formatAmount(article.cur.value1,article.cur.option1) : article.cur.option2 == '%' ? 
@@ -146,27 +164,27 @@
                                         </span>
                                     </td>
                                 </tr>
-                            <!-- </template> -->
+                            </template>
                         </template>
                     </tbody>
 
                     <tbody v-else-if="tab.header.component_type=='rate_cogsinvnet_date' || tab.header.component_type=='rate_cogsinvnet'">
-                        <tr v-if="tab.rows.length>0" class="label_row">
+                        <tr v-if="tab.rows.length>0 && tab.rows.map(entry=>entry.cur_visible || entry.prev_visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.header.tab_info.name}`}}</td>
-                            <td class="text-center" style="width:10%"><span>Calculated based on</span></td>
-                            <td class="text-center" style="width:10%"><span>Amount</span></td>
-                            <td class="text-center" style="width:10%"><span>%</span></td>
-                            <td class="text-center" style="width:10%"><span>Calculated based on</span></td>
-                            <td class="text-center" style="width:10%"><span>Amount</span></td>
-                            <td class="text-center" style="width:10%"><span>%</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>Calculated based on</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>Amount</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>%</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>Calculated based on</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>Amount</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>%</span></td>
                         </tr>
                         <template v-for="(article,index) in tab.rows" :key="index">
-                            <!-- <template v-if="article.cur.visible == 1 || article.prev.visible == 1"> -->
+                            <template v-if="article.cur_visible == 1 || article.prev_visible == 1">
                                 <tr>
                                     <td colspan="2">{{article.cur ? article.cur.name : article.prev.name}}</td>
-                                    <td class="text-center"><span v-if="article.prev">{{toNormalCase(article.prev.remark1)}}</span></td>
-                                    <td class="text-center">
-                                        <span v-if="article.prev">
+                                    <td class="text-center" colspan="1"><span v-if="article.prev && article.prev_visible == 1">{{toNormalCase(article.prev.remark1)}}</span></td>
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == '$' ? 
                                             formatAmount(article.prev.value1,article.prev.option1) : article.prev.option2 == '$' ? 
@@ -174,8 +192,8 @@
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <span v-if="article.prev">
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == '%' ? 
                                             formatAmount(article.prev.value1,article.prev.option1) : article.prev.option2 == '%' ? 
@@ -183,9 +201,9 @@
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center"><span v-if="article.cur">{{toNormalCase(article.cur.remark1)}}</span></td>
-                                    <td class="text-center">
-                                        <span v-if="article.cur">
+                                    <td class="text-center" colspan="1"><span v-if="article.cur && article.cur_visible == 1">{{toNormalCase(article.cur.remark1)}}</span></td>
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == '$' ? 
                                             formatAmount(article.cur.value1,article.cur.option1) : article.cur.option2 == '$' ? 
@@ -193,8 +211,8 @@
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <span v-if="article.cur">
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == '%' ? 
                                             formatAmount(article.cur.value1,article.cur.option1) : article.cur.option2 == '%' ? 
@@ -203,25 +221,25 @@
                                         </span>
                                     </td>
                                 </tr>
-                            <!-- </template> -->
+                            </template>
                         </template>
                     </tbody>
 
                     <tbody v-else-if="tab.header.component_type=='dollar_rate_remark'">
-                        <tr v-if="tab.rows.length>0" class="label_row">
+                        <tr v-if="tab.rows.length>0 && tab.rows.map(entry=>entry.cur_visible || entry.prev_visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.header.tab_info.name}`}}</td>
-                            <td class="text-center" style="width:20%"><span>Store Type</span></td>
-                            <td class="text-center" style="width:10%"><span>Amount</span></td>
-                            <td class="text-center" style="width:20%"><span>Store Type</span></td>
-                            <td class="text-center" style="width:10%"><span>Amount</span></td>
+                            <td class="text-center" colspan="2" style="width:20%"><span>Store Type</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>Amount</span></td>
+                            <td class="text-center" colspan="2" style="width:20%"><span>Store Type</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>Amount</span></td>
                         </tr>
                         <template v-for="(article,index) in tab.rows" :key="index">
-                            <!-- <template v-if="article.cur.visible == 1 || article.prev.visible == 1"> -->
+                            <template v-if="article.cur_visible == 1 || article.prev_visible == 1">
                                 <tr>
                                     <td colspan="2">{{article.cur ? article.cur.name : article.prev.name}}</td>
-                                    <td class="text-center"><span v-if="article.prev">{{toNormalCase(article.prev.remark1)}}</span></td>
-                                    <td class="text-center">
-                                        <span v-if="article.prev">
+                                    <td class="text-center" colspan="2"><span v-if="article.prev && article.prev_visible == 1">{{toNormalCase(article.prev.remark1)}}</span></td>
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == '$' ? 
                                             formatAmount(article.prev.value1,article.prev.option1) : article.prev.option2 == '$' ? 
@@ -229,9 +247,9 @@
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center"><span v-if="article.cur">{{toNormalCase(article.cur.remark1)}}</span></td>
-                                    <td class="text-center">
-                                        <span v-if="article.cur">
+                                    <td class="text-center" colspan="2"><span v-if="article.cur && article.cur_visible == 1">{{toNormalCase(article.cur.remark1)}}</span></td>
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == '$' ? 
                                             formatAmount(article.cur.value1,article.cur.option1) : article.cur.option2 == '$' ? 
@@ -240,26 +258,59 @@
                                         </span>
                                     </td>
                                 </tr>
-                            <!-- </template> -->
+                            </template>
+                        </template>
+                    </tbody>
+                    
+                    <tbody v-else-if="tab.header.component_type=='dollar_rate'">
+                        <tr v-if="tab.rows.length>0 && tab.rows.map(entry=>entry.cur_visible || entry.prev_visible).includes(1)" class="label_row">
+                            <td colspan="2" style="width:40%">{{`${index+1}) ${tab.header.tab_info.name}`}}</td>
+                            <td class="text-center" colspan="3" style="width:30%"><span>Amount</span></td>
+                            <td class="text-center" colspan="3" style="width:30%"><span>Amount</span></td>
+                        </tr>
+                        <template v-for="(article,index) in tab.rows" :key="index">
+                            <template v-if="article.cur_visible == 1 || article.prev_visible == 1">
+                                <tr>
+                                    <td colspan="2">{{article.cur ? article.cur.name : article.prev.name}}</td>
+                                    <td class="text-center" colspan="3">
+                                        <span v-if="article.prev && article.prev_visible == 1">
+                                        {{
+                                            article.prev.option1 == '$' ? 
+                                            formatAmount(article.prev.value1,article.prev.option1) : article.prev.option2 == '$' ? 
+                                            formatAmount(article.prev.value2,article.prev.option2) : ""
+                                        }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center" colspan="3">
+                                        <span v-if="article.cur && article.cur_visible == 1">
+                                        {{
+                                            article.cur.option1 == '$' ? 
+                                            formatAmount(article.cur.value1,article.cur.option1) : article.cur.option2 == '$' ? 
+                                            formatAmount(article.cur.value2,article.cur.option2) : ""
+                                        }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </template>
                         </template>
                     </tbody>
 
                     <tbody v-else-if="tab.header.component_type=='months_rate_percentage' || tab.header.component_type=='days_rate_percentage' || tab.header.component_type=='promotion_percentage_amount'">
-                        <tr v-if="tab.rows.length>0" class="label_row">
+                        <tr v-if="tab.rows.length>0 && tab.rows.map(entry=>entry.cur_visible || entry.prev_visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.header.tab_info.name}`}}</td>
-                            <td class="text-center" style="width:10%"><span>Period (in Month)</span></td>
-                            <td class="text-center" style="width:10%"><span>Amount</span></td>
-                            <td class="text-center" style="width:10%"><span>%</span></td>
-                            <td class="text-center" style="width:10%"><span>Period (in Month)</span></td>
-                            <td class="text-center" style="width:10%"><span>Amount</span></td>
-                            <td class="text-center" style="width:10%"><span>%</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>Period (in Month)</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>Amount</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>%</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>Period (in Month)</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>Amount</span></td>
+                            <td class="text-center" colspan="1" style="width:10%"><span>%</span></td>
                         </tr>
                         <template v-for="(article,index) in tab.rows" :key="index">
-                            <!-- <template v-if="article.visible == 1"> -->
+                            <template v-if="article.cur_visible == 1 || article.prev_visible == 1">
                                 <tr>
                                     <td colspan="2">{{article.cur ? article.cur.name : article.prev.name}}</td>
-                                    <td class="text-center">
-                                        <span v-if="article.prev">
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == 'month' ? 
                                             formatAmount(article.prev.value1,article.prev.option1) : article.prev.option2 == 'month' ? 
@@ -267,8 +318,8 @@
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <span v-if="article.prev">
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == '$' ? 
                                             formatAmount(article.prev.value1,article.prev.option1) : article.prev.option2 == '$' ? 
@@ -276,8 +327,8 @@
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <span v-if="article.prev">
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == '%' ? 
                                             formatAmount(article.prev.value1,article.prev.option1) : article.prev.option2 == '%' ? 
@@ -285,8 +336,8 @@
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <span v-if="article.cur">
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == 'month' ? 
                                             formatAmount(article.cur.value1,article.cur.option1) : article.cur.option2 == 'month' ? 
@@ -294,8 +345,8 @@
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <span v-if="article.cur">
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == '$' ? 
                                             formatAmount(article.cur.value1,article.cur.option1) : article.cur.option2 == '$' ? 
@@ -303,8 +354,8 @@
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center">
-                                        <span v-if="article.cur">
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == '%' ? 
                                             formatAmount(article.cur.value1,article.cur.option1) : article.cur.option2 == '%' ? 
@@ -313,12 +364,12 @@
                                         </span>
                                     </td>
                                 </tr>
-                            <!-- </template> -->
+                            </template>
                         </template>
                     </tbody>
 
                     <tbody v-else-if="tab.header.component_type=='promotion_percentage'">
-                        <tr v-if="tab.rows.length>0" class="label_row">
+                        <tr v-if="tab.rows.length>0 && tab.rows.map(entry=>entry.cur_visible || entry.prev_visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.header.tab_info.name}`}}</td>
                             <td class="text-center" colspan="1" style="width:10%"><span>Period (in Month)</span></td>
                             <td class="text-center" colspan="2" style="width:20%"><span>%</span></td>
@@ -326,11 +377,11 @@
                             <td class="text-center" colspan="2" style="width:20%"><span>%</span></td>
                         </tr>
                         <template v-for="(article,index) in tab.rows" :key="index">
-                            <!-- <template v-if="article.visible == 1"> -->
+                            <template v-if="article.cur_visible == 1 || article.prev_visible == 1">
                                 <tr>
                                     <td colspan="2"><span>{{article.cur ? article.cur.name : article.prev.name}}</span></td>
                                     <td class="text-center" colspan="1">
-                                        <span v-if="article.prev">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == 'month' ? 
                                             formatAmount(article.prev.value1,article.prev.option1) : article.prev.option2 == 'month' ? 
@@ -339,7 +390,7 @@
                                         </span>
                                     </td>
                                     <td class="text-center" colspan="2">
-                                        <span v-if="article.prev">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == '%' ? 
                                             formatAmount(article.prev.value1,article.prev.option1) : article.prev.option2 == '%' ? 
@@ -348,7 +399,7 @@
                                         </span>
                                     </td>
                                     <td class="text-center" colspan="1">
-                                        <span v-if="article.cur">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == 'month' ? 
                                             formatAmount(article.cur.value1,article.cur.option1) : article.cur.option2 == 'month' ? 
@@ -357,7 +408,7 @@
                                         </span>
                                     </td>
                                     <td class="text-center" colspan="2">
-                                        <span v-if="article.cur">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == '%' ? 
                                             formatAmount(article.cur.value1,article.cur.option1) : article.cur.option2 == '%' ? 
@@ -366,69 +417,73 @@
                                         </span>
                                     </td>
                                 </tr>
-                            <!-- </template> -->
+                            </template>
                         </template>
                     </tbody>
 
                     <tbody v-else-if="tab.header.component_type=='tir'">
                         <tr class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.header.tab_info.name}`}}</td>
-                            <td class="text-center" style="width: 10%"><span>Growth %</span></td>
-                            <td class="text-center" style="width: 10%"><span>Growth Target</span></td>
-                            <td class="text-center" style="width: 10%"><span>%</span></td>
-                            <td class="text-center" style="width: 10%"><span>Growth %</span></td>
-                            <td class="text-center" style="width: 10%"><span>Growth Target</span></td>
-                            <td class="text-center" style="width: 10%"><span>%</span></td>
+                            <td class="text-center" colspan="1" style="width: 10%"><span>Growth %</span></td>
+                            <td class="text-center" colspan="1" style="width: 10%"><span>Growth Target</span></td>
+                            <td class="text-center" colspan="1" style="width: 10%"><span>%</span></td>
+                            <td class="text-center" colspan="1" style="width: 10%"><span>Growth %</span></td>
+                            <td class="text-center" colspan="1" style="width: 10%"><span>Growth Target</span></td>
+                            <td class="text-center" colspan="1" style="width: 10%"><span>%</span></td>
                         </tr>
                         <template v-for="(article,index) in tab.rows" :key="index">
                             <tr>
                                 <td class="text-right" colspan="2"><span>{{index+1}}st Tier</span></td>
-                                <td class="text-center" style="width: 10%"><span></span></td>
-                                <td class="text-center" style="width: 10%"><span v-if="article.prev">{{article.prev.rebate_to == null ? "Onwards" : formatAmount(article.prev.rebate_to,'$')}}</span></td>
-                                <td class="text-center" style="width: 10%"><span v-if="article.prev">{{formatAmount(article.prev.rate,'%')}}</span></td>
-                                <td class="text-center" style="width: 10%"><span></span></td>
-                                <td class="text-center" style="width: 10%"><span v-if="article.cur">{{article.cur.rebate_to == null ? "Onwards" : formatAmount(article.cur.rebate_to,'$')}}</span></td>
-                                <td class="text-center" style="width: 10%"><span v-if="article.cur">{{formatAmount(article.cur.rate,'%')}}</span></td>
+                                <td class="text-center" colspan="1" style="width: 10%"><span></span></td>
+                                <td class="text-center" colspan="1" style="width: 10%"><span v-if="article.prev">{{article.prev.rebate_to == null ? "Onwards" : formatAmount(article.prev.rebate_to,'$')}}</span></td>
+                                <td class="text-center" colspan="1" style="width: 10%"><span v-if="article.prev">{{formatAmount(article.prev.rate,'%')}}</span></td>
+                                <td class="text-center" colspan="1" style="width: 10%"><span></span></td>
+                                <td class="text-center" colspan="1" style="width: 10%"><span v-if="article.cur">{{article.cur.rebate_to == null ? "Onwards" : formatAmount(article.cur.rebate_to,'$')}}</span></td>
+                                <td class="text-center" colspan="1" style="width: 10%"><span v-if="article.cur">{{formatAmount(article.cur.rate,'%')}}</span></td>
                             </tr>
                         </template>
                     </tbody>
 
                     <tbody v-else-if="tab.header.component_type == 'target_ratetype_rate_remark'">
-                        <tr v-if="tab.rows.length>0" class="label_row">
+                        <tr v-if="tab.rows.length>0 && tab.rows.map(entry=>entry.cur_visible || entry.prev_visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.header.tab_info.name}`}}</td>
-                            <td class="text-center" colspan="2" style="width: 20%"><span>Amount</span></td>
+                            <td class="text-center" colspan="1" style="width: 10%"><span>Site Group</span></td>
+                            <td class="text-center" colspan="1" style="width: 10%"><span>Amount</span></td>
                             <td class="text-center" colspan="1" style="width: 10%"><span>%</span></td>
-                            <td class="text-center" colspan="2" style="width: 20%"><span>Amount</span></td>
+                            <td class="text-center" colspan="1" style="width: 10%"><span>Site Group</span></td>
+                            <td class="text-center" colspan="1" style="width: 10%"><span>Amount</span></td>
                             <td class="text-center" colspan="1" style="width: 10%"><span>%</span></td>
                         </tr>
                         <template v-for="(article,index) in tab.rows" :key="index">
-                            <!-- <template v-if="article.visible == 1"> -->
+                            <template v-if="article.cur_visible == 1 || article.prev_visible == 1">
                                 <tr>
                                     <td rowspan="2">{{article.cur ? article.cur.name : article.prev.name}}</td>
                                     <td>{{article.cur ? article.cur.remark1 : article.prev.remark1}}</td>
-                                    <td class="text-center" colspan="2">
-                                        <span v-if="article.prev">
+                                    <td rowspan="2" class="text-center" colspan="1"><span v-if="article.prev && article.prev_visible == 1">{{billing_type_list.find(entry=>entry.value == article.prev.billing_type).label}}</span></td>
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == '$' ? formatAmount(article.prev.value1,article.prev.option1) : ""
                                         }}
                                         </span>
                                     </td>
                                     <td class="text-center" colspan="1">
-                                        <span v-if="article.prev">
+                                        <span v-if="article.prev && article.prev_visible == 1">
                                         {{
                                             article.prev.option1 == '%' ? formatAmount(article.prev.value1,article.prev.option1) : ""
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center" colspan="2">
-                                        <span v-if="article.cur">
+                                    <td rowspan="2" class="text-center" colspan="1"><span v-if="article.cur && article.cur_visible == 1">{{billing_type_list.find(entry=>entry.value == article.cur.billing_type).label}}</span></td>
+                                    <td class="text-center" colspan="1">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == '$' ? formatAmount(article.cur.value1,article.cur.option1) : ""
                                         }}
                                         </span>
                                     </td>
                                     <td class="text-center" colspan="1">
-                                        <span v-if="article.cur">
+                                        <span v-if="article.cur && article.cur_visible == 1">
                                         {{
                                             article.cur.option1 == '%' ? formatAmount(article.cur.value1,article.cur.option1) : ""
                                         }}
@@ -437,7 +492,7 @@
                                 </tr>
                                 <tr>
                                     <td>{{article.cur ? article.cur.remark2 : article.prev.remark2}}</td>
-                                    <td class="text-center" colspan="2">
+                                    <td class="text-center" colspan="1">
                                         <span v-if="article.prev">
                                         {{
                                             article.prev.option2 == '$' ? formatAmount(article.prev.value2,article.prev.option2) : ""
@@ -451,7 +506,7 @@
                                         }}
                                         </span>
                                     </td>
-                                    <td class="text-center" colspan="2">
+                                    <td class="text-center" colspan="1">
                                         <span v-if="article.cur">
                                         {{
                                             article.cur.option2 == '$' ? formatAmount(article.cur.value2,article.cur.option2) : ""
@@ -466,7 +521,7 @@
                                         </span>
                                     </td>
                                 </tr>
-                            <!-- </template> -->
+                            </template>
                         </template>
                     </tbody>
 
@@ -500,7 +555,7 @@
                     
                     <tr>
                         <td><span>Agreement Effective Date</span></td>
-                        <td class="text-center" colspan="3"><span>{{displayDate(json.effective_date_from,'dd.mm.yyyy')}}</span></td>
+                        <td class="text-center" colspan="3"><span>{{displayDate(json.effective_date_from,preference.dateFormat)}}</span></td>
                     </tr>
                     
                     <tr>
@@ -516,7 +571,7 @@
                     
                 <table v-for="(tab,index) in json.tta_tab" :key="index">
                     <tbody v-if="tab.component_type=='rate_purgrossnet_date' || tab.component_type=='rate_purgrossnet'">
-                        <tr v-if="tab.tab_article.length>0" class="label_row">
+                        <tr v-if="tab.tab_article.length>0 && tab.tab_article.map(entry=>entry.visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.tab_info.name}`}}</td>
                             <td class="text-center" colspan="3" style="width:60%"><span>%</span></td>
                         </tr>
@@ -539,7 +594,7 @@
                     </tbody>
 
                     <tbody v-else-if="tab.component_type=='rate_cogsinvnet_date' || tab.component_type=='rate_cogsinvnet'">
-                        <tr v-if="tab.tab_article.length>0" class="label_row">
+                        <tr v-if="tab.tab_article.length>0 && tab.tab_article.map(entry=>entry.visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.tab_info.name}`}}</td>
                             <td class="text-center" style="width:20%"><span>Calculated based on</span></td>
                             <td class="text-center" style="width:20%"><span>Amount</span></td>
@@ -574,7 +629,7 @@
                     </tbody>
 
                     <tbody v-else-if="tab.component_type=='dollar_rate_remark'">
-                        <tr v-if="tab.tab_article.length>0" class="label_row">
+                        <tr v-if="tab.tab_article.length>0 && tab.tab_article.map(entry=>entry.visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.tab_info.name}`}}</td>
                             <td class="text-center" style="width:40%"><span>Store Type</span></td>
                             <td class="text-center" style="width:20%"><span>Amount</span></td>
@@ -598,8 +653,31 @@
                         </template>
                     </tbody>
 
+                    <tbody v-else-if="tab.component_type=='dollar_rate'">
+                        <tr v-if="tab.tab_article.length>0 && tab.tab_article.map(entry=>entry.visible).includes(1)" class="label_row">
+                            <td colspan="2" style="width:40%">{{`${index+1}) ${tab.tab_info.name}`}}</td>
+                            <td class="text-center" style="width:60%"><span>Amount</span></td>
+                        </tr>
+                        <template v-for="(article,index) in tab.tab_article" :key="index">
+                            <template v-if="article.visible == 1">
+                                <tr>
+                                    <td colspan="2">{{article.name}}</td>
+                                    <td class="text-center">
+                                        <span>
+                                        {{
+                                            article.option1 == '$' ? 
+                                            formatAmount(article.value1,article.option1) : article.option2 == '$' ? 
+                                            formatAmount(article.value2,article.option2) : ""
+                                        }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            </template>
+                        </template>
+                    </tbody>
+
                     <tbody v-else-if="tab.component_type=='months_rate_percentage' || tab.component_type=='days_rate_percentage' || tab.component_type=='promotion_percentage_amount'">
-                        <tr v-if="tab.tab_article.length>0" class="label_row">
+                        <tr v-if="tab.tab_article.length>0 && tab.tab_article.map(entry=>entry.visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.tab_info.name}`}}</td>
                             <td class="text-center" style="width:20%"><span>Period (in Month)</span></td>
                             <td class="text-center" style="width:20%"><span>Amount</span></td>
@@ -642,7 +720,7 @@
                     </tbody>
 
                     <tbody v-else-if="tab.component_type=='promotion_percentage'">
-                        <tr v-if="tab.tab_article.length>0" class="label_row">
+                        <tr v-if="tab.tab_article.length>0 && tab.tab_article.map(entry=>entry.visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.tab_info.name}`}}</td>
                             <td class="text-center" colspan="1" style="width:20%"><span>Period (in Month)</span></td>
                             <td class="text-center" colspan="2" style="width:40%"><span>%</span></td>
@@ -694,7 +772,8 @@
                     <tbody v-else-if="tab.component_type == 'target_ratetype_rate_remark'">
                         <tr v-if="tab.tab_article.length>0 && tab.tab_article.map(entry=>entry.visible).includes(1)" class="label_row">
                             <td colspan="2" style="width:40%">{{`${index+1}) ${tab.tab_info.name}`}}</td>
-                            <td class="text-center" colspan="2" style="width: 40%"><span>Amount</span></td>
+                            <td class="text-center" colspan="1" style="width: 20%"><span>Site Group</span></td>
+                            <td class="text-center" colspan="1" style="width: 20%"><span>Amount</span></td>
                             <td class="text-center" colspan="1" style="width: 20%"><span>%</span></td>
                         </tr>
                         <template v-for="(article,index) in tab.tab_article" :key="index">
@@ -702,7 +781,8 @@
                                 <tr>
                                     <td rowspan="2">{{article.name}}</td>
                                     <td>{{article.remark1}}</td>
-                                    <td class="text-center" colspan="2">
+                                    <td rowspan="2" class="text-center">{{billing_type_list.find(entry=>entry.value == article.billing_type).label}}</td>
+                                    <td class="text-center" colspan="1">
                                         <span>
                                         {{
                                             article.option1 == '$' ? formatAmount(article.value1,article.option1) : ""
@@ -719,7 +799,7 @@
                                 </tr>
                                 <tr>
                                     <td>{{article.remark2}}</td>
-                                    <td class="text-center" colspan="2">
+                                    <td class="text-center" colspan="1">
                                         <span>
                                         {{
                                             article.option2 == '$' ? formatAmount(article.value2,article.option2) : ""
@@ -747,7 +827,7 @@
                 </table>
             </div>
 
-            <div class="row q-my-md q-gutter-sm small_text">
+            <div class="row q-my-md q-gutter-sm small_text no_break">
                 <div class="col-12"><span>Distributor List</span></div>
                 <div class="col-12">
                     <div class="row q-px-md" style="border-top: 1px solid; border-bottom: 1px solid">
@@ -765,7 +845,7 @@
                 </div>
             </div>
 
-            <div class="row q-mt-xl small_text no_break" v-if="json.conditionTrade">
+            <div class="row q-mt-xl q-mb-md small_text no_break" v-if="json.conditionTrade">
                 <div v-html="json.conditionTrade.cot_info.cot_value"></div>
             </div>
 
@@ -784,18 +864,18 @@
                     <tr>
                         <td style="height: 100px">
                             <div class="q-gutter-sm" style="height: 30%"><span>Name:</span><span>{{json.issued_by}}</span></div>
-                            <div class="q-gutter-sm" style="height: 30%"><span>Designation:</span><span></span></div>
-                            <div class="q-gutter-sm" style="height: 30%"><span>Date:</span><span>{{json.issued_date}}</span></div>
+                            <div class="q-gutter-sm" style="height: 30%"><span>Designation:</span><span v-if="json.issued_designation">{{json.issued_designation}}</span></div>
+                            <div class="q-gutter-sm" style="height: 30%"><span>Date:</span><span>{{displayDate(json.issued_date,preference.dateFormat)}}</span></div>
                         </td>
                         <td style="height: 100px">
                             <div class="q-gutter-sm" style="height:30%"><span>Name:</span><span>{{json.authorised_by}}</span></div>
-                            <div class="q-gutter-sm" style="height:30%"><span>Designation:</span><span></span></div>
-                            <div class="q-gutter-sm" style="height:30%"><span>Date:</span><span>{{json.authorised_date}}</span></div>
+                            <div class="q-gutter-sm" style="height:30%"><span>Designation:</span><span v-if="json.authorised_designation">{{json.authorised_designation}}</span></div>
+                            <div class="q-gutter-sm" style="height:30%"><span>Date:</span><span>{{displayDate(json.authorised_date,preference.dateFormat)}}</span></div>
                         </td>
                         <td style="height:100px">
                             <div class="q-gutter-sm" style="height:30%"><span>Name:</span><span>{{json.approve_by}}</span></div>
-                            <div class="q-gutter-sm" style="height:30%"><span>Designation:</span><span></span></div>
-                            <div class="q-gutter-sm" style="height:30%"><span>Date:</span><span>{{json.approve_date}}</span></div>
+                            <div class="q-gutter-sm" style="height:30%"><span>Designation:</span><span v-if="json.approved_designation">{{json.approved_designation}}</span></div>
+                            <div class="q-gutter-sm" style="height:30%"><span>Date:</span><span>{{displayDate(json.approve_date,preference.dateFormat)}}</span></div>
                         </td>
                         <td style="height:100px">
                             <div class="q-gutter-sm" style="height:30%"><span>Name (in full):</span><span></span></div>
@@ -820,8 +900,10 @@ import { Notify } from "quasar";
 export default {
     data() {
         return{
+            preference: {},
             json: {},
             tableData: [],
+            billing_type_list: [{value:'monthly',label:'Monthly'},{value:'quarterly',label:'Quarterly'},{value:'half-year',label:'Half Year'},{value:'yearly',label:'Yearly'},{value:'end_of_tta',label:'End of TTA'}],
             proposal: false,
             loading: true,
         }
@@ -845,6 +927,9 @@ export default {
         // get tta details
         var payload = {
             'tta_guid': this.$route.query.tta_guid,
+            'params': {
+                'view': 'print_tta',
+            }
         }
 
         var pass_obj = {
@@ -884,29 +969,74 @@ export default {
             {
                 const data = response.response.data
                 this.json.company_address = `${data.address_1} ${data.address_2} ${data.address_3} ${data.address_4} ${data.address_5}`;
+                if(!localStorage.getItem("preference_setting"))
+                {
+                    this.preference = {
+                        "dateFormat": data.date_format_setting,
+                        "default_date_to": data.date_to_setting,
+                        "division_setting": data.division_setting == 1 ? true : false,
+                        "banner_setting": data.banner_option_setting,
+                        "displayBanner": data.display_banner_setting == 1 ? true : false,
+                        "settlement_discount_setting": data.settlement_discount_setting == 1 ? true : false,
+                    };
+                    localStorage.setItem("preference_setting", JSON.stringify(this.preference));
+                }
+                else
+                {
+                    this.preference = JSON.parse(localStorage.getItem("preference_setting"));
+                }
             }
 
             // get supplier
+            var guids = [];
             if(this.json.supplier_to)
             {
+                guids.push(this.json.supplier_to);
+            }
+
+            if(this.$route.query.supplier && this.$route.query.supplier != "")
+            {
+                guids.push(this.$route.query.supplier);
+            }
+
+            if(guids.length>0)
+            {
                 var payload = {
-                    'supplier_guid': this.json.supplier_to,
+                    params: {
+                        'supplier_guid__in': guids.join(','),
+                    }
                 }
 
                 var pass_obj = {
-                    "dispatch": 'general/trigger_get_supplier',
+                    "dispatch": 'general/trigger_get_supplier_list',
                     "getter": 'general/get_supplier',
                     "app": this,
                     "payload": payload,
                 }
 
-                var response = await this.$dispatch(pass_obj);
+                var list = await this.$dispatch(pass_obj);
 
-                if(response.status)
+                if(list.status)
                 {
-                    this.json.supplier = response.response.data;
+                    if(this.json.supplier_to)
+                    {
+                        var supplier = list.response.data.results.find(entry=>entry.supplier_guid == this.json.supplier_to)
+                        if(supplier)
+                        {
+                            this.json.supplier = supplier;
+                        }
+                    }
+
+                    if(this.$route.query.supplier && this.$route.query.supplier != "")
+                    {
+                        var supplier = list.response.data.results.find(entry=>entry.supplier_guid == this.$route.query.supplier)
+                        if(supplier)
+                        {
+                            this.json.distributor_details = supplier;
+                        }
+                    }
                 }
-            }            
+            }        
 
             // get distributor value
             var payload = {
@@ -937,6 +1067,7 @@ export default {
                 params: {
                     'tta_guid': this.$route.query.tta_guid,
                     'limit': 99999,
+                    'ordering': 'division_guid__code,dept_guid__code,subdept_guid__code,category_guid__code',
                 }
             }
 
@@ -954,6 +1085,7 @@ export default {
             {
                 const data = division.response.data;
                 this.json.division = data.results;
+                // this.json.division.sort((a,b) => a.action_description - b.action_description);
             }
 
             // get concept (banner) value
@@ -962,6 +1094,7 @@ export default {
                 params: {
                     'tta_guid': this.$route.query.tta_guid,
                     'limit': 99999,
+                    'view': 'banner',
                 }
             }
 
@@ -1076,6 +1209,59 @@ export default {
             {
                 this.json.conditionTrade = tta_cot.response.data.results[0];         
             }
+            
+            // get issued user, authorised user, approved user
+            var user_guid = [];
+            if(this.json.issued_user)
+            {
+                user_guid.push(this.json.issued_user);
+            }
+            
+            if(this.json.authorised_user)
+            {
+                user_guid.push(this.json.authorised_user);
+            }
+
+            if(this.json.approved_user)
+            {
+                user_guid.push(this.json.approved_user);
+            }
+
+            var payload = {
+                params: {
+                    'user_info_guid__in': user_guid.join(','),
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": 'user/trigger_get_user_info_list',
+                "getter": 'user/get_user_info',
+                "app": this,
+                "payload": payload,
+            }
+
+            var users = await this.$dispatch(pass_obj);
+
+            if(users.status)
+            {
+                var user = users.response.data.results.find(entry=>entry.user_info_guid == this.json.issued_user)
+                if(user)
+                {
+                    this.json.issued_designation = user.user_designation.name;
+                }
+                
+                user = users.response.data.results.find(entry=>entry.user_info_guid == this.json.approved_user)
+                if(user)
+                {
+                    this.json.approved_designation = user.user_designation.name;
+                }
+
+                user = users.response.data.results.find(entry=>entry.user_info_guid == this.json.authorised_user)
+                if(user)
+                {
+                    this.json.authorised_designation = user.user_designation.name;
+                }
+            }
 
             // sync array for prev and current tab and tab article
             if(this.json.prev_tta)
@@ -1115,6 +1301,8 @@ export default {
                                 article,
                                 cur: cur_article.map(entry=>entry.tab_article_guid).includes(article) ? cur_article.find(entry=>entry.tab_article_guid == article) : false,
                                 prev: prev_article.map(entry=>entry.tab_article_guid).includes(article) ? prev_article.find(entry=>entry.tab_article_guid == article) : false,
+                                cur_visible: cur_article.map(entry=>entry.tab_article_guid).includes(article) ? cur_article.find(entry=>entry.tab_article_guid == article).visible : 0,
+                                prev_visible: prev_article.map(entry=>entry.tab_article_guid).includes(article) ? prev_article.find(entry=>entry.tab_article_guid == article).visible : 0,
                             })),
                         };
                     }
@@ -1135,7 +1323,7 @@ export default {
                         })
                     }
                 })
-                console.log(this.tableData);
+                // console.log(this.tableData);
             }
         }
         else
@@ -1143,7 +1331,7 @@ export default {
             this.showNotify('negative','Unable to obtain TTA details.');
             this.$router.push({name: 'tta'});
         }
-        console.log(this.json);
+        // console.log(this.json);
         this.$nextTick(()=>{
             setTimeout(()=>{
                 this.handlePrint();
@@ -1154,7 +1342,7 @@ export default {
     methods:{
         async getPrevTTA(guid)
         {
-            if(guid == "")
+            if(guid == "" || guid == null || !guid)
             {
                 const obj = {
                     tta_tab: [],
@@ -1200,9 +1388,10 @@ export default {
 
             var tta_tab = await this.$dispatch(pass_obj);
 
+            var ttaTab = [];
             if(tta_tab.status)
             {
-                var ttaTab = tta_tab.response.data.results;
+                ttaTab = tta_tab.response.data.results;
                 // ttaTab.sort((a,b)=> a.tab_info.number - b.tab_info.number);
                 for(var i in ttaTab)
                 {
@@ -1301,6 +1490,8 @@ export default {
         },
         displayDate(date, format)
         {
+            if(!date || date == "") return "";
+
             var curDate = new Date(date);
             var day = curDate.getDate();
             var month = curDate.getMonth() +1;
@@ -1308,7 +1499,7 @@ export default {
 
             const formatRegex = /dd|mm|yyyy|yy/g;
 
-            const formattedDate = format.replace(formatRegex, (match) => {
+            const formattedDate = format.toLowerCase().replace(formatRegex, (match) => {
                 switch (match) {
                     case 'dd': return day;
                     case 'mm': return month;
@@ -1329,7 +1520,15 @@ export default {
             return "";
         },
         toNormalCase(str) {
-            return str.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+            switch (str) {
+                case 'consignment':
+                    return 'COGS';
+                case 'net_sales':
+                    return 'Net Sales';
+                default:
+                    return str.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+            }
+            
         },
         showNotify(type, message) 
         {
@@ -1433,6 +1632,23 @@ tr {
   .wider_col
   {
     width: 18%
+  }
+
+  table 
+  {
+    width: 100%;
+    border-collapse: collapse; 
+  }
+  
+  tbody
+  {
+    page-break-inside: avoid;
+  }
+  
+  tr
+  {
+    page-break-inside: avoid;
+    page-break-after: auto;
   }
 }
 </style>

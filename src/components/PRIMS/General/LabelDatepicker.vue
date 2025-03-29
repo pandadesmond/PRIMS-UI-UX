@@ -11,6 +11,7 @@
                 :componentBehavior="dbComponentBehavior ? dbComponentBehavior : componentBehavior.date" 
                 :readonly="readonly"
                 :autoclose="true"
+                :dateFormat="dateFormat"
             />
         </div>
     </div>
@@ -21,7 +22,7 @@ import Label from 'src/components/PRIMS/Main/Label'
 import Datepicker from 'src/components/PRIMS/Main/Datepicker'
 
 export default {
-    props:['optionsFn','daterange','label','dbComponentBehavior','readonly'],
+    props:['optionsFn','daterange','label','dbComponentBehavior','readonly','dateFormat'],
     data(){
         return {
             date: this.daterange,

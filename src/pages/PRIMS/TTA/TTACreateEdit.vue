@@ -39,17 +39,17 @@
                         <q-list padding class="btn_qlist">
                             <q-item v-if="permission.includes('authorised') && json.authorised == 0 && json.rejected == 0 && json.terminated == 0" clickable style="padding: 0px">
                                 <q-item-section>
-                                    <q-btn :disable="false" flat no-caps :label="'Authorise'" color="primary" @click="dialog.authorise = true" class="btn_drp"/>
+                                    <q-btn :disable="false" flat no-caps :label="'Authorise'" color="primary" @click="handleReceiveAuthorise" class="btn_drp"/>
                                 </q-item-section>
                             </q-item>
                             
                             <q-item v-if="permission.includes('approved') && json.authorised == 1 && json.approved == 0 && json.rejected == 0 && json.terminated == 0" clickable style="padding: 0px">
                                 <q-item-section>
-                                    <q-btn :disable="false" flat no-caps :label="'Approve'" color="primary" @click="dialog.approve = true" class="btn_drp"/>
+                                    <q-btn :disable="false" flat no-caps :label="'Approve'" color="primary" @click="handleReceiveApprove" class="btn_drp"/>
                                 </q-item-section>
                             </q-item>
                             
-                            <q-item v-if="permission.includes('renewed') && json.authorised == 1 && json.approved == 1 && json.rejected == 0 && json.terminated == 0" clickable style="padding: 0px">
+                            <q-item v-if="permission.includes('renewed') && json.authorised == 1 && json.approved == 1 && json.renewed == 0 && json.rejected == 0 && json.terminated == 0" clickable style="padding: 0px">
                                 <q-item-section>
                                     <q-btn :disable="false" flat no-caps :label="'Renew'" color="primary" @click="dialog.renewal = true" class="btn_drp"/>
                                 </q-item-section>
@@ -73,18 +73,16 @@
 
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 q-px-md">
                 <q-toolbar class="custom_toolbar">
-                    <q-tabs v-model="currentTab" active-class="active_class_tab" indicator-color="transparent" align="justify" inline-label dense narrow-indicator shrink stretch no-caps>
+                    <q-tabs v-model="currentTab" active-class="active_class_tab" indicator-color="transparent" align="justify" v-on:mousedown="handleScroll" inline-label dense narrow-indicator shrink stretch no-caps>
                         <q-tab name="supplier_profile" label="Supplier Profile"></q-tab>
                         <template v-for="tab in ttaTab" :key="tab">
                             <q-tab :name="tab.tab_guid" :label="tab.tab_info ? tab.tab_info.name : tab.name">
                                 <q-btn v-show="!tab.tab_article || (tab.tab_article && tab.tab_article.length==0)" icon="close" class="q-ml-xs" size="12px" @click="removeTab(tab)" flat dense/>
                             </q-tab>
                         </template>
-                        <!-- <q-tab name="rebates" label="Rebates"></q-tab>
-                        <q-tab name="target_incentive_rebate" label="Target Incentive Rebate"></q-tab> -->
                         <q-tab name="condition_of_trade" label="Condition of Trade"></q-tab>
                         <q-tab v-if="page_function == 'edit'" name="attachment" label="Attachment"></q-tab>
-                        <Button class="custom_add_button q-mx-sm" :pass_flat="true" pass_icon="add" :pass_dense="true" :tooltip="true" pass_tooltip="Add Tab" @receiveClick="handleAddTab"/>
+                        <Button class="custom_add_button q-mx-sm" v-show="!readonlyStatus" :pass_flat="true" pass_icon="add" :pass_dense="true" :tooltip="true" pass_tooltip="Add Tab" @receiveClick="dialog.add_tab = true"/>
                     </q-tabs>
                 </q-toolbar>
             </div>
@@ -110,45 +108,54 @@
                             </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                <LabelSelect label="Bill To" v-model:pass_value="json.supplier_to" :options="options.supplier_list" :readonly="readonlyStatus" :dbComponentBehavior="dbComponentBehavior.select"/>
+                                <LabelSelect label="Bill To" v-model:pass_value="json.supplier_to" :options="options.supplier_list" :readonly="readonlyStatus" :dbComponentBehavior="dbComponentBehavior.select"
+                                @receiveChange="hasChanges = true"/>
                             </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                                 <LabelDatepicker label="Effective Date From" :daterange="json.effective_date_from" :optionsFn="optionsDateStart" v-on:receiveChange="handleChangeStartDate" 
-                                :dbComponentBehavior="dbComponentBehavior.text_required" :readonly="readonlyStatus"/>
+                                :dbComponentBehavior="dbComponentBehavior.text_required" :readonly="readonlyStatus" :dateFormat="preference.dateFormat"/>
                             </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                <LabelMultiselect label="Trading Group" v-model:pass_value="json.division" :options="options.division_list" v-model:pass_type="json.division_group" :options_type="options.division_group" :option_label="displayGroupLabel"
-                                :forceSelectAll="forceSelectAllDivision" :dbComponentBehavior="dbComponentBehavior.select_required" :filter="true" :readonly="readonlyStatus" @receiveChangeType="handleChangeDivisionType"/>
+                                <LabelMultiselect v-if="preference.division_setting" label="Trading Group" v-model:pass_value="json.division" :options="options.division_list" 
+                                v-model:pass_type="json.division_group" :options_type="options.division_group" :option_label="displayGroupLabel" :select_all="true"  :forceSelectAll="forceSelectAllDivision" 
+                                :dbComponentBehavior="dbComponentBehavior.select_required" :filter="true" :readonly="readonlyStatus" @receiveChangeType="handleChangeDivisionType" @receiveChange="hasChanges = true"/>
+
+                                <LabelMultiselect v-else label="Trading Group" v-model:pass_value="json.division" :options="options.division_list" :option_label="displayGroupLabel" :select_all="true"  :forceSelectAll="forceSelectAllDivision" 
+                                :dbComponentBehavior="dbComponentBehavior.select_required" :filter="false" :readonly="readonlyStatus" @receiveChange="hasChanges = true"/>
                             </div>
                             
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                                 <LabelMultiselect label="Distributor (Supplier)" v-model:pass_value="json.distributor" :options="options.distributor_list"  :readonly="readonlyStatus" option_label="Distributors"
-                                :forceSelectAll="forceSelectAllDistributor" :dbComponentBehavior="dbComponentBehavior.text" :manage_button="true" 
-                                @receiveClickManage="this.dialog.distributor = true" @receiveChange="handleChangeDistributor"/>
+                                :select_all="true"  :forceSelectAll="forceSelectAllDistributor" :dbComponentBehavior="dbComponentBehavior.text" button="Manage" 
+                                @receiveClickButton="this.dialog.distributor = true" @receiveChange="handleChangeDistributor"/>
                             </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                                 <LabelDatepicker label="Effective Date To" :daterange="json.effective_date_to" :optionsFn="optionsDateEnd" v-on:receiveChange="handleChangeEndDate" 
-                                :dbComponentBehavior="dbComponentBehavior.text_required" :readonly="readonlyStatus"/>
+                                :dbComponentBehavior="dbComponentBehavior.text_required" :readonly="readonlyStatus" :dateFormat="preference.dateFormat"/>
                             </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                                 <LabelMultiselect label="Banner/Site" v-model:pass_value="json.banner" :options="options.banner_list" :readonly="readonlyStatus" option_label="Banners/Sites"
-                                :dbComponentBehavior="dbComponentBehavior.text_required" @click="getBannerList" :loading="dialog.loading"/>
+                                :select_all="true"  :forceSelectAll="forceSelectAllBanner" :dbComponentBehavior="dbComponentBehavior.text_required" @click="getBannerList" :loading="dialog.loading"
+                                @receiveChange="hasChanges = true"/>
                             </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                <LabelInput label="Supplier PIC" v-model:pass_value="json.supplier_pic_name" :readonly="readonlyStatus" :dbComponentBehavior="dbComponentBehavior.text_required"/>
+                                <LabelInput label="Supplier PIC" v-model:pass_value="json.supplier_pic_name" :readonly="readonlyStatus" :dbComponentBehavior="dbComponentBehavior.text_required"
+                                @receiveChange="hasChanges = true"/>
                             </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                <LabelInput label="Designation" v-model:pass_value="json.supplier_pic_designation" :readonly="readonlyStatus" :dbComponentBehavior="dbComponentBehavior.text_required"/>
+                                <LabelInput label="Designation" v-model:pass_value="json.supplier_pic_designation" :readonly="readonlyStatus" :dbComponentBehavior="dbComponentBehavior.text_required"
+                                @receiveChange="hasChanges = true"/>
                             </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                <LabelInput label="Settlement Discount" v-model:pass_value="json.settlement_discount" :readonly="false" :dbComponentBehavior="dbComponentBehavior.number"/>
+                                <LabelInput label="Settlement Discount" v-model:pass_value="json.settlement_discount" :readonly="preference.settlement_discount_setting ? readonlyStatus : true" :dbComponentBehavior="dbComponentBehavior.number"
+                                @receiveChange="hasChanges = true"/>
                             </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
@@ -168,15 +175,16 @@
                             </div>
 
                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                <LabelTextarea label="Remarks" v-model:pass_value="json.remarks" :readonly="readonlyStatus" :dbComponentBehavior="dbComponentBehavior.textarea"/>
+                                <LabelTextarea label="Remarks" v-model:pass_value="json.remarks" :readonly="readonlyStatus" :dbComponentBehavior="dbComponentBehavior.textarea"
+                                @receiveChange="hasChanges = true"/>
                             </div>
 
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 q-px-sm q-py-xs">
                                 <div class="row" style="align-items: center;">
-                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 col-xs-12" style="max-width:12%">
+                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 col-xs-12" :style="$q.screen.width > 1023 ? 'max-width:12%' : ''">
                                         <Label pass_value="Settlement Term"/>
                                     </div>
-                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12 col-xs-12" style="width:88%">
+                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12 col-xs-12" :style="$q.screen.width > 1023 ? 'width:88%' : ''">
                                         <Input
                                             v-model:pass_value="json.settlement_term"
                                             :dbComponentBehavior="dbComponentBehavior ? dbComponentBehavior : componentBehavior.text"
@@ -192,7 +200,7 @@
                     <template v-for="tab in ttaTab" :key="tab">
                         <q-tab-panel :name="tab.tab_guid" style="overflow: hidden">
                             <div v-if="tab.component_type != 'tir'" class="row justify-end">
-                                <Button class="custom_add_button" pass_icon="add" :pass_square="true" :pass_dense="true" :tooltip="true" :pass_tooltip="`Add ${tab.tab_info ? tab.tab_info.name : tab.name}`" 
+                                <Button v-show="!readonlyStatus" class="custom_add_button" pass_icon="add" :pass_square="true" :pass_dense="true" :tooltip="true" :pass_tooltip="`Add ${tab.tab_info ? tab.tab_info.name : tab.name}`" 
                                 @receiveClick="handleAddField(tab)"/>
                             </div>
 
@@ -212,8 +220,11 @@
                                         v-on:receiveChange="handleChangeCutOffDate" :dbComponentBehavior="dbComponentBehavior.text_required" :readonly="readonlyStatus"/>
                                     </div> -->
                                 </div>
-                                <div class="row justify-end q-pa-md">
-                                    <Button class="custom_add_button" pass_icon="add" :pass_square="true" :pass_dense="true" :tooltip="true" pass_tooltip="Add Tier" @receiveClick="addTier"/>
+                                <div class="row justify-between q-py-md">
+                                    <Button v-if="currentTTA != ''" class="custom_cancel_button text-grey-9" style="font-size: 12px" pass_label="Statistic" pass_icon="query_stats" :pass_no_caps="true" :pass_square="true" :pass_dense="true" :tooltip="true"
+                                        pass_tooltip="View Total Purchase" :outline="true" @receiveClick="showStats"/>
+                                        <space/>
+                                    <Button v-show="!readonlyStatus" class="custom_add_button" pass_icon="add" :pass_square="true" :pass_dense="true" :tooltip="true" pass_tooltip="Add Tier" @receiveClick="addTier"/>
                                 </div>
                                 <div class="row">
                                     <Table
@@ -241,9 +252,9 @@
                             <div v-else>
                                 <template v-for="article in tab.tab_article" :key="article">
 
-                                    <div v-if="tab.component_type == 'rate_purgrossnet_date'" 
+                                    <div v-if="tab.component_type == 'rate_purgrossnet_date' || tab.component_type == 'rate_cogsinvnet_date'" 
                                         class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                        <!-- ratetype/rate/pur_grossnet/daterange -->
+                                        <!-- ratetype/rate/pur_grossnet/daterange and ratetype/rate/inv_grossnet/daterange -->
                                         <LabelSelectInputRadioDate :label="article.name"
                                             v-model:select="article.option1"
                                             v-model:radio="article.remark1"
@@ -258,13 +269,14 @@
                                             :allow_remove="readonlyStatus ? false : true"
                                             :readonly="readonlyStatus"
                                             :is_auto="article.is_auto"
+                                            :dateFormat="preference.dateFormat"
                                             @receiveRemove="removeField(article)"
                                         />
                                     </div>
 
-                                    <div v-else-if="tab.component_type == 'rate_purgrossnet'" 
+                                    <div v-else-if="tab.component_type == 'rate_purgrossnet' || tab.component_type == 'rate_cogsinvnet' || tab.component_type == 'dollar_rate_remark'" 
                                         class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                        <!-- ratetype/rate/pur_grossnet -->
+                                        <!-- ratetype/rate/pur_grossnet and ratetype/rate/inv_grossnet and $/rate/remark -->
                                         <LabelSelectInputRadio :label="article.name"
                                             v-model:select="article.option1"
                                             v-model:radio="article.remark1"
@@ -280,16 +292,14 @@
                                         />
                                     </div>
 
-                                    <div v-else-if="tab.component_type == 'dollar_rate_remark'" 
+                                    <div v-else-if="tab.component_type == 'dollar_rate'" 
                                         class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                        <!-- $/rate/remark -->
-                                        <LabelSelectInputRadio :label="article.name"
+                                        <!-- $/rate -->
+                                        <LabelSelectInput1 :label="article.name"
                                             v-model:select="article.option1"
-                                            v-model:radio="article.remark1"
                                             v-model:input="article.value1"
                                             v-model:type="article.billing_type"
                                             :selectOptions="article.option1_list"
-                                            :radioOptions="article.remark1_list"
                                             :typeOptions="options.billing_type_list"
                                             :allow_remove="readonlyStatus ? false : true"
                                             :readonly="readonlyStatus"
@@ -320,10 +330,10 @@
                                         />
                                     </div>
 
-                                    <div v-else-if="tab.component_type == 'promotion_percentage'" 
+                                    <div v-else-if="tab.component_type == 'promotion_percentage' || tab.component_type == 'promotion_percentage_amount'" 
                                         class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                        <!-- months/rate/% [no remark] -->
-                                        <LabelSelectInput :label="article.name"
+                                        <!-- months/rate/% [no remark] and months/rate/%/$ [no remark-->
+                                        <LabelSelectInput2 :label="article.name"
                                             :select1="article.option1"
                                             :input1="article.value1"
                                             :selectOptions1="[{label:'Month',value:'month'}]"
@@ -333,64 +343,6 @@
                                             :type="article.billing_type"
                                             :typeOptions="options.billing_type_list"
                                             @receiveChange="newVal => handleChangeArticleRate(article,newVal)"
-                                            :allow_remove="readonlyStatus ? false : true"
-                                            :readonly="readonlyStatus"
-                                            :is_auto="article.is_auto"
-                                            @receiveRemove="removeField(article)"
-                                        />
-                                    </div>
-
-                                    <div v-else-if="tab.component_type == 'promotion_percentage_amount'" 
-                                        class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                        <!-- months/rate/%/$ [no remark] -->
-                                        <LabelSelectInput :label="article.name"
-                                            :select1="article.option1"
-                                            :input1="article.value1"
-                                            :selectOptions1="[{label:'Month',value:'month'}]"
-                                            :select2="article.option2"
-                                            :input2="article.value2"
-                                            :selectOptions2="article.option2_list"
-                                            :type="article.billing_type"
-                                            :typeOptions="options.billing_type_list"
-                                            @receiveChange="newVal => handleChangeArticleRate(article,newVal)"
-                                            :allow_remove="readonlyStatus ? false : true"
-                                            :readonly="readonlyStatus"
-                                            :is_auto="article.is_auto"
-                                            @receiveRemove="removeField(article)"
-                                        />
-                                    </div>
-
-                                    <div v-else-if="tab.component_type == 'rate_cogsinvnet_date'" 
-                                        class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                        <!-- ratetype/rate/inv_grossnet/daterange -->
-                                        <LabelSelectInputRadioDate :label="article.name"
-                                            v-model:select="article.option1"
-                                            v-model:radio="article.remark1"
-                                            v-model:input="article.value1"
-                                            v-model:date_from="article.date_range_from"
-                                            v-model:date_to="article.date_range_to"
-                                            v-model:type="article.billing_type"
-                                            :selectOptions="article.option1_list"
-                                            :radioOptions="article.remark1_list"
-                                            :typeOptions="options.billing_type_list"
-                                            :allow_remove="readonlyStatus ? false : true"
-                                            :readonly="readonlyStatus"
-                                            :is_auto="article.is_auto"
-                                            @receiveRemove="removeField(article)"
-                                        />
-                                    </div>
-
-                                    <div v-else-if="tab.component_type == 'rate_cogsinvnet'" 
-                                        class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 q-px-sm q-py-xs">
-                                        <!-- ratetype/rate/inv_grossnet -->
-                                        <LabelSelectInputRadio :label="article.name"
-                                            v-model:select="article.option1"
-                                            v-model:radio="article.remark1"
-                                            v-model:input="article.value1"
-                                            v-model:type="article.billing_type"
-                                            :selectOptions="article.option1_list"
-                                            :radioOptions="article.remark1_list"
-                                            :typeOptions="options.billing_type_list"
                                             :allow_remove="readonlyStatus ? false : true"
                                             :readonly="readonlyStatus"
                                             :is_auto="article.is_auto"
@@ -463,7 +415,7 @@
                         </div>
                     </q-tab-panel>
 
-                    <q-tab-panel v-if="page_function == 'edit'" name="attachment" style="overflow: hidden">
+                    <q-tab-panel v-if="permission.includes('uploaded') && page_function == 'edit'" name="attachment" style="overflow: hidden">
                         <div class="row justify-end q-py-sm">
                             <Button class="custom_add_button" pass_label="UPLOAD" :pass_square="true" :pass_dense="false" :tooltip="true" pass_tooltip="Upload File" 
                             @receiveClick="dialog.upload = true"/>
@@ -505,7 +457,7 @@
                         class="custom_cancel_button"
                     />
 
-                    <Button :pass_label="'Save'"
+                    <Button v-if="!readonlyStatus" :pass_label="'Save'"
                         v-on:receiveClick="validateTTA"
                         :pass_no_caps="false"
                         :pass_square="true"
@@ -528,7 +480,7 @@
                 <q-btn icon="close" flat round dense :disable="dialog.loading" @click="dialog.distributor = false" />
             </q-card-section>
 
-            <q-card-section class="content_body_dialog">
+            <q-card-section class="content_body_dialog" style="max-height: calc(90vh - 100px); overflow-y: auto;">
                 <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <q-toolbar class="custom_toolbar">
                         <q-tabs v-model="dialog.tab" active-class="active_class_tab" indicator-color="transparent" align="justify" dense narrow-indicator shrink stretch no-caps>
@@ -542,6 +494,7 @@
                         <q-tab-panel name="distributor_assigned" style="overflow: hidden">
                             <div class="row">
                                 <Table
+                                    style="table_dialog"
                                     :row_per_page="[10,50,100,1000]"
                                     :table_data="table_data.distributor"
                                     :table_column="table_column.distributor"
@@ -549,11 +502,13 @@
                                     :bordered_status="true"
                                     v-on:receiveRequestTable="handleTableChangeDistributor"
 
-                                    :allow_print="true"
+                                    :allow_print_tta="true"
                                     :allow_remove="true"
-                                    :allow_upload="true"
+                                    :allow_upload="permission.includes('uploaded')"
                                     v-on:receiveHandlePrint="handleReceiveHandlePrint"
                                     v-on:receiveHandleRemove="handleReceiveHandleRemove"
+                                    v-on:receiveHandleUpload="dialog.upload = true"
+                                    v-on:change_input_text="hasChanges = true"
 
                                     :filter_mode_on="false"
                                     :forceLoading="forceLoading"
@@ -580,6 +535,7 @@
                         <q-tab-panel name="audit_trail" style="overflow: hidden">
                             <div class="row">
                                 <Table
+                                    class="table_dialog"
                                     :row_per_page="[10,50,100,1000]"
                                     :table_data="table_data.audit_trail"
                                     :table_column="table_column.audit_trail"
@@ -722,8 +678,11 @@
         </q-card-section>
 
         <q-card-section class="text-left" style="padding: 32px 24px">
-            <div style="width:70%">
-                <LabelDatepicker label="Effective Date From" :daterange="dialog.date_from" v-on:receiveChange="handleChangeNewStartDate" :dbComponentBehavior="dbComponentBehavior.date"/>
+            <div style="width:70%" class="q-gutter-md">
+                <LabelDatepicker label="Effective Date From" :daterange="dialog.date_from" v-on:receiveChange="(val)=>handleChangeNewDate(val,'date_from')" 
+                    :dbComponentBehavior="dbComponentBehavior.date" :dateFormat="preference.dateFormat"/>
+                <LabelDatepicker label="Effective Date To" :daterange="dialog.date_to" v-on:receiveChange="(val)=>handleChangeNewDate(val,'date_to')" 
+                    :dbComponentBehavior="dbComponentBehavior.date" :dateFormat="preference.dateFormat"/>
             </div>
         </q-card-section>
 
@@ -749,6 +708,9 @@
         </q-card-section>
 
         <q-card-section style="padding: 32px 24px">
+            <span class="confirmation_line_font" v-if="dialog.currentItem.isempty">
+                <q-icon name="warning" color="orange" size="30px" class="q-px-sm"/>This TTA still have no rebates yet. 
+            </span><br/>
             <span class="confirmation_line_font">Do you want to approve this TTA {{json.refno}}?</span>
         </q-card-section>
 
@@ -840,7 +802,7 @@
     </q-dialog>
 
     <q-dialog v-model="dialog.history" persistent position="top">
-        <q-card style="width: 1000px; max-width: 120vw;text-align:center;margin-top: 5%;border-radius: 8px">
+        <q-card style="width: 1000px; max-width: 120vw; max-height:95vh;text-align:center;margin-top: 1%;border-radius: 8px">
 
         <q-card-section class="theme_color row items-center" style="height:56px; padding: 8px 24px;border-bottom: 1px solid #a7bbcb;">
             <div class="confirm_title">History : {{json.refno}}</div>
@@ -848,9 +810,10 @@
             <q-btn icon="close" flat round dense v-close-popup/>
         </q-card-section>
 
-        <q-card-section style="padding: 32px 24px">
+        <q-card-section style="padding: 32px 24px; max-height: calc(95vh - 56px - 70px); overflow-y: auto;">
             <div class="row">
                 <Table
+                    class="table_dialog"
                     :row_per_page="[10,50,100,1000]"
                     :table_data="table_data.history"
                     :table_column="table_column.history"
@@ -868,7 +831,7 @@
             </div>
         </q-card-section>
 
-        <q-card-actions align="right" style="padding-top:0px;padding-bottom:16px;padding-right:16px">
+        <q-card-actions align="right" style="height:70px;padding-top:0px;padding-bottom:16px;padding-right:16px">
             <q-btn flat label="Close" font_color="#29292A" color="#29292A" v-close-popup size="12px" class="dialog_confirm_cancel_button"/>
         </q-card-actions>
 
@@ -951,30 +914,97 @@
         />
         </q-card>
     </q-dialog>
-    
-    <q-dialog v-model="dialog.activeTTA" persistent position="top">
-        <q-card style="width: 780px; max-width: 98vw;text-align:center;margin-top: 5%;border-radius: 8px">
 
-        <q-card-section class="theme_color row items-center" style="height:56px; padding: 8px 24px;border-bottom: 1px solid #a7bbcb;">
-            <div class="confirm_title">Confirmation</div>
-            <q-space />
-            <q-btn icon="close" flat round dense v-close-popup @click="dialog.currentItem = {}"/>
-        </q-card-section>
+    <q-dialog v-model="dialog.alert" persistent position="top">
+        <q-card style="width: 780px; max-width: 98vw;max-height:95vh;text-align:center;margin-top: 5%;border-radius: 8px">
+            <q-card-section class="theme_color row items-center" style="height:56px; padding: 8px 24px;border-bottom: 1px solid #a7bbcb;">
+                <div class="confirm_title">Confirmation</div>
+                <q-space />
+                <q-btn icon="close" flat round dense v-close-popup @click="dialog.currentItem = {}"/>
+            </q-card-section>
 
-        <q-card-section style="padding: 32px 40px" align="left">
-            <span class="confirmation_line_font">Vendor {{dialog.currentItem.vendor}} already has active TTA existed. Do you confirm want to proceed ?</span>
-            <li class="confirmation_line_font" v-for="item in dialog.currentItem.refno_list" :key="item">{{item}}</li>
-        </q-card-section>
+            <q-card-section v-if="dialog.currentItem.message" style="padding: 32px 40px; overflow-y: auto; max-height: calc(95vh - 56px - 70px);" align="left">
+                <span class="confirmation_line_font">{{dialog.currentItem.message}}</span>
+                <span v-if="dialog.currentItem.refno_list">
+                    <li class="confirmation_line_font" v-for="item in dialog.currentItem.refno_list" :key="item">{{item}}</li>
+                </span>
+            </q-card-section>
 
-        <q-card-actions align="right" style="padding-top:0px;padding-bottom:16px;padding-right:16px">
-            <q-btn flat label="Cancel" font_color="#29292A" color="#29292A" size="12px" class="dialog_confirm_cancel_button" v-close-popup @click="dialog.currentItem = {}"/>
-            <q-btn flat label="Confirm" font_color="white" color="'#D81111'" size="12px" class="primary_actions_button" @click="saveTTA" />
-        </q-card-actions>
+            <q-card-actions align="right" style="padding-top:0px;padding-bottom:16px;padding-right:16px;height:70px">
+                <q-btn flat label="Cancel" font_color="#29292A" color="#29292A" size="12px" class="dialog_confirm_cancel_button" v-close-popup @click="dialog.currentItem = {}"/>
+                <q-btn v-if="dialog.currentItem.type == 'percentage_alert'" flat label="Confirm" font_color="white" color="'#D81111'" size="12px" class="primary_actions_button" @click="checkExistTTA" />
+                <q-btn v-else-if="dialog.currentItem.type == 'active_tta'" flat label="Confirm" font_color="white" color="'#D81111'" size="12px" class="primary_actions_button" @click="saveTTA" />
+            </q-card-actions>
 
-        <q-inner-loading
-            :showing="dialog.loading"
-            color="primary"
-        />
+            <q-inner-loading
+                :showing="dialog.loading"
+                color="primary"
+            />
+        </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="dialog.tirStatistic" persistent position="top">
+        <q-card style="width: 880px; max-width: 110vw; max-height: 95vh; text-align:center; margin-top: 1%; border-radius: 8px">
+            <q-card-section class="theme_color row items-center" style="height:50px; padding: 8px 24px; border-bottom: 1px solid #a7bbcb;">
+                <div class="confirm_title">Target Incentive Rebate Statistic</div>
+                <q-space />
+                <q-btn icon="close" flat round dense v-close-popup/>
+            </q-card-section>
+
+            <q-card-section style="max-height: calc(95vh - 50px - 60px); overflow-y: auto;padding: 10px 40px;font-size:12px;">
+                <div class="row">
+                    <div class="col-1">
+                        <q-btn v-if="prevYear" icon="chevron_left" size="lg" flat @click="fetchStats('prev')"/>
+                    </div>
+                    <div class="col-10 q-py-sm text-h6 text-bold">{{dialog.currentItem.years}}</div>
+                    <div class="col-1">
+                        <q-btn v-if="nextYear" icon="chevron_right" size="lg" flat @click="fetchStats('next')"/>
+                    </div>
+                </div>
+                <div class="row justify-center">
+                    <div class="col-7">
+                        <LabelSelect label="Method" v-model:pass_value="dialog.currentItem.calc_method" :options="dialog.currentItem.calc_method_options" :dbComponentBehavior="dbComponentBehavior.select"
+                        @receiveChange="fetchStats('method')"/>
+                    </div>
+                </div>
+                <div class="row justify-center q-py-sm">
+                    <div class="col-7" v-if="dialog.currentItem.distributor_list">
+                        <div class="row">
+                            <span class="col-xl-3 col-lg-3 col-md-3 col-sm-12 col-xs-12 text-bold">Distributor: </span>
+                            <span class="col-xl-9 col-lg-9 col-md-9 col-sm-12 col-xs-12">{{dialog.currentItem.distributor_list.join(', ')}}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row q-pt-md" align="left">
+                    <Table
+                        class="table_dialog"
+                        :row_per_page="[10,50,100,1000]"
+                        :table_data="table_data.statistic"
+                        :table_column="table_column.statistic"
+                        :flat_status="true"
+                        :bordered_status="true"
+                        v-on:receiveRequestTable="handleTableChangeStatistic"
+
+                        :filter_mode_on="false"
+                        :forceLoading="forceLoading"
+                        :column_reordering="false"
+                        :row_reordering="false"
+                        :bottom_row="dialog.currentItem.last_row"
+
+                        :pass_visible_columns="[]"
+                    />
+                </div>
+            </q-card-section>
+
+            <q-card-actions align="right" style="height:60px;padding-top:0px; padding-bottom:16px; padding-right:16px">
+                <q-btn flat label="Close" font_color="#29292A" color="#29292A" size="10px" class="dialog_confirm_cancel_button" v-close-popup/>
+            </q-card-actions>
+
+            <q-inner-loading
+                :showing="dialog.loading"
+                color="primary"
+            />
         </q-card>
     </q-dialog>
 
@@ -998,11 +1028,13 @@ import LabelDatepicker from 'src/components/PRIMS/General/LabelDatepicker';
 import LabelDaterange from 'src/components/PRIMS/General/LabelDaterange';
 import LabelTextarea from 'src/components/PRIMS/General/LabelTextarea';
 import LabelSelectInputRadio from 'src/components/PRIMS/General/LabelSelectInputRadio';
-import LabelSelectInput from 'src/components/PRIMS/General/LabelSelectInput';
+import LabelSelectInput1 from 'src/components/PRIMS/General/LabelSelectInput1';
+import LabelSelectInput2 from 'src/components/PRIMS/General/LabelSelectInput2';
 import LabelSelectInputRemark1 from 'src/components/PRIMS/General/LabelSelectInputRemark1';
 import LabelSelectInputRemark2 from 'src/components/PRIMS/General/LabelSelectInputRemark2';
 import LabelSelectInputRadioDate from 'src/components/PRIMS/General/LabelSelectInputRadioDate';
 import { Notify } from "quasar";
+import { route } from 'quasar/wrappers';
 
 export default {
     components: {
@@ -1018,7 +1050,8 @@ export default {
         LabelDaterange,
         LabelTextarea,
         LabelSelectInputRadio,
-        LabelSelectInput,
+        LabelSelectInput1,
+        LabelSelectInput2,
         LabelSelectInputRemark1,
         LabelSelectInputRemark2,
         LabelSelectInputRadioDate,
@@ -1030,6 +1063,7 @@ export default {
             username: localStorage.getItem("username") != "" && localStorage.getItem("username") != "null" && localStorage.getItem("username") != null ? localStorage.getItem("username") : "",
             company_guid: localStorage.getItem("company_guid") != "" && localStorage.getItem("company_guid") != "null" && localStorage.getItem("company_guid") != null ? localStorage.getItem("company_guid") : "",
             permission: localStorage.getItem("permission") != "" && localStorage.getItem("permission") != "null" && localStorage.getItem("permission") != null ? localStorage.getItem("permission") : "",
+            preference: {},
             currentTab: "supplier_profile",
             currentTTA: "",
             total_banner: -1,
@@ -1076,12 +1110,12 @@ export default {
                 orderByDay: [{label:'Order Within X Days',value:'OrderWithinXDays'}],
                 orderByMonth: [{label:'Order Within X Months',value:'OrderWithinXMonths'}],
                 billing_type_list: [{value:'monthly',label:'Monthly'},{value:'quarterly',label:'Quarterly'},{value:'half-year',label:'Half Year'},{value:'yearly',label:'Yearly'},{value:'end_of_tta',label:'End of TTA'}],
-                inv_grossnet_list: [{value: 'cogs_value', label: 'COGS Value'},{value: 'net_inv_value', label: 'Net Inv Value'}],
+                inv_grossnet_list: [{value: 'consignment', label: 'COGS Value'},{value: 'net_sales', label: 'Net Inv Value'}],
                 pur_grossnet_list: [{value: 'gpv', label: 'Gross Purchase Value'},{value: 'npv', label: 'Net Purchase Value'}],
                 calcType_list: [{value: '%', label: '%'},{value: '$', label: '$'}],
-                calcMethod_list: [{value: 'gpv', label: 'Gross Purchase Value'},{value: 'npv', label: 'Net Purchase Value'},{value: 'consignment', label: 'Cost of Goods Sold (Consignment)'},{value: 'purchase_growth_percent', label: 'Purchase Growth Percentage'},
-                {value: 'cogs_growth_percent', label: 'Consignment COGS Growth Percentage'},{value: 'cogs_sales_growth_percent', label: 'Consignment Sales Growth Percentage'},{value: 'purchase_growth_amount', label: 'Purchase Growth Amount'},
-                {value: 'cogs_growth_amount', label: 'Consignment COGS Growth Amount'},{value: 'cogs_sales_growth_amount', label: 'Consignment Sales Growth Amount'},],
+                calcMethod_list: [{value: 'gpv', label: 'Gross Purchase Value'},{value: 'npv', label: 'Net Purchase Value'},{value: 'consignment', label: 'Cost of Goods Sold (Consignment)'},{value: 'net_sales', label: 'Net Sales'},
+                {value: 'purchase_growth_percent', label: 'Purchase Growth Percentage'},{value: 'cogs_growth_percent', label: 'Consignment COGS Growth Percentage'},{value: 'cogs_sales_growth_percent', label: 'Consignment Sales Growth Percentage'},
+                {value: 'purchase_growth_amount', label: 'Purchase Growth Amount'},{value: 'cogs_growth_amount', label: 'Consignment COGS Growth Amount'},{value: 'cogs_sales_growth_amount', label: 'Consignment Sales Growth Amount'},],
                 division_group: [{value:'division',label:'Division'},{value:'dept',label:'Department'},{value:'subdept',label:'SubDept'},{value:'category',label:'Category'}]
             },
             table_data:{
@@ -1090,6 +1124,7 @@ export default {
                 target_incentive_rebate: [],
                 history: [],
                 attachment: [],
+                statistic: [],
             },
             table_column:{
                 distributor: [],
@@ -1097,6 +1132,7 @@ export default {
                 target_incentive_rebate: [],
                 history: [],
                 attachment: [],
+                statistic: [],
             },
             ori_params:{
                 distributor: {},
@@ -1104,6 +1140,7 @@ export default {
                 target_incentive_rebate: {},
                 history: {},
                 attachment: [],
+                statistic: [],
             },
             dialog: {
                 tab: 'distributor_assigned',
@@ -1121,16 +1158,17 @@ export default {
                 authorise: false,
                 terminate: false,
                 date_from: "",
+                date_to: "",
                 history: false,
                 upload: false,
                 removeFile: false,
-                activeTTA: false,
+                alert: false,
+                tirStatistic: false,
                 currentItem: {},
             },
-            forceSelectAllDistributor: false,
-            forceSelectAllDivision: false,
             showLoading: false,
             hasFinished: false,
+            hasChanges: false,
         }
     },
     computed: {
@@ -1345,6 +1383,27 @@ export default {
                 return date > start_date;
             }
         },
+        forceSelectAllDivision()
+        {
+            return this.options.division_list.every(entry=>this.json.division.includes(entry.value));
+        },
+        forceSelectAllDistributor()
+        {
+            return this.options.distributor_list.every(entry=>this.json.distributor.includes(entry.value));
+        },
+        forceSelectAllBanner()
+        {
+            // if(this.preference.banner_setting == 'company')
+            //     return this.options.banner_list.every(group => group.checked);
+            // else
+            return this.options.banner_list.length == this.json.banner.length;
+        },
+        prevYear(){
+            return this.dialog.currentItem.years_range ? this.dialog.currentItem.years_range.includes(`${parseInt(this.dialog.currentItem.years)-1}`) : false;
+        },
+        nextYear(){
+            return this.dialog.currentItem.years_range ? this.dialog.currentItem.years_range.includes(`${parseInt(this.dialog.currentItem.years)+1}`) : false;
+        },
     },
     async mounted(){
         this.showLoading = true;
@@ -1377,35 +1436,7 @@ export default {
                 element.label = `${element.code} - ${element.name}`;
             });
             this.options.supplier_list = list;
-        }
-
-        // set options for distributor
-        var payload = {
-            params: {
-                "limit": "99999",
-                "ordering": "code",
-                "type": "S",
-                "view_type": "suppliers",
-            }
-        }
-
-        var pass_obj = {
-            "dispatch": 'general/trigger_get_supplier_list',
-            "getter": 'general/get_supplier',
-            "app": this,
-            "payload": payload,
-        }
-
-        var distributor_list = await this.$dispatch(pass_obj);
-
-        if(distributor_list.status)
-        {
-            var list = distributor_list.response.data.results;
-            list.forEach(element => {
-                element.value = element.supplier_guid;
-                element.label = `${element.code} - ${element.name}`;
-            });
-            this.options.distributor_list = list;
+            this.options.distributor_list = list.filter(entry => entry.type.toUpperCase() == 'S');
         }
 
         this.$nextTick(async ()=>{
@@ -1436,6 +1467,12 @@ export default {
                 this.options.cot_list = list;
             }
         })
+
+        // set default value for effective date to
+        if(this.preference.default_date_to != "")
+        {
+            this.json.effective_date_to = this.preference.default_date_to;
+        }
 
         if(this.$route.name == 'editTTA')
         {
@@ -1576,6 +1613,14 @@ export default {
             }
 
             // get banner value
+            var payload = {
+                params: {
+                    'tta_guid': this.currentTTA,
+                    'view': 'banner',
+                    'limit': 99999,
+                }
+            }
+            
             var pass_obj = {
                 "dispatch": 'tta/trigger_get_tta_banner_list',
                 "getter": 'tta/get_banner',
@@ -1594,10 +1639,23 @@ export default {
                         element.value = element.concept_guid;
                         element.label = element.banner;
                     });
-                    this.options.banner_list = data.results;
+                    // // set banner option to selected banner only (when click banner field then load all banner options)
+                    // if(this.preference.banner_setting == 'company')
+                    // {
+                    //     this.preference.company_list.forEach(async group => {
+                    //         const options = await data.results.filter(option => option.company_info_guid === group.company_info_guid);
+                    //         // this.options.banner_list.push({ label: group.name, options: options, checked: false});
+                    //         this.options.banner_list.push({label: group.name, value: group.company_info_guid, banners: options, hasChecked: false});
+                    //     });
+                    // }
+                    // else
+                    // {
+                    //     this.options.banner_list = data.results; 
+                    // }
                     this.json.banner = data.results.map((entry)=>{return entry.concept_guid});
                     this.original_json.banner = data.results;
                 }
+                if(this.preference.banner_setting == 'company') this.getBannerList();
             }
 
             this.$nextTick(async ()=>{
@@ -1652,7 +1710,7 @@ export default {
                                     this.tir.billing_type = curTab.tab_article[0].billing_type;
                                     this.tir.calc_method = curTab.tab_article[0].calc_method;
                                     // this.tir.cutoff_date = curTab.tab_article[0].cutoff_date;
-                                    this.tir.billing_readonly = this.tir.calc_method != 'npv' && this.tir.calc_method != 'gpv' && this.tir.calc_method != 'consignment' ? true : false;
+                                    this.tir.billing_readonly = this.tir.calc_method != 'npv' && this.tir.calc_method != 'gpv' && this.tir.calc_method != 'consignment' && this.tir.calc_method != 'net_sales' ? true : false;
                                 }
                             }
                             this.table_function_target_incentive_rebate(this.ori_params.target_incentive_rebate);
@@ -1666,12 +1724,12 @@ export default {
                                 const article = curArticle;
                                 if(curTab.component_type == "rate_purgrossnet_date" || curTab.component_type == "rate_purgrossnet")
                                 {
-                                    article.option1_list = this.options.calcType_list;
+                                    article.option1_list = [this.options.calcType_list[0]];
                                     article.remark1_list = this.options.pur_grossnet_list;
                                 }
                                 else if(curTab.component_type == "rate_cogsinvnet_date" || curTab.component_type == "rate_cogsinvnet")
                                 {
-                                    article.option1_list = this.options.calcType_list;
+                                    article.option1_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                                     article.remark1_list = this.options.inv_grossnet_list;
                                 }
                                 else if(curTab.component_type == "dollar_rate_remark")
@@ -1679,23 +1737,27 @@ export default {
                                     article.option1_list = [this.options.calcType_list[1]];
                                     article.remark1_list = [{value: article.remark1, label: this.toNormalCase(article.remark1)}];
                                 }
+                                else if(curTab.component_type == "dollar_rate")
+                                {
+                                    article.option1_list = [this.options.calcType_list[1]];
+                                }
                                 else if(curTab.component_type == "target_ratetype_rate_remark")
                                 {
-                                    article.option1_list = this.options.calcType_list;
+                                    article.option1_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                                     article.remark1_list = [{value: article.remark1, label: this.toNormalCase(article.remark1)}];
-                                    article.option2_list = this.options.calcType_list;
+                                    article.option2_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                                     article.remark2_list = [{value: article.remark2, label: this.toNormalCase(article.remark2)}];
                                 }
                                 else if(curTab.component_type == "months_rate_percentage")
                                 {
                                     article.remark1_list = this.options.orderByMonth.map(option => ({ ...option }));
-                                    article.option2_list = this.options.calcType_list;
+                                    article.option2_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                                     article.remark1_list[0].label = article.remark1_list[0].label.replace(/(\d+|X)/, parseInt(article.value1) > 0 ? parseInt(article.value1) : "X");
                                 }
                                 else if(curTab.component_type == "days_rate_percentage")
                                 {
                                     article.remark1_list = this.options.orderByDay.map(option => ({ ...option }));
-                                    article.option2_list = this.options.calcType_list;
+                                    article.option2_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                                     article.remark1_list[0].label = article.remark1_list[0].label.replace(/(\d+|X)/, parseInt(article.value1) > 0 ? parseInt(article.value1) : "X");
                                 }
                                 else if(curTab.component_type == "promotion_percentage")
@@ -1704,10 +1766,10 @@ export default {
                                 }
                                 else if(curTab.component_type == "promotion_percentage_amount")
                                 {
-                                    article.option2_list = this.options.calcType_list;
+                                    article.option2_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                                 }
 
-                                article.is_auto = article.tab_article_info.calc_type == 'auto' ? true : false;
+                                article.is_auto = article.billing_type != null ? true : false;
                             });
                             curTab.tab_article = tab_article_list;
 
@@ -1800,7 +1862,7 @@ export default {
 
                 if(tta_cot.status)
                 {
-                    console.log("cot",tta_cot)
+                    // console.log("cot",tta_cot)
                     if(tta_cot.response.data.count > 0)
                     {
                         this.conditionTrade = tta_cot.response.data.results[0].cot_guid;
@@ -1815,8 +1877,8 @@ export default {
                     }
                 }
                 this.table_function_attachment(this.ori_params.attachment);
-                console.log("tta tab", this.ttaTab);
-                console.log("tta", this.json);
+                // console.log("tta tab", this.ttaTab);
+                // console.log("tta", this.json);
             });
             
         }
@@ -1826,40 +1888,121 @@ export default {
             this.currentTTA = "";
             this.readonlyStatus = false;
             this.options.division_list = await this.divisionOptions;
+
+            // set default division option if preference division setting is false (no division group)
+            if(!this.preference.division_setting)
+            {
+                this.json.division = this.options.division_list.map((entry)=>entry.division_guid);
+            }            
         }
         
         this.hasFinished = true;
         this.showLoading = false;
     },
+    async created(){
+        if(!localStorage.getItem("preference_setting"))
+        {
+            var pass_obj = {
+                "dispatch": 'general/trigger_get_company',
+                "getter": 'general/get_company',
+                "app": this,
+                "payload": {
+                    "company_guid": this.company_guid
+                },
+            }
+
+            var company = await this.$dispatch(pass_obj);
+
+            if(!company.status)
+            {
+                this.showNotify('negative', "Preference setting failed.");
+                this.$router.push({name: "tta"});
+            }
+
+            this.preference = {
+                "dateFormat": company.response.data.date_format_setting,
+                "default_date_to": company.response.data.date_to_setting,
+                "division_setting": company.response.data.division_setting == 1 ? true : false,
+                "banner_setting": company.response.data.banner_option_setting,
+                "displayBanner": company.response.data.display_banner_setting == 1 ? true : false,
+                "settlement_discount_setting": company.response.data.settlement_discount_setting == 1 ? true : false,
+            };
+            localStorage.setItem("preference_setting", JSON.stringify(this.preference));
+        }
+        else
+        {
+            this.preference = JSON.parse(localStorage.getItem("preference_setting"));
+        }
+        
+        var pass_obj = {
+            "dispatch": 'general/trigger_get_company_info_list',
+            "getter": 'general/get_company_info',
+            "app": this,
+            "payload": {},
+        }
+
+        var company_list = await this.$dispatch(pass_obj);
+
+        if(company_list.status)
+        {
+            this.preference.company_list = company_list.response.data.results;
+        }
+        else
+        {
+            if(this.$route.query.guid)
+            {
+                this.$router.push({name: 'editTTA', query: { guid: this.$route.query.guid}});
+            }
+            
+            this.showNotify('negative', 'Unable to identify TTA Guid.');
+            this.$router.push({name: "tta"});
+        }
+        // console.log("preference setting",this.preference)
+    },
     methods:{
+        handleScroll(){
+            console.log('scroll down')
+        },
         handleChangeStartDate(newVal)
         {
             this.json.effective_date_from = newVal;
+            // update date from for article with auto calc_type
+            this.ttaTab.forEach(tab => {
+                if(tab.tab_article)
+                {
+                    tab.tab_article.forEach(article => {
+                        if((article.tab_article_info && article.tab_article_info.calc_type == 'auto') || article.calc_type == 'auto')
+                        {
+                            article.date_range_from = this.json.effective_date_from;
+                        }
+                    })
+                }                
+            })
+            this.hasChanges = true;
+            // console.log('change date start',this.ttaTab);
         },
         handleChangeEndDate(newVal)
         {
             this.json.effective_date_to = newVal;
-            // this.ttaTab.forEach(tab => {
-            //     if(tab.tab_article)
-            //     {
-            //         tab.tab_article.forEach(article => {
-            //             if((article.tab_article_info && (article.tab_article_info.calc_type == 'auto'))
-            //             || article.calc_type == 'auto')
-            //             {
-            //                 article.date_range_to = this.json.effective_date_to;
-            //             }
-            //         })
-            //     }                
-            // })
+            // update date to for article with auto calc_type
+            this.ttaTab.forEach(tab => {
+                if(tab.tab_article)
+                {
+                    tab.tab_article.forEach(article => {
+                        if((article.tab_article_info && article.tab_article_info.calc_type == 'auto') || article.calc_type == 'auto')
+                        {
+                            article.date_range_to = this.json.effective_date_to;
+                        }
+                    })
+                }                
+            })
+            this.hasChanges = true;
             // console.log('change date end',this.ttaTab);
         },
-        // handleChangeCutOffDate(newVal)
-        // {
-        //     this.tir.cutoff_date = newVal;
-        //     this.table_data.target_incentive_rebate.data.results.map((entry)=>{
-        //         entry.cutoff_date = this.tir.cutoff_date;
-        //     });
-        // },
+        handleChangeNewDate(newVal,field)
+        {
+            this.dialog[field] = newVal;
+        },
         handleChangeArticleRate(article,newVal)
         {
             article.value1 = newVal.input1;
@@ -1867,6 +2010,7 @@ export default {
             article.option1 = newVal.select1;
             article.option2 = newVal.select2;
             article.billing_type = newVal.type;
+            this.hasChanges = true;
         },
         handleChangeDistributor(newVal)
         {
@@ -1879,7 +2023,8 @@ export default {
                 }
             });
             this.json.distributor_list = distributor;
-            console.log("change distributor",this.json.distributor_list)
+            this.hasChanges = true;
+            // console.log("change distributor",this.json.distributor_list)
         },
         handleChangeDivisionType()
         {
@@ -1887,10 +2032,11 @@ export default {
             this.$nextTick(async ()=>{
                 this.options.division_list = await this.divisionOptions;
             });
+            this.hasChanges = true;
         },
         async handleChangeCalcMethod(newVal)
         {
-            if(newVal == 'npv' || newVal == 'gpv' || newVal == 'consignment')
+            if(newVal == 'npv' || newVal == 'gpv' || newVal == 'consignment' || newVal == 'net_sales')
             {
                 this.tir.billing_readonly = false;
             }
@@ -1905,30 +2051,33 @@ export default {
                 entry.calc_method = newVal;
                 entry.billing_type = this.tir.billing_type;
             });
+            this.hasChanges = true;
         },
         async handleChangeBillingType(newVal)
         {
             this.table_data.target_incentive_rebate.data.results.map((entry)=>{
                 entry.billing_type = newVal;
             });
+            this.hasChanges = true;
         },
         handleChangeInputNumber(data)
         {
             if(data.col.name == 'rebate_to')
             {
-                if((data.row.calc_method == 'purchase_growth_percent' || data.row.calc_method == 'cogs_growth_percent' || data.row.calc_method == 'cogs_sales_growth_percent') && data.row.rebate_to > 100)
-                {
-                    this.showNotify('negative', 'Percentage cannot more than 100.');
-                    data.row.rebate_to = "";
-                    return;
-                }
-
                 const index = data.row.tier_no.match(/\d+/g) - 1;
                 var tier = this.table_data.target_incentive_rebate.data.results;
                 if(index > 0)
                 {
                     if (Number(tier[index-1].rebate_to) >= Number(tier[index].rebate_to)) {
                         this.showNotify('negative', `Invalid range at ${tier[index].tier_no}: To (${tier[index].rebate_to}) cannot be lesser than or same as ${tier[index-1].tier_no}: To (${tier[index-1].rebate_to})`);
+                        tier[index].rebate_to = "";
+                        return;
+                    }
+                }
+                else if(index == 0 && tier[index+1] && tier[index+1].rebate_to != "")
+                {
+                    if (Number(tier[index].rebate_to) >= Number(tier[index+1].rebate_to)) {
+                        this.showNotify('negative', `Invalid range at ${tier[index+1].tier_no}: To (${tier[index+1].rebate_to}) cannot be lesser than or same as ${tier[index].tier_no}: To (${tier[index].rebate_to})`);
                         tier[index].rebate_to = "";
                         return;
                     }
@@ -1943,6 +2092,7 @@ export default {
                     return;
                 }
             }
+            this.hasChanges = true;
         },
         handleCloseAddField()
         {
@@ -1953,15 +2103,11 @@ export default {
             if(!this.dialog.tabValue) return;
             const tab = this.options.tab_list.filter((entry)=>{ return entry.tab_guid == this.dialog.tabValue; });
             this.ttaTab.push(tab[0]);
-            console.log("add tab", this.ttaTab);
+            // console.log("add tab", this.ttaTab);
             this.currentTab = tab[0].tab_guid;
             this.dialog.tabValue = "";
             this.dialog.add_tab = false;
-        },
-        handleAddTab()
-        {
-            if(this.readonlyStatus) return;
-            this.dialog.add_tab = true;
+            this.hasChanges = true;
         },
         removeTab(tab){
             if(this.readonlyStatus) return;
@@ -1969,13 +2115,15 @@ export default {
                 return entry.tab_guid != tab.tab_guid; 
             });
             this.ttaTab = ttaTab;
-            console.log("remove tab", this.ttaTab);
+            this.hasChanges = true;
+            // console.log("remove tab", this.ttaTab);
         },
         addField(){
             if(!this.dialog.articleValue) return;
 
             var article = this.options.tabArticle_list.filter((entry)=>{ return entry.tab_article_guid == this.dialog.articleValue; });
             article = article[0];
+            // console.log(article)
 
             if(article.calc_type == 'auto')
             {
@@ -2005,7 +2153,7 @@ export default {
                     article.date_range_from = "";
                     article.date_range_to = "";
 
-                    if(article.calc_type == 'auto')
+                    if(article.billing_type != null)
                     {
                         article.is_auto = true;
                         article.date_range_from = this.json.effective_date_from;
@@ -2023,7 +2171,7 @@ export default {
                             article.date_range_from = this.json.effective_date_from;
                             article.date_range_to = this.json.effective_date_to;
                         }
-                        article.option1_list = this.options.calcType_list;
+                        article.option1_list = [this.options.calcType_list[0]];
                         article.remark1_list = this.options.pur_grossnet_list;
                         article.option1 = article.option1_list[0].value;
                         article.remark1 = article.remark1_list[0].value;
@@ -2035,7 +2183,7 @@ export default {
                             article.date_range_from = this.json.effective_date_from;
                             article.date_range_to = this.json.effective_date_to;
                         }
-                        article.option1_list = this.options.calcType_list;
+                        article.option1_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                         article.remark1_list = this.options.inv_grossnet_list;
                         article.option1 = article.option1_list[0].value;
                         article.remark1 = article.remark1_list[0].value;
@@ -2047,11 +2195,17 @@ export default {
                         article.option1 = article.option1_list[0].value;
                         article.remark1 = article.remark1_list[0].value;
                     }
+                    else if(this.dialog.currentTab.component_type == "dollar_rate")
+                    {
+                        article.option1_list = [this.options.calcType_list[1]];
+                        article.option1 = article.option1_list[0].value;
+                        article.remark1 = article.label1 ? article.label1 : "";
+                    }
                     else if(this.dialog.currentTab.component_type == "target_ratetype_rate_remark")
                     {
-                        article.option1_list = this.options.calcType_list;
+                        article.option1_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                         article.remark1_list = [{value: this.toCamelCase(article.label1), label: article.label1}];
-                        article.option2_list = this.options.calcType_list;
+                        article.option2_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                         article.remark2_list = [{value: this.toCamelCase(article.label2), label: article.label2}];
                         article.option1 = article.option1_list[0].value;
                         article.remark1 = article.remark1_list[0].value;
@@ -2060,7 +2214,7 @@ export default {
                     }
                     else if(this.dialog.currentTab.component_type == "months_rate_percentage")
                     {
-                        article.option2_list = this.options.calcType_list;
+                        article.option2_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                         article.remark1_list = this.options.orderByMonth.map(option => ({ ...option }));
                         article.option1 = "month";
                         article.option2 = article.option2_list[0].value;
@@ -2074,20 +2228,20 @@ export default {
                     }
                     else if(this.dialog.currentTab.component_type == "promotion_percentage_amount")
                     {
-                        article.option2_list = this.options.calcType_list;
+                        article.option2_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                         article.option1 = "month";
                         article.option2 = article.option2_list[0].value;
                     }
                     else if(this.dialog.currentTab.component_type == "days_rate_percentage")
                     {
-                        article.option2_list = this.options.calcType_list;
+                        article.option2_list = article.option_type == '%' ? [this.options.calcType_list[0]] : article.option_type == '$' ? [this.options.calcType_list[1]] : this.options.calcType_list;
                         article.remark1_list = this.options.orderByDay.map(option => ({ ...option }));
                         article.option1 = "day";
                         article.option2 = article.option2_list[0].value;
                         article.remark1 = "OrderWithinXDays";
                     }
 
-                    console.log('article', article);
+                    // console.log('article', article);
 
                     if(this.ttaTab[i].tab_article)
                     {
@@ -2099,17 +2253,18 @@ export default {
                     }
                 }
             }
-            console.log("add article", this.ttaTab);
+            // console.log("add article", this.ttaTab);
             this.dialog.articleValue = "";
             this.dialog.add_field = false;
+            this.hasChanges = true;
         },
         removeField(article)
         {
-            console.log(article)
+            // console.log(article)
             var tab = this.ttaTab.filter((entry)=>{ 
                 return entry.tab_guid == article.tab_guid; 
             });
-            console.log(tab)
+            // console.log(tab)
 
             const tab_article = tab[0].tab_article.filter((entry)=>{
                 return entry.tab_article_guid != article.tab_article_guid;
@@ -2117,18 +2272,16 @@ export default {
 
             tab[0].tab_article = tab_article;
             
-            console.log('remove article', this.ttaTab);
+            this.hasChanges = true;
+            // console.log('remove article', this.ttaTab);
         },
         handleAddField(curTab)
         {
-            if(this.readonlyStatus) return;
             this.dialog.currentTab = curTab;
             this.dialog.add_field = true;
         },
         addTier()
         {
-            if(this.readonlyStatus) return;
-
             if(!this.tir.calc_method)
             {
                 this.showNotify('negative','Please select calculation method.');
@@ -2150,22 +2303,26 @@ export default {
                 "rebate_to": "",
             }
             this.table_data.target_incentive_rebate.data.results.push(tier);
-            console.log('add tier',this.table_data.target_incentive_rebate);
+            this.hasChanges = true;
+            // console.log('add tier',this.table_data.target_incentive_rebate);
         },
         removeTier(tier)
         {
-            if(this.readonlyStatus) return;
-
             const index = this.table_data.target_incentive_rebate.data.results.findIndex(entry => entry.tier_no === tier.row.tier_no);
             if (index !== -1) {
                 this.table_data.target_incentive_rebate.data.results.splice(index, 1);
+                // update tier no after remove
                 for(var i in this.table_data.target_incentive_rebate.data.results)
                 {
                     this.table_data.target_incentive_rebate.data.results[i].tier_no = `Tier ${parseInt(i)+1}`;
                 }
             }
-            console.log('remove tier', this.table_data.target_incentive_rebate.data.results);
-            // update tier no after remove
+            this.hasChanges = true;
+            // console.log('remove tier', this.table_data.target_incentive_rebate.data.results);
+        },
+        handleReceiveHandlePrint(data)
+        {
+            this.$router.push({name: 'printTTA', query: {tta_guid: this.currentTTA, type: data.type, supplier: data.row.supplier_guid}});
         },
         async handleReceiveHandleRemove(data){
             this.dialog.loading = true;
@@ -2681,28 +2838,6 @@ export default {
 
             var table_column = [
                 {
-                    name: 'action',
-                    required: true,
-                    label: 'Action',
-                    align: 'center',
-                    sortable: false,
-                    field: 'action',
-                    format_child: '',
-                    tooltip: '',
-                    headerStyle: 'text-align: center; width: 1%;',
-                    filter_type: 'input',
-                    filter_options: [],
-                    filter_value: '',
-                    main_column: false,
-                    main_column_name: '',
-                    index: '',
-                    colspan: '',
-                    colspan_name: '',
-                    start_index: '',
-                    end_index: '',
-                    rowspan: '0',
-                },
-                {
                     name: 'tier_no',
                     required: true,
                     label: 'Tier',
@@ -2774,6 +2909,33 @@ export default {
                     rowspan: '0',
                 },
             ];
+
+            if(!this.readonlyStatus)
+            {
+                var obj = {
+                    name: 'action',
+                    required: true,
+                    label: 'Action',
+                    align: 'center',
+                    sortable: false,
+                    field: 'action',
+                    format_child: '',
+                    tooltip: '',
+                    headerStyle: 'text-align: center; width: 1%;',
+                    filter_type: 'input',
+                    filter_options: [],
+                    filter_value: '',
+                    main_column: false,
+                    main_column_name: '',
+                    index: '',
+                    colspan: '',
+                    colspan_name: '',
+                    start_index: '',
+                    end_index: '',
+                    rowspan: '0',
+                };
+                table_column.unshift(obj);
+            }
 
             this.table_column.target_incentive_rebate = table_column;
 
@@ -3053,6 +3215,348 @@ export default {
 
             this.table_data.attachment = rows;
         },
+        handleTableChangeStatistic(newVal)
+        {
+            var new_params = this.$pluginsTableParams(newVal)
+
+            var payload = {
+                params : new_params
+            };
+
+            this.ori_params.statistic = payload;
+
+            this.table_function_statistic(payload);
+        },
+        async table_function_statistic(payload)
+        {
+            // console.log("cur item",this.dialog.currentItem)
+            this.dialog.currentItem.payload = payload;
+            this.dialog.loading = true;
+
+            var table_column = [
+                {
+                    name: 'outlet_code',
+                    required: true,
+                    label: 'Outlet',
+                    align: 'center',
+                    sortable: false,
+                    field: 'outlet_code',
+                    format_child: '',
+                    tooltip: '',
+                    headerStyle: 'text-align: center; width: 1%;',
+                    filter_type: 'input',
+                    filter_options: [],
+                    filter_value: '',
+                    main_column: false,
+                    main_column_name: '',
+                    index: '',
+                    colspan: '',
+                    colspan_name: '',
+                    start_index: '',
+                    end_index: '',
+                    rowspan: '0',
+                },
+                {
+                    name: 'supplier_code',
+                    required: true,
+                    label: 'Supplier',
+                    align: 'center',
+                    sortable: true,
+                    field: 'supplier_code',
+                    format_child: '',
+                    tooltip: '',
+                    headerStyle: 'text-align: center; width: 1%;',
+                    filter_type: 'input',
+                    filter_options: [],
+                    filter_value: '',
+                    main_column: false,
+                    main_column_name: '',
+                    index: '',
+                    colspan: '',
+                    colspan_name: '',
+                    start_index: '',
+                    end_index: '',
+                    rowspan: '0',
+                },
+                {
+                    name: 'prev_total_purchase',
+                    required: true,
+                    label: `${parseInt(this.dialog.currentItem.years) - 1} Total Purchase`,
+                    align: 'center',
+                    sortable: true,
+                    field: 'prev_total_purchase',
+                    data_type: 'number',
+                    format_child: '',
+                    tooltip: '',
+                    headerStyle: 'text-align: center; width: 1%;',
+                    filter_type: 'input',
+                    filter_options: [],
+                    filter_value: '',
+                    main_column: false,
+                    main_column_name: '',
+                    index: '',
+                    colspan: '',
+                    colspan_name: '',
+                    start_index: '',
+                    end_index: '',
+                    rowspan: '0',
+                },
+                {
+                    name: 'cur_total_purchase',
+                    required: true,
+                    label: `${this.dialog.currentItem.years} Total Purchase`,
+                    align: 'center',
+                    sortable: true,
+                    field: 'cur_total_purchase',
+                    data_type: 'number',
+                    format_child: '',
+                    tooltip: '',
+                    headerStyle: 'text-align: center; width: 1%;',
+                    filter_type: 'input',
+                    filter_options: [],
+                    filter_value: '',
+                    main_column: false,
+                    main_column_name: '',
+                    index: '',
+                    colspan: '',
+                    colspan_name: '',
+                    start_index: '',
+                    end_index: '',
+                    rowspan: '0',
+                },
+                {
+                    name: 'growth_amount',
+                    required: true,
+                    label: `Growth ($)`,
+                    align: 'center',
+                    sortable: true,
+                    field: 'growth_amount',
+                    data_type: 'number',
+                    format_child: '',
+                    tooltip: '',
+                    headerStyle: 'text-align: center; width: 1%;',
+                    filter_type: 'input',
+                    filter_options: [],
+                    filter_value: '',
+                    main_column: false,
+                    main_column_name: '',
+                    index: '',
+                    colspan: '',
+                    colspan_name: '',
+                    start_index: '',
+                    end_index: '',
+                    rowspan: '0',
+                },
+                {
+                    name: 'growth_percent',
+                    required: true,
+                    label: `Growth (%)`,
+                    align: 'center',
+                    sortable: true,
+                    field: 'growth_percent',
+                    data_type: 'number',
+                    format_child: '',
+                    tooltip: '',
+                    headerStyle: 'text-align: center; width: 1%;',
+                    filter_type: 'input',
+                    filter_options: [],
+                    filter_value: '',
+                    main_column: false,
+                    main_column_name: '',
+                    index: '',
+                    colspan: '',
+                    colspan_name: '',
+                    start_index: '',
+                    end_index: '',
+                    rowspan: '0',
+                },
+            ];
+
+            this.table_column.statistic = table_column;
+
+            var results = [];
+            if(this.dialog.currentItem.calc_method == 'gpv' || this.dialog.currentItem.calc_method == 'npv' && this.dialog.currentItem.purchase_growth.length>0)
+            {
+                this.dialog.currentItem.years_range = this.dialog.currentItem.purchase_growth.map(entry => entry.year);
+                var results = await this.dialog.currentItem.purchase_growth.filter(entry => entry.year == this.dialog.currentItem.years);
+            }
+            else if(this.dialog.currentItem.calc_method == 'consignment' || this.dialog.currentItem.calc_method == 'net_sales' && this.dialog.currentItem.report_summary.length>0)
+            {
+                this.dialog.currentItem.years_range = this.dialog.currentItem.report_summary.map(entry => entry.year);
+                var results = await this.dialog.currentItem.report_summary.filter(entry => entry.year == this.dialog.currentItem.years);
+            }
+            else if(!this.dialog.currentItem.calc_method)
+            {
+                this.showNotify('negative','Please select method.');
+                this.dialog.loading = false;
+                return;
+            }
+
+            var total_purchase_records = results.length>0 ? results[0].total_purchase_records : [];
+
+            const type = this.dialog.currentItem.calc_method == 'gpv' ? 'gross_purchases' : 
+                        this.dialog.currentItem.calc_method == 'npv' ? 'net_purchases' : 
+                        this.dialog.currentItem.calc_method == 'consignment' ? 'cogs' : 'sales_cogs';
+
+            // last row data
+            this.dialog.currentItem.last_row = [
+                {
+                    style: 'font-weight: bold; text-align: center;',
+                    colspan: 2,
+                    data: `Total Purchase (${parseInt(this.dialog.currentItem.years)-1})`
+                },
+                {
+                    style: 'font-weight: bold; text-align: center;',
+                    colspan: 1,
+                    data: results.length>0 ? results[0][`total_tta_prev_year_${type}`] : "",
+                },
+                {
+                    style: 'font-weight: bold; text-align: center;',
+                    colspan: 2,
+                    data: `Total Purchase (${this.dialog.currentItem.years})`,
+                },
+                {
+                    style: 'font-weight: bold; text-align: center;',
+                    colspan: 1,
+                    data: results.length>0 ? results[0][`total_tta_year_${type}`] : "",
+                },
+            ]
+
+            // the rest of the data
+            var rows = total_purchase_records.filter(entry => entry.year == this.dialog.currentItem.years);
+
+            if(rows.length > 0)
+            {
+                await rows.forEach(entry => {
+                    entry.supplier = `${entry.supplier_name} (${entry.supplier_code})`;
+                    entry.prev_total_purchase = entry[`prev_year_${type}`];
+                    entry.cur_total_purchase = entry[`total_year_${type}`];
+                    entry.growth_amount = entry[`growth_target_amount_${type}`];
+                    entry.growth_percent = entry[`growth_target_percent_${type}`];
+                });
+
+                var distributors = new Set(rows.map((val)=>val.supplier));
+                this.dialog.currentItem.distributor_list = Array.from(distributors);
+
+                const count = rows.length;
+                const hasNext = payload.params.offset + payload.params.limit < count;
+                const hasPrev = payload.params.offset > 0;
+                var table_data = {
+                    data: {
+                        count: count,
+                        next: hasNext ? payload.params.offset + payload.params.limit : null,
+                        prev: hasPrev ? payload.params.offset - payload.params.limit : null,
+                        results: rows.slice(payload.params.offset, payload.params.offset + payload.params.limit),
+                    }
+                };
+            }
+            else
+            {
+                var table_data = {
+                    data: {
+                        results: []
+                    }
+                };
+            }
+
+            this.table_data.statistic = table_data;
+            this.dialog.loading = false;
+        },
+        async fetchStats(func){
+            this.table_data.statistic = {
+                data: {
+                    results: []
+                }
+            };
+
+            if(func == 'prev')
+            {
+                this.dialog.currentItem.years = parseInt(this.dialog.currentItem.years) - 1;
+            }
+            else if(func == 'next')
+            {
+                this.dialog.currentItem.years = parseInt(this.dialog.currentItem.years) + 1;
+            }
+            else if(func == 'method')
+            {
+                if(!this.dialog.currentItem.calc_method)
+                {
+                    this.showNotify('negative','Please select method.');
+                    return;
+                }
+            }
+            setTimeout(() => {
+                this.table_function_statistic(this.dialog.currentItem.payload);
+            }, 100);
+        },
+        async showStats()
+        {
+            this.showLoading = true;
+
+            const currentYear = new Date().getFullYear();
+            
+            this.dialog.currentItem = {};
+            this.dialog.currentItem.years = currentYear;
+            this.dialog.currentItem.original_type = 'purchase_growth';
+            this.dialog.currentItem.calc_method = "gpv";
+            this.dialog.currentItem.calc_method_options = [{value: 'gpv', label: 'Gross Purchase Value'},{value: 'npv', label: 'Net Purchase Value'},{value: 'consignment', label: 'Cost of Goods Sold (Consignment)'},{value: 'net_sales', label: 'Net Sales'}];
+
+            // get tir statistic
+            var payload = {
+                params: {
+                    'tta_guid': this.currentTTA,
+                    'view': 'total',
+                    'type': 'purchase_growth',
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": 'tta/trigger_get_query_tir_statistic',
+                "getter": 'tta/get_query',
+                "app": this,
+                "payload": payload,
+            }
+
+            var stats = await this.$dispatch(pass_obj);
+
+            if(stats.status)
+            {
+                this.dialog.currentItem.purchase_growth = stats.response.data;
+            }
+            else
+            {
+                this.showNotify('negative','Data fail to retrieve.');
+                this.showLoading = false;
+                return;
+            }
+
+            payload.params.type = 'report_summary';
+
+            var pass_obj = {
+                "dispatch": 'tta/trigger_get_query_tir_statistic',
+                "getter": 'tta/get_query',
+                "app": this,
+                "payload": payload,
+            }
+
+            var stats = await this.$dispatch(pass_obj);
+
+            if(stats.status)
+            {
+                this.dialog.currentItem.report_summary = stats.response.data;
+            }
+            else
+            {
+                this.showNotify('negative','Data fail to retrieve.');
+                this.showLoading = false;
+                return;
+            }
+
+            this.$nextTick(() => {
+                this.showLoading = false;
+                this.dialog.tirStatistic = true;
+            });
+        },
         async saveDistributor(){
             this.dialog.loading = true;
 
@@ -3098,7 +3602,7 @@ export default {
             this.$nextTick(()=>{
                 this.json.distributor.push(this.dialog.distributorValue);
                 this.dialog.distributorValue = "";
-                console.log(this.json.distributor);
+                // console.log(this.json.distributor);
             });
         },
         async saveCOT(tta_guid)
@@ -3146,14 +3650,14 @@ export default {
                 var original_tab = this.original_ttaTab
                 var new_tab = this.ttaTab;
 
-                console.log(original_tab);
-                console.log(new_tab);
+                // console.log(original_tab);
+                // console.log(new_tab);
 
                 // Delete tta tab from original list if it does not include in new list
                 for(const entry of original_tab)
                 {
                     if(!new_tab.map(entry => entry.tab_guid).includes(entry.tab_guid)){
-                        console.log('delete tab',entry)
+                        // console.log('delete tab',entry)
 
                         // delete tab article or tier first
                         if(entry.component_type == 'tir')
@@ -3169,7 +3673,7 @@ export default {
                                     }
                                     deleted_tier.push(obj);
                                 }
-                                console.log('delete tier', deleted_tier);
+                                // console.log('delete tier', deleted_tier);
 
                                 var payload = {
                                     pass_json: deleted_tier,
@@ -3204,7 +3708,7 @@ export default {
                                     }
                                     payload.pass_json.push(obj);
                                 })
-                                console.log('delete article', payload);
+                                // console.log('delete article', payload);
 
                                 var pass_obj = {
                                     "dispatch": 'tta/trigger_delete_tta_tab_article_bulk',
@@ -3248,7 +3752,7 @@ export default {
                 for(const entry of new_tab)
                 {
                     if(!original_tab.map(entry=>entry.tab_guid).includes(entry.tab_guid)){
-                        console.log('create tab', entry)
+                        // console.log('create tab', entry)
 
                         // create tab first
                         var payload = {
@@ -3273,7 +3777,7 @@ export default {
                             return data_response;
                         }
 
-                        console.log('create tta tab success', data_response);
+                        // console.log('create tta tab success', data_response);
 
                         // create tab article or tier
                         if(entry.component_type == 'tir')
@@ -3292,7 +3796,7 @@ export default {
                                     obj.rebate_to = obj.rebate_to == "" ? null : obj.rebate_to;
                                     created_tier.push(obj);
                                 }
-                                console.log('create tier', created_tier);
+                                // console.log('create tier', created_tier);
 
                                 var payload = {
                                     pass_json: created_tier,
@@ -3332,6 +3836,7 @@ export default {
                                         "value2": article.value2,
                                         "remark1": article.remark1,
                                         "remark2": article.remark2,
+                                        "option_type": article.option_type,
                                         "billing_type": article.billing_type,
                                         "created_by": this.username,
                                         "updated_by": this.username,
@@ -3341,7 +3846,7 @@ export default {
                                     }
                                     payload.pass_json.push(obj);
                                 })
-                                console.log('create article', payload);
+                                // console.log('create article', payload);
 
                                 var pass_obj = {
                                     "dispatch": 'tta/trigger_create_tta_tab_article_bulk',
@@ -3369,7 +3874,7 @@ export default {
                     const entry = original_tab.find(original_entry => original_entry.tab_guid === new_entry.tab_guid);
                     if(entry)
                     {
-                        console.log("edit tab",new_entry)
+                        // console.log("edit tab",new_entry)
 
                         var payload = {
                             tta_tab_guid: new_entry.tta_tab_guid ? new_entry.tta_tab_guid : entry.tta_tab_guid,
@@ -3399,8 +3904,8 @@ export default {
                         {
                             const original_tier = new_entry.tab_article;
                             const new_tier = this.table_data.target_incentive_rebate.data.results;
-                            console.log("ori tier", original_tier);
-                            console.log("new tier", new_tier);
+                            // console.log("ori tier", original_tier);
+                            // console.log("new tier", new_tier);
 
                             // delete tier if not listed in new tier list
                             var deleted_tier = [];
@@ -3415,7 +3920,7 @@ export default {
 
                             if(deleted_tier.length>0)
                             {
-                                console.log('delete tier', deleted_tier);
+                                // console.log('delete tier', deleted_tier);
                                 var payload = {
                                     pass_json: deleted_tier,
                                 }
@@ -3451,7 +3956,7 @@ export default {
 
                             if(created_tier.length>0)
                             {
-                                console.log('create tier', created_tier);
+                                // console.log('create tier', created_tier);
                                 var payload = {
                                     pass_json: created_tier,
                                 }
@@ -3485,7 +3990,7 @@ export default {
 
                             if(edit_tier.length>0)
                             {
-                                console.log("edit tier",edit_tier);
+                                // console.log("edit tier",edit_tier);
                                 var payload = {
                                     pass_json: edit_tier,
                                 }
@@ -3524,7 +4029,7 @@ export default {
                                     payload.pass_json.push(obj);
                                 }
                             })
-                            console.log('delete article',payload);
+                            // console.log('delete article',payload);
 
                             if(payload.pass_json.length>0)
                             {
@@ -3560,6 +4065,7 @@ export default {
                                         "value2": entry.value2,
                                         "remark1": entry.remark1,
                                         "remark2": entry.remark2,
+                                        "option_type": entry.option_type,
                                         "billing_type": entry.billing_type,
                                         "created_by": this.username,
                                         "updated_by": this.username,
@@ -3570,7 +4076,7 @@ export default {
                                     payload.pass_json.push(obj);
                                 }
                             })
-                            console.log('create article', payload)
+                            // console.log('create article', payload)
 
                             if(payload.pass_json.length>0)
                             {
@@ -3608,6 +4114,8 @@ export default {
                                             "value2": new_entry.value2,
                                             "remark1": new_entry.remark1,
                                             "remark2": new_entry.remark2,
+                                            "option_type": new_entry.option_type,
+                                            "visible": new_entry.visible,
                                             "billing_type": new_entry.billing_type,
                                             "tta_tab_article_guid": new_entry.tta_tab_article_guid,
                                             "updated_by": this.username,
@@ -3628,6 +4136,8 @@ export default {
                                             "remark1": new_entry.remark1,
                                             "remark2": new_entry.remark2,
                                             "tta_tab_article_guid": entry.tta_tab_article_guid,
+                                            "option_type": new_entry.option_type,
+                                            "visible": new_entry.visible,
                                             "billing_type": new_entry.billing_type,
                                             "updated_by": this.username,
                                             "tab_article_guid": new_entry.tab_article_guid,
@@ -3638,7 +4148,7 @@ export default {
                                     payload.pass_json.push(obj);
                                 }
                             })
-                            console.log("edit article", payload);
+                            // console.log("edit article", payload);
 
                             if(payload.pass_json.length>0)
                             {
@@ -3667,14 +4177,14 @@ export default {
             }
         },
         async saveTTA(){
-            if(this.dialog.activeTTA)
+            if(this.dialog.alert)
             {
-                this.dialog.activeTTA = false;
+                this.dialog.alert = false;
             }
             
             this.showLoading = true;
 
-            console.log(this.json);
+            // console.log(this.json);
 
             var payload = {
                 pass_json: {
@@ -3692,6 +4202,33 @@ export default {
                     "supplier_to": this.json.supplier_to,
                     "company_guid": this.company_guid,
                 }
+            }
+
+            if(this.preference.banner_setting == 'company')
+            {
+                var value = "";
+                if(this.json.banner.length == 0)
+                {
+                    value = null;
+                }
+                else if(this.options.banner_list.length == this.json.banner.length)
+                { 
+                    value = 'all';
+                }
+                else
+                {
+                    this.options.banner_list.map(entry => {
+                        if(this.json.banner.includes(entry.value))
+                        {
+                            value = entry.code.toLowerCase();
+                        }
+                    });
+                }
+                payload.pass_json.banner_company_preference = value;
+            }
+            else
+            {
+                payload.pass_json.banner_company_preference = null;
             }
 
             // create tta process
@@ -3809,7 +4346,28 @@ export default {
                     // create tta banner
                     try
                     {
-                        var new_banner_obj = this.options.banner_list.filter(entry => this.json.banner.includes(entry.concept_guid));
+                        if(this.preference.banner_setting == 'company')
+                        {
+                            if(this.options.banner_list.some(entry => entry.hasChecked == true))
+                            {
+                                var new_banner_obj = [];
+                                this.options.banner_list.map(entry => {
+                                    if(this.json.banner.includes(entry.value))
+                                    {
+                                        new_banner_obj = new_banner_obj.concat(entry.banners);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                const banner_list = this.options.banner_list.map(item => item.banners).flat();
+                                var new_banner_obj = banner_list.filter(entry => this.json.banner.includes(entry.concept_guid));
+                            }
+                        }
+                        else
+                        {
+                            var new_banner_obj = this.options.banner_list.filter(entry => this.json.banner.includes(entry.concept_guid));
+                        }
                         // console.log("obj banner",new_banner_obj)
                         
                         var payload = {
@@ -3828,7 +4386,7 @@ export default {
                             }
                             payload.pass_json.push(obj);
                         }
-                        console.log("payload",payload);
+                        // console.log("payload",payload);
 
                         if(payload.pass_json.length > 0)
                         {
@@ -3927,7 +4485,7 @@ export default {
 
                         // Delete tta distributor from original list if it does not include in new list
                         const deleteTask = original_distributor.filter(entry => !new_distributor.map(entry=>entry.supplier_guid).includes(entry.supplier_guid));
-                        console.log('delete distributor',deleteTask)
+                        // console.log('delete distributor',deleteTask)
 
                         var payload = {
                             pass_json: [],
@@ -3959,7 +4517,7 @@ export default {
                         
                         // Create tta distributor if it does not include in original list
                         const createTask = new_distributor.filter(entry => !original_distributor.map(entry=>entry.supplier_guid).includes(entry.supplier_guid))
-                        console.log('create distributor', createTask)
+                        // console.log('create distributor', createTask)
 
                         var payload = {
                             pass_json: []
@@ -3996,7 +4554,7 @@ export default {
 
                         // Edit tta distributor if it does include in original list
                         const editTask = new_distributor.filter(new_entry => original_distributor.map(original_entry=>original_entry.supplier_guid).includes(new_entry.supplier_guid));
-                        console.log('edit distributor', editTask)
+                        // console.log('edit distributor', editTask)
 
                         var payload = {
                             pass_json: [],
@@ -4013,7 +4571,7 @@ export default {
                             }
                             payload.pass_json.push(obj);
                         })
-                        console.log("payload",payload)
+                        // console.log("payload",payload)
 
                         if(payload.pass_json.length > 0)
                         {
@@ -4035,7 +4593,7 @@ export default {
                     catch(error)
                     {
                         this.showNotify('negative',error.message);
-                        console.log('edit tta distributor',error);
+                        // console.log('edit tta distributor',error);
                         this.showLoading = false;
                         return;
                     }
@@ -4049,7 +4607,7 @@ export default {
 
                         // Delete tta division from original list if it does not include in new list
                         const deleteTask = original_division.filter(entry => !new_division.includes(entry[type_guid]));
-                        console.log('delete division',deleteTask)
+                        // console.log('delete division',deleteTask)
 
                         var payload = {
                             pass_json: [],
@@ -4061,7 +4619,7 @@ export default {
                             }
                             payload.pass_json.push(obj);
                         })
-                        console.log("payload",payload);
+                        // console.log("payload",payload);
 
                         if(payload.pass_json.length > 0)
                         {
@@ -4082,7 +4640,7 @@ export default {
 
                         // Create tta division if it does not include in original list
                         const createTask = new_division.filter(entry => !original_division.map(entry=>entry[type_guid]).includes(entry));
-                        console.log('create division', createTask)
+                        // console.log('create division', createTask)
 
                         var payload = {
                             pass_json: []
@@ -4103,7 +4661,7 @@ export default {
                             obj[type_guid] = division;
                             payload.pass_json.push(obj);
                         })
-                        console.log("payload",payload)
+                        // console.log("payload",payload)
 
                         if(payload.pass_json.length > 0)
                         {
@@ -4133,13 +4691,37 @@ export default {
                     // edit tta banner
                     try {
                         var original_banner = this.original_json.banner;
-                        var new_banner = this.json.banner;
-                        var new_banner_obj = this.options.banner_list.filter(entry => new_banner.includes(entry.concept_guid));
+                        if(this.preference.banner_setting == 'company')
+                        {
+                            if(this.options.banner_list.some(entry => entry.hasChecked == true))
+                            {
+                                // if banner field clicked, json.banner consists company_info_guid
+                                var new_banner_obj = [];
+                                this.options.banner_list.map(entry => {
+                                    if(this.json.banner.includes(entry.value))
+                                    {
+                                        new_banner_obj = new_banner_obj.concat(entry.banners);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                // if banner field not clicked, json.banner consists concept_guid
+                                const banner_list = this.options.banner_list.map(item => item.banners).flat();
+                                var new_banner_obj = banner_list.filter(entry => this.json.banner.includes(entry.concept_guid));
+                            }
+                            var new_banner = new_banner_obj.map(entry => entry.concept_guid);
+                        }
+                        else
+                        {
+                            var new_banner = this.json.banner;
+                            var new_banner_obj = this.options.banner_list.filter(entry => new_banner.includes(entry.concept_guid));
+                        }
                         // console.log("obj banner",new_banner_obj)
 
                         // Delete tta banner from original list if it does not include in new list
                         var deleteTask = original_banner.filter(entry => !new_banner.includes(entry.concept_guid));
-                        console.log('delete banner',deleteTask);
+                        // console.log('delete banner',deleteTask);
 
                         var payload = {
                             pass_json: [],
@@ -4151,7 +4733,7 @@ export default {
                             }
                             payload.pass_json.push(obj);
                         })
-                        console.log("payload",payload);
+                        // console.log("payload",payload);
 
                         if(payload.pass_json.length > 0)
                         {
@@ -4172,7 +4754,7 @@ export default {
 
                         // Create tta banner if it does not include in original list
                         var createTask = new_banner_obj.filter(entry => !original_banner.map(entry=>entry.concept_guid).includes(entry.concept_guid));
-                        console.log('create banner', createTask)
+                        // console.log('create banner', createTask)
 
                         var payload = {
                             pass_json: [],
@@ -4189,7 +4771,7 @@ export default {
                             }
                             payload.pass_json.push(obj);
                         })
-                        console.log("payload",payload)
+                        // console.log("payload",payload)
 
                         if(payload.pass_json.length > 0)
                         {
@@ -4240,7 +4822,7 @@ export default {
                     var data_response = await this.saveTab(tta.tta_guid);
                     if(!data_response.status)
                     {
-                        console.log('edit tta tab',data_response)
+                        // console.log('edit tta tab',data_response)
                         var message = 'Edit tab failed';
                         const valid = this.isValidJSON(data_response.response);
                         if(valid)
@@ -4264,6 +4846,7 @@ export default {
                     }
                     
                     this.showNotify('positive','Update successfully.');
+                    this.hasChanges = false;
                     this.$router.push({name:'tta'});
                 }
                 else
@@ -4313,11 +4896,33 @@ export default {
             });
 
             var error = error == 1 ? false : true;
-            console.log(error, this.json)
+            // console.log(error, this.json)
 
             if(!error)
             {
                 this.showNotify('negative', 'Please make sure all field is correct.');
+                this.showLoading = false;
+                return;
+            }
+
+            // validate vendor, distributor, cot if status is authorised
+            if(this.json.agreement_status == 'Authorised' && (!this.json.supplier_to || this.json.supplier_to == ""))
+            {
+                this.showNotify('negative','This TTA has been authorised. Please select vendor.');
+                this.showLoading = false;
+                return;
+            }
+
+            if(this.json.agreement_status == 'Authorised' && this.json.distributor.length <= 0)
+            {
+                this.showNotify('negative','This TTA has been authorised. Please select distributor.');
+                this.showLoading = false;
+                return;
+            }
+
+            if(this.json.agreement_status == 'Authorised' && (!this.conditionTrade || this.conditionTrade == ""))
+            {
+                this.showNotify('negative','This TTA has been authorised. Please select condition of trade.');
                 this.showLoading = false;
                 return;
             }
@@ -4348,9 +4953,13 @@ export default {
                         }
                     }
 
-                    if(((tier[i].calc_method == 'purchase_growth_percent' || tier[i].calc_method == 'cogs_growth_percent' || tier[i].calc_method == 'cogs_sales_growth_percent') && tier[i].rebate_to > 100) || tier[i].rate > 100)
+                    if((tier[i].calc_method == 'purchase_growth_percent' || tier[i].calc_method == 'cogs_growth_percent' || tier[i].calc_method == 'cogs_sales_growth_percent') && tier[i].rebate_to > 100)
                     {
-                        this.showNotify('negative', 'Target Incentive Rebate: Percentage cannot more than 100.');
+                        this.dialog.currentItem = {
+                            type: 'percentage_alert',
+                            message: 'Target Incentive Rebate percentage value is more than 100. Are you sure to proceed ?',
+                        }
+                        this.dialog.alert = true;
                         this.showLoading = false;
                         return;
                     }
@@ -4358,6 +4967,10 @@ export default {
             }
 
             // check existing tta with same vendor (bill to)
+            this.checkExistTTA();
+        },
+        async checkExistTTA()
+        {
             if(this.json.supplier_to != null && this.json.supplier_to != "")
             {
                 const tta_list = await this.isExistTTA(this.json.supplier_to);
@@ -4365,10 +4978,11 @@ export default {
                 if(tta_list.length>0)
                 {
                     this.dialog.currentItem = {
-                        vendor: tta_list[0].supplier_ref,
+                        type: 'active_tta',
+                        message: `Vendor ${tta_list[0].supplier_ref} already has active TTA existed. Do you confirm want to proceed ?`,
                         refno_list: tta_list.map(entry=>entry.refno),
                     }
-                    this.dialog.activeTTA = true;
+                    this.dialog.alert = true;
                     this.showLoading = false;
                     return
                 }
@@ -4381,7 +4995,7 @@ export default {
             var payload = {
                 params: {
                     "supplier_to": guid,
-                    "agreement_status__in": "Pending,Authorized,Approved,Revision",
+                    "agreement_status__in": "Pending,Authorised,Approved,Revision",
                 }
             }
 
@@ -4413,9 +5027,16 @@ export default {
                 return;
             }
 
-            if(this.dialog.date_from < this.json.effective_date_to)
+            if(this.dialog.date_to == "")
             {
-                this.showNotify('negative','Please ensure new effective start date later than previous effective end date.');
+                this.showNotify('negative','Please choose effective end date.');
+                this.dialogLoading = false;
+                return;
+            }
+
+            if(this.dialog.date_from > this.dialog.date_to)
+            {
+                this.showNotify('negative','Please ensure effective start date later than effective end date.');
                 this.dialog.loading = false;
                 return;
             }
@@ -4424,6 +5045,7 @@ export default {
                 tta_guid: this.json.tta_guid,
                 pass_json: {
                     "effective_date_from":this.dialog.date_from,
+                    "effective_date_to":this.dialog.date_to,
                     "updated_by": this.username,
                     "created_by": this.username,
                     "renewed": 1,
@@ -4440,7 +5062,7 @@ export default {
             var response = await this.$dispatch(pass_obj);
 
             if(!response.status)
-            {;
+            {
                 this.dialog.loading = false;
                 this.showNotify('negative','Renew TTA fail.');
                 console.log(response)
@@ -4451,9 +5073,47 @@ export default {
             this.showNotify('positive','Renew TTA successfully.');
             this.$router.push({name: 'tta'})
         },
+        async handleReceiveApprove()
+        {
+            if(this.hasChanges)
+            {
+                this.showNotify('negative','Changes have been made. Please save the changes first.');
+                return;
+            }
+
+            var payload = {
+                params:{
+                    "tta_guid": this.json.tta_guid,
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": 'tta/trigger_get_tta_tab_list',
+                "getter": 'tta/get_tab',
+                "app": this,
+                "payload": payload,
+            }
+
+            var tta_tab = await this.$dispatch(pass_obj);
+
+            if(!tta_tab.status) return;
+
+            var tab = tta_tab.response.data.results;
+            this.dialog.currentItem.isempty = tab.length==0 ? true : tab.every(entry => Array.isArray(entry.articles) && entry.articles.length === 0);
+
+            this.dialog.approve = true;
+        },
         async handleApprove()
         {
             this.dialog.loading = true;
+
+            if(this.json.banner.length == 0)
+            {
+                this.showNotify('negative','Please select banner before approving TTA.');
+                this.dialog.loading = false;
+                this.dialog.approve = false;
+                return;
+            }
 
             var payload = {
                 tta_guid: this.json.tta_guid,
@@ -4484,6 +5144,15 @@ export default {
             this.showNotify('positive','Approve TTA successfully.');
             this.$router.push({name: 'tta'});
         },
+        handleReceiveAuthorise()
+        {
+            if(this.hasChanges)
+            {
+                this.showNotify('negative','Changes has been made. Please save the changes first.');
+                return;
+            }
+            this.dialog.authorise = true;
+        },
         async handleAuthorise()
         {
             this.dialog.loading = true;
@@ -4504,7 +5173,7 @@ export default {
                 return;
             }
 
-            if(this.conditionTrade == "")
+            if(!this.conditionTrade || this.conditionTrade == "")
             {
                 this.showNotify('negative','Please select condition of trade before authorising TTA.');
                 this.dialog.loading = false;
@@ -4611,8 +5280,6 @@ export default {
             this.$router.push({name: 'printTTA', query: {tta_guid: this.currentTTA, type: type}});
         },
         viewFile(payload){
-            console.log(payload.row)
-            console.log(payload.row.file)
             window.open(payload.row.file, '_blank')
         },
         removeFile(payload)
@@ -4693,7 +5360,7 @@ export default {
                     pass_json: formData,
                 };
 
-                console.log("payload",payload)
+                // console.log("payload",payload)
 
                 var pass_obj = {
                     "dispatch": 'tta/trigger_create_tta_upload',
@@ -4723,7 +5390,7 @@ export default {
             this.dialog.currentItem = files;
         },
         async getBannerList(){
-            if(this.options.banner_list.length != this.total_banner)
+            if(this.total_banner == -1)
             {
                 this.dialog.loading = true;
                 // set options for banner
@@ -4747,12 +5414,31 @@ export default {
                 if(banner_list.status)
                 {
                     var list = banner_list.response.data.results;
-                    list.forEach(element => {
+                    await list.forEach(element => {
                         element.value = element.concept_guid;
                         element.label = element.banner;
                     });
-                    this.options.banner_list = list;
-                    this.total_banner = this.options.banner_list.length;
+
+                    if(this.preference.banner_setting == 'company')
+                    {
+                        var selected_options = [];
+                        await this.preference.company_list.forEach(async group => {
+                            const options = list.filter(option => option.company_info_guid === group.company_info_guid);
+                            const checkStatus = await options.every(banner => this.json.banner.includes(banner.value));
+                            if(checkStatus)
+                            {
+                                selected_options.push(group.company_info_guid);
+                            }
+                            this.options.banner_list.push({label: group.name, value: group.company_info_guid, banners: options, hasChecked: true, code: group.code});
+                        });
+                        this.json.banner = selected_options;
+                    }
+                    else
+                    {
+                        this.options.banner_list = list;
+                    }
+                    console.log('banner options',this.options.banner_list)
+                    this.total_banner = 1;
                 }
                 this.dialog.loading = false;
             }
@@ -5547,18 +6233,6 @@ export default {
     min-width: 100px;
 }
 
-.custom_nav_button
-{
-    padding: 8px 16px 8px 16px;
-    border-radius: 8px;
-    border: 2px solid #1E90FF;
-    font-family: InterfontMedium;
-    width: 100px;
-    height: 40px;
-    justify-content: center;
-    align-items: center;
-}
-
 .custom_primary_font {
     color: var(--q-primary) !important;
 }
@@ -5642,11 +6316,8 @@ export default {
     font-weight: 600;
     font-family: InterfontSemiBold;
 }
-.edit_IM_checkbox {
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 500;
-    font-family: InterfontMedium;
-    color: #000000;
+
+.table_dialog >>> .table {
+    max-height: 350px
 }
 </style>

@@ -4,45 +4,76 @@
             Trading Term Agreement
         </div>
         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 q-py-md">
-            <div class="row">
-                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                    <div class="row q-gutter-md">
-                        <Input
-                            v-model:pass_value="search"
-                            :dbComponentBehavior="dbComponentBehavior.text"
-                            label="Search"
-                            :filled="true"
-                            @receiveChange="handleChangeSearch"
-                        />
-                        
-                        <MultiSelect
-                            v-model:pass_value="status"
-                            v-on:receiveChange="handleChangeSearch"
-                            :componentBehavior="dbComponentBehavior.text"
-                            label="Status"
-                            option_label="Statuses"
-                            :options="status_options"
-                            :forceSelectAll="forceSelectAll"
-                            :filled="true"
-                        />
-                    </div>    
+            <div class="row q-gutter-md">
+                <div class="col-xl-2 col-lg-2 col-md-2 col-sm-6 col-xs-12">
+                    <Input
+                        v-model:pass_value="search"
+                        :dbComponentBehavior="dbComponentBehavior.text"
+                        label="Search"
+                        :filled="true"
+                        @receiveChange="handleChangeSearch"
+                    />
                 </div>
-                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 col-xs-12">
-                    <div class="row justify-end">
-                        <Button v-on:receiveClick="handleCreate"
-                        :pass_label="'Create'"
-                        :pass_no_caps="true"
-                        :pass_square="true"
-                        :pass_dense="true"
-                        class="custom_button"
-                        />
-                    </div>
+
+                <div class="col-xl-2 col-lg-2 col-md-2 col-sm-6 col-xs-12" @click="getSupplier">
+                    <MultiSelect
+                        v-model:pass_value="supplier"
+                        v-on:receiveChange="handleChangeSearch"
+                        :componentBehavior="dbComponentBehavior.text"
+                        label="Supplier"
+                        option_label="Suppliers"
+                        :options="supplier_options"
+                        :filled="true"
+                        :loading="dialogLoading"
+                    />
+                </div>
+                
+                <div class="col-xl-2 col-lg-2 col-md-2 col-sm-6 col-xs-12">
+                    <MultiSelect
+                        v-model:pass_value="company"
+                        v-on:receiveChange="handleChangeSearch"
+                        :componentBehavior="dbComponentBehavior.text"
+                        label="Company"
+                        option_label="Companies"
+                        :options="company_options"
+                        :filled="true"
+                    />
+                </div>
+                
+                <div class="col-xl-2 col-lg-2 col-md-2 col-sm-6 col-xs-12">
+                    <MultiSelect
+                        v-model:pass_value="status"
+                        v-on:receiveChange="handleChangeSearch"
+                        :componentBehavior="dbComponentBehavior.text"
+                        label="Status"
+                        option_label="Statuses"
+                        :options="status_options"
+                        :filled="true"
+                    />
+                </div>
+            </div>
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class="row justify-end">
+                    <Button v-on:receiveClick="handleReceiveReport"
+                    :pass_label="'Export'"
+                    :pass_no_caps="true"
+                    :pass_square="true"
+                    :pass_dense="true"
+                    class="action_button"
+                    />
+                    <Button v-on:receiveClick="handleCreate"
+                    :pass_label="'Create'"
+                    :pass_no_caps="true"
+                    :pass_square="true"
+                    :pass_dense="true"
+                    class="custom_button"
+                    />
                 </div>
             </div>
         </div>
-        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 q-py-md">
+        <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <Table
-                :row_per_page="[10,50,100,1000]"
+                :row_per_page="[10,50,100,500]"
                 :table_data="table_data"
                 :table_column="table_column"
                 :flat_status="true"
@@ -69,6 +100,8 @@
                 :forceLoading="forceLoading"
                 :column_reordering="true"
                 :row_reordering="false"
+                :custom_pagination="true"
+                :date_format="this.preference.dateFormat ? this.preference.dateFormat : 'YYYY-MM-DD'"
                 v-on:receiveHandleClearFilter="handleClearFilter"
 
                 :pass_visible_columns="visibleColumns"
@@ -92,8 +125,10 @@
 
         <q-card-section class="text-left" style="padding: 32px 24px">
             <div style="width:70%" class="q-gutter-md">
-                <LabelDatepicker label="Effective Date From" :daterange="dialog.date_from" v-on:receiveChange="handleChangeStartDate" :dbComponentBehavior="dbComponentBehavior.date"/>
-                <LabelDatepicker label="Effective Date To" :daterange="dialog.date_to" v-on:receiveChange="handleChangeEndDate" :dbComponentBehavior="dbComponentBehavior.date"/>
+                <LabelDatepicker label="Effective Date From" :daterange="dialog.date_from" v-on:receiveChange="handleChangeStartDate" 
+                :dbComponentBehavior="dbComponentBehavior.date" :dateFormat="preference.dateFormat"/>
+                <LabelDatepicker label="Effective Date To" :daterange="dialog.date_to" v-on:receiveChange="handleChangeEndDate" 
+                :dbComponentBehavior="dbComponentBehavior.date" :dateFormat="preference.dateFormat"/>
             </div>
         </q-card-section>
 
@@ -119,7 +154,8 @@
         </q-card-section>
 
         <q-card-section style="padding: 32px 24px">
-            <span class="confirmation_line_font">Do you want to approve this TTA {{currentItem.refno}}?</span>
+            <span class="confirmation_line_font" v-if="currentItem.isempty"><q-icon name="warning" color="orange" size="30px" class="q-px-sm"/>This TTA still have no rebates yet. </span><br/>
+            <span class="confirmation_line_font"> Do you want to approve {{currentItem.refno}}?</span>
         </q-card-section>
 
         <q-card-actions align="right" style="padding-top:0px;padding-bottom:16px;padding-right:16px">
@@ -210,7 +246,7 @@
     </q-dialog>
 
     <q-dialog v-model="dialog.history" persistent position="top">
-        <q-card style="width: 1000px; max-width: 120vw;text-align:center;margin-top: 5%;border-radius: 8px">
+        <q-card style="width: 1000px; max-width: 120vw; max-height: 95vh; text-align:center;margin-top: 1%;border-radius: 8px; overflow:hidden">
 
         <q-card-section class="theme_color row items-center" style="height:56px; padding: 8px 24px;border-bottom: 1px solid #a7bbcb;">
             <div class="confirm_title">History : {{currentItem.refno}}</div>
@@ -218,9 +254,10 @@
             <q-btn icon="close" flat round dense v-close-popup/>
         </q-card-section>
 
-        <q-card-section style="padding: 32px 24px">
-            <div class="row">
+        <q-card-section style="padding: 32px 24px; max-height: calc(95vh - 56px - 70px); overflow-y: auto;">
+            <div class="row bg-grey">
                 <Table
+                    class="table_dialog"
                     :row_per_page="[10,50,100,1000]"
                     :table_data="dialog.table_data"
                     :table_column="dialog.table_column"
@@ -239,7 +276,7 @@
             </div>
         </q-card-section>
 
-        <q-card-actions align="right" style="padding-top:0px;padding-bottom:16px;padding-right:16px">
+        <q-card-actions align="right" style="height: 70px; padding-top:5px;padding-bottom:16px;padding-right:16px">
             <q-btn flat label="Close" font_color="#29292A" color="#29292A" v-close-popup size="12px" class="dialog_confirm_cancel_button"/>
         </q-card-actions>
 
@@ -314,6 +351,38 @@
         />
         </q-card>
     </q-dialog>
+
+    <q-dialog v-model="dialog.report" persistent position="top">
+        <q-card style="width: 864px; max-width: 98vw;text-align:center;margin-top: 5%;border-radius: 8px">
+
+        <q-card-section class="theme_color row items-center" style="height:56px; padding: 8px 24px;border-bottom: 1px solid #a7bbcb;">
+            <div class="confirm_title">Generate TTA Report</div>
+            <q-space />
+            <q-btn icon="close" flat round dense v-close-popup/>
+        </q-card-section>
+
+        <q-card-section class="text-left" style="padding: 32px 24px">
+            <div style="width:70%" class="q-gutter-md">
+                <LabelMultiselect label="Type" v-model:pass_value="currentItem.tta_type" :options="tta_report_options" option_label="Types" :select_all="true" :forceSelectAll="false"
+                :dbComponentBehavior="dbComponentBehavior.select_required"/>
+                <LabelDatepicker label="Date From" :daterange="currentItem.date_from" v-on:receiveChange="(val) => currentItem.date_from = val" 
+                :dbComponentBehavior="dbComponentBehavior.date" :dateFormat="preference.dateFormat"/>
+                <LabelDatepicker label="Date To" :daterange="currentItem.date_to" v-on:receiveChange="(val) => currentItem.date_to = val" 
+                :dbComponentBehavior="dbComponentBehavior.date" :dateFormat="preference.dateFormat"/>
+            </div>
+        </q-card-section>
+
+        <q-card-actions align="right" style="padding-top:0px;padding-bottom:16px;padding-right:16px">
+            <q-btn flat label="Cancel" font_color="#29292A" color="#29292A" v-close-popup size="12px" class="dialog_confirm_cancel_button"/>
+            <q-btn flat label="Generate" font_color="white" color="'#D81111'" size="12px" class="primary_actions_button" @click="handleReport" />
+        </q-card-actions>
+
+        <q-inner-loading
+            :showing="dialogLoading"
+            color="primary"
+        />
+        </q-card>
+    </q-dialog>
 </template>
 
 <script>
@@ -323,6 +392,7 @@ import Input from 'src/components/PRIMS/Main/Input';
 import Table from 'src/components/PRIMS/Main/Table.vue';
 import Label from 'src/components/PRIMS/Main/Label.vue';
 import LabelDatepicker from 'src/components/PRIMS/General/LabelDatepicker';
+import LabelMultiselect from 'src/components/PRIMS/General/LabelMultiselect';
 import { Notify } from "quasar";
 
 export default {
@@ -333,6 +403,7 @@ export default {
         Table,
         Label,
         LabelDatepicker,
+        LabelMultiselect,
     },
     data(){
         return {
@@ -341,6 +412,7 @@ export default {
             user_info_guid: localStorage.getItem("user_info_guid") != "" && localStorage.getItem("user_info_guid") != "null" && localStorage.getItem("user_info_guid") != null ? localStorage.getItem("user_info_guid") : "",
             company_guid: localStorage.getItem("company_guid") != "" && localStorage.getItem("company_guid") != "null" && localStorage.getItem("company_guid") != null ? localStorage.getItem("company_guid") : "",
             permission: localStorage.getItem("permission") != "" && localStorage.getItem("permission") != "null" && localStorage.getItem("permission") != null ? localStorage.getItem("permission") : "",
+            preference: {},
             table_column: [],
             table_data: [],
             ori_params: {},
@@ -349,6 +421,11 @@ export default {
             status: [],
             status_options: [{label:"Pending",value:'pending'},{label:"Revision",value:'revision'},{label:"Authorised",value:'authorised'},{label:"Approved",value:'approved'},
                             {label:"Renewed",value:'renewed'},{label: "Rejected", value: 'rejected'},{label: "Terminated", value: 'terminated'}],
+            tta_report_options: [{label:'Confirmed TTA',value:'confirmed'},{label:'Unconfirmed TTA',value:'unconfirmed'},{label:'Effective TTA',value:'effective'}],
+            supplier: [],
+            supplier_options: [],
+            company: [],
+            company_options: [],
             currentItem: {},
             dialog: {
                 renewal: false,
@@ -358,6 +435,7 @@ export default {
                 terminate: false,
                 history: false,
                 upload: false,
+                report: false,
                 date_from: "",
                 date_to: "",
                 guid: "",
@@ -372,18 +450,120 @@ export default {
             forceLoading: false,
             loading: false,
             dialogLoading: false,
+            count: 0,
+            test:[],
+            test_options:[],
         }
     },
     computed: {
         dbComponentBehavior() {
             return this.$store.getters["dbComponentBehavior/byLanguage"]("tta");
         },
+        // forceSelectAllSupplier(){
+        //     return this.supplier_options.length>0 ? this.supplier.length == this.supplier_options.length : false;
+        // },
+        // forceSelectAllStatus(){
+        //     return this.status_options.length>0 ? this.status.length == this.status_options.length : false;
+        // }
+    },
+    async created(){
+        if(!localStorage.getItem("preference_setting"))
+        {
+            var pass_obj = {
+                "dispatch": 'general/trigger_get_company',
+                "getter": 'general/get_company',
+                "app": this,
+                "payload": {
+                    "company_guid": this.company_guid
+                },
+            }
+
+            var company = await this.$dispatch(pass_obj);
+
+            if(!company.status)
+            {
+                this.showNotify('negative', "Preference setting failed.");
+                this.$router.push({name: "tta"});
+            }
+
+            this.preference = {
+                "dateFormat": company.response.data.date_format_setting,
+                "default_date_to": company.response.data.date_to_setting,
+                "division_setting": company.response.data.division_setting == 1 ? true : false,
+                "banner_setting": company.response.data.banner_option_setting,
+                "displayBanner": company.response.data.display_banner_setting == 1 ? true : false,
+                "settlement_discount_setting": company.response.data.settlement_discount_setting == 1 ? true : false,
+            };
+            localStorage.setItem("preference_setting", JSON.stringify(this.preference));
+        }
+        else
+        {
+            this.preference = JSON.parse(localStorage.getItem("preference_setting"));
+        }
+
+        if(sessionStorage.getItem('tta_payload'))
+        {
+            var obj = JSON.parse(sessionStorage.getItem('tta_payload'));
+            this.search = obj.search ? obj.search : "";
+            this.status = obj.status ? obj.status : [];
+            this.supplier = obj.supplier ? obj.supplier : [];
+            this.company = obj.company ? obj.company : [];
+        }
+
+        // set company list
+        var pass_obj = {
+            "dispatch": 'general/trigger_get_company_info_list',
+            "getter": 'general/get_company_info',
+            "app": this,
+            "payload": {},
+        }
+
+        var company = await this.$dispatch(pass_obj);
+        if(company.status)
+        {
+            var array_options = [];
+            for(var i in company.response.data.results)
+            {
+                var obj = {
+                    value: company.response.data.results[i].code,
+                    label: company.response.data.results[i].name,
+                    code: company.response.data.results[i].code,
+                    company_info_guid: company.response.data.results[i].company_info_guid,
+                    name: company.response.data.results[i].name,
+                };
+                array_options.push(obj);
+            }
+            this.company_options = array_options;
+            this.company_options.push({label: "No Company", value: "null"})
+        }
     },
     methods: {
         handleTableChange(newVal)
         {
-            var new_params = this.$pluginsTableParams(newVal)
+            if(this.count == 0 && sessionStorage.getItem('tta_payload'))
+            {
+                var obj = JSON.parse(sessionStorage.getItem('tta_payload'));
+                if(obj.ori_params)
+                {
+                    this.ori_params = obj.ori_params;
+                    this.table_function(this.ori_params);
+                    this.count++;
+                    return;
+                }
+            }
+            else
+            {
+                var new_params = this.$pluginsTableParams(newVal)
+                var payload = {
+                    params : new_params
+                };
 
+                this.ori_params = payload;
+                this.table_function(this.ori_params);
+                this.count++;
+            }    
+
+            var new_params = this.$pluginsTableParams(newVal)
             var payload = {
                 params : new_params
             };
@@ -393,8 +573,9 @@ export default {
             this.table_function(payload);
         },
         async table_function(payload){
-            this.showLoading = true;
+            if(this.supplier.length>0 && this.supplier_options.length == 0) await this.getSupplier();
 
+            this.forceLoading = true;
 
             if(this.rearrange_column.length > 0)
             {
@@ -498,6 +679,7 @@ export default {
                         align: 'center',
                         sortable: true,
                         field: 'effective_date_from',
+                        data_type: 'date',
                         format_child: '',
                         tooltip: '',
                         headerStyle: 'text-align: center; width: 1%;',
@@ -520,6 +702,7 @@ export default {
                         align: 'center',
                         sortable: true,
                         field: 'effective_date_to',
+                        data_type: 'date',
                         format_child: '',
                         tooltip: '',
                         headerStyle: 'text-align: center; width: 1%;',
@@ -655,6 +838,7 @@ export default {
                         format_child: '',
                         tooltip: '',
                         headerStyle: 'text-align: center; width: 1%;',
+                        style:'max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;',
                         filter_type: 'input',
                         filter_options: [],
                         filter_value: '',
@@ -762,7 +946,11 @@ export default {
 
             payload.params.search = this.search;
 
-            payload.params.agreement_status__in = this.status.join(',');
+            payload.params.agreement_status__in = this.status.length == this.status_options.length ? "" : this.status.join(',');
+
+            payload.params.supplier_to__in = this.supplier.length == this.supplier_options.length ? "" : this.supplier.join(',');
+
+            payload.params.company__in = this.company.length == this.company_options.length ? "" : this.company.join(',');
 
             if(payload.params.ordering == "")
             {
@@ -781,11 +969,29 @@ export default {
             if(tta_list.status)
             {
                 var rows = tta_list.response;
+                var obj = {
+                    search: this.search,
+                    status: this.status,
+                    supplier: this.supplier,
+                    company: this.company,
+                    ori_params: this.ori_params
+                }
+            
+                sessionStorage.setItem('tta_payload', JSON.stringify(obj));
             }
             else
             {
                 var rows = {
+                    config: {
+                        params: {
+                            offset: payload.params.offset,
+                            limit: payload.params.limit,
+                        }
+                    },
                     data: {
+                        count: 0,
+                        next: null,
+                        previous: null,
                         results: [],
                     }
                 };
@@ -793,7 +999,7 @@ export default {
 
             this.table_data = rows;
             
-            this.showLoading = false;
+            this.forceLoading = false;
         },
         handleColumnRearrange(pass_payload)
         {
@@ -1034,7 +1240,7 @@ export default {
                     pass_json: formData,
                 };
 
-                console.log("payload",payload)
+                // console.log("payload",payload)
 
                 var pass_obj = {
                     "dispatch": 'tta/trigger_create_tta_upload',
@@ -1047,7 +1253,7 @@ export default {
 
                 if(!data_response.status)
                 {
-                    this.showNotify('positive','Upload files failed. Try again.');
+                    this.showNotify('negative','Upload files failed. Try again.');
                     console.log(data_response.response);
                     this.dialog.loading = false;
                     return;
@@ -1061,7 +1267,7 @@ export default {
         },
         handleFileUpload(files)
         {
-            console.log(files)
+            // console.log(files)
             this.dialog.files = files;
         },
         handleReceiveRenewal(data)
@@ -1207,14 +1413,69 @@ export default {
 
             this.dialogLoading = false;
         },
-        handleReceiveApprove(data)
+        async handleReceiveApprove(data)
         {
             this.currentItem = data.row;
+
+            var payload = {
+                params:{
+                    "tta_guid": this.currentItem.tta_guid,
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": 'tta/trigger_get_tta_tab_list',
+                "getter": 'tta/get_tab',
+                "app": this,
+                "payload": payload,
+            }
+
+            var tta_tab = await this.$dispatch(pass_obj);
+
+            if(!tta_tab.status)
+            {
+                this.currentItem = {};
+                return;
+            }
+
+            var tab = tta_tab.response.data.results;
+            this.currentItem.isempty = tab.length==0 ? true : tab.every(entry => Array.isArray(entry.articles) && entry.articles.length === 0);
+
             this.dialog.approve = true;
         },
         async handleApprove()
         {
             this.dialogLoading = true;
+
+            var payload = {
+                params:{
+                    "tta_guid": this.currentItem.tta_guid,
+                    "limit": 999,
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": 'tta/trigger_get_tta_banner_list',
+                "getter": 'tta/get_banner',
+                "app": this,
+                "payload": payload,
+            }
+
+            var tta_banner = await this.$dispatch(pass_obj);
+            
+            var banner = [];
+            if(tta_banner.status)
+            {
+                banner = tta_banner.response.data.results;
+            }
+
+            if(banner.length == 0)
+            {
+                this.showNotify('negative','Please select banner before approving TTA.');
+                this.dialogLoading = false;
+                this.dialog.approve = false;
+                return;
+            }
 
             var payload = {
                 tta_guid: this.currentItem.tta_guid,
@@ -1249,7 +1510,7 @@ export default {
         },
         handleReceiveAuthorise(data)
         {
-            console.log(data)
+            // console.log(data)
             this.currentItem = data.row;
             this.dialog.authorise = true;
         },
@@ -1299,7 +1560,7 @@ export default {
                 }                
             }
 
-            console.log(this.currentItem)
+            // console.log(this.currentItem)
 
             if(!this.currentItem.supplier_to || this.currentItem.supplier_to == "")
             {
@@ -1442,12 +1703,94 @@ export default {
         handleCreate(){
             this.$router.push({name: 'createTTA'});
         },
+        handleReceiveReport()
+        {
+            this.currentItem.tta_type = [];
+            this.currentItem.date_from = '';
+            this.currentItem.date_to = '';
+            this.dialog.report = true;
+        },
+        async handleReport()
+        {
+            if(this.currentItem.tta_type.length == 0)
+            {
+                this.showNotify('negative','Please select type of report.');
+                return;
+            }
+
+            this.dialogLoading = true;
+
+            var payload = {
+                params: {
+                    'type': 'tta',
+                    'choice': this.currentItem.tta_type.join(','),
+                    'date_from': this.currentItem.date_from,
+                    'date_to': this.currentItem.date_to,
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": "general/trigger_generate_report",
+                "getter": 'general/get_results',
+                "app": this,
+                "payload": payload,
+            }
+
+            var data_response = await this.$dispatch(pass_obj);
+
+            if(!data_response.status)
+            {
+                var message = "Generate TTA report failed. Please try again.";
+                const valid = this.isValidJSON(data_response.response);
+                if(valid)
+                {
+                    const response = JSON.parse(data_response.response);
+                    if(response.message)
+                    {
+                        var message = response.message;
+                    }
+                }
+                else
+                {
+                    var message = data_response.response;
+                }   
+                this.showNotify('negative', message);
+                this.dialogLoading = false;
+                return;
+            }
+
+            var url = new URL(this.$global_config.url+"generate_report/");
+            url.search = new URLSearchParams(payload.params).toString();
+
+            var url = url.toString();
+            var link = document.createElement('a');
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            this.showNotify('positive','Generate TTA report successfully.');
+            this.dialog.report = false;
+            this.dialogLoading = false;
+        },
         handleChangeSearch()
         {
-            this.$nextTick(()=>{
-                this.forceLoading = true;
-                this.table_function(this.ori_params);
-            })            
+            this.table_data = {
+                config: {
+                    params: {
+                        offset: 0,
+                        limit: 10,
+                    }
+                },
+                data: {
+                    count: 0,
+                    next: null,
+                    previous: null,
+                    results: [],
+                }
+            };
+            this.forceLoading = true;
+            this.table_function(this.ori_params);
         },
         handleChangeStartDate(newVal)
         {
@@ -1457,9 +1800,44 @@ export default {
         {
             this.dialog.date_to = newVal;
         },
-        handleChangeEndDate(newVal)
+        async getSupplier()
         {
-            this.dialog.date_to = newVal;
+            if(this.supplier_options.length>0) return;
+
+            this.dialogLoading = true;
+
+            // set options for supplier
+            var payload = {
+                params: {
+                    "limit": "99999",
+                    "ordering": "code",
+                    "type__in": "S,P",
+                }
+            }
+
+            var pass_obj = {
+                "dispatch": 'general/trigger_get_supplier_list',
+                "getter": 'general/get_supplier',
+                "app": this,
+                "payload": payload,
+            }
+
+            var sup_list = await this.$dispatch(pass_obj);
+
+            if(sup_list.status)
+            {
+                var list = sup_list.response.data.results;
+                await list.forEach(element => {
+                    element.value = element.supplier_guid;
+                    element.label = `${element.code} - ${element.name}`;
+                    element.selected = false;
+                });
+                this.supplier_options = list;
+                
+                this.test_options = list;
+            }
+
+            this.dialogLoading = false;
         },
         isValidJSON(str) {
             try {
@@ -1533,6 +1911,16 @@ export default {
   background-color: #273655;
   color: white;
   margin-left: 5px;
+  padding: 0px 10px;
+}
+
+.action_button
+{
+  font-size: 14px;
+  background-color: #e37a05;
+  color: white;
+  margin-left: 5px;
+  padding: 0px 10px;
 }
 
 .active_section_button
@@ -1565,5 +1953,13 @@ export default {
     font-style: normal;
     font-weight: 500;
     font-family: InterfontMedium;
+}
+
+* >>> .q-field--outlined.q-field--readonly .q-field__control:before {
+    border-style: solid;
+}
+
+.table_dialog >>> .table{
+    max-height: 350px;
 }
 </style>

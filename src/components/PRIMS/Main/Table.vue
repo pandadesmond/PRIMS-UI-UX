@@ -1,6 +1,6 @@
 <template>
     <div class="border-container">
-        <q-table :hide-bottom="hide_footer" :separator="no_separator ? 'none' : 'cell'" :flat="flat_status" :bordered="bordered_status" class="" :title="title" :row_per_page="row_per_page"
+        <q-table :hide-bottom="hide_footer" :separator="no_separator ? 'none' : 'cell'" :flat="flat_status" :bordered="bordered_status" class="table" :title="title" :row_per_page="row_per_page"
             :rows="rows" :columns="columns" rows-per-page-label="Entries" :pagination-label="getPaginationLabel"
             :rows-per-page-options="row_per_page"
             :row-key="row_key"
@@ -148,6 +148,34 @@
                                     </q-list>
                                 </q-menu>
                             </q-btn>
+
+                            <q-btn v-if="allow_print_claim" @click.stop="null" color="blue" icon="print" size="10px" square class="action_button">
+                                <q-menu square>
+                                    <q-list dense class="custom_list text-left">
+                                        <q-item clickable v-close-popup class="item_list" @click="handlePrintClaim(props,'store')">
+                                            <q-item-section>
+                                                By Store
+                                            </q-item-section>
+                                        </q-item>
+
+                                        <q-separator />
+
+                                        <q-item clickable v-close-popup class="item_list" @click="handlePrintClaim(props,'subdept')">
+                                            <q-item-section>
+                                                By Subdept
+                                            </q-item-section>
+                                        </q-item>
+
+                                        <q-separator />
+                                        
+                                        <q-item clickable v-close-popup class="item_list" @click="handlePrintClaim(props,'store_subdept')">
+                                            <q-item-section>
+                                                By Store by Subdept
+                                            </q-item-section>
+                                        </q-item>
+                                    </q-list>
+                                </q-menu>
+                            </q-btn>
                             
                             <q-btn v-if="allow_upload" @click="handleUpload(props)" @click.stop="null" color="green" icon="file_upload" size="10px" square class="action_button">
                                 <q-tooltip>
@@ -183,19 +211,19 @@
                                             </q-item-section>
                                         </q-item>
                                         <q-separator />
-                                        <q-item clickable v-close-popup class="item_list" v-if="permission.includes('renewed') && props.row.authorised == 1 && props.row.approved == 1 && props.row.rejected == 0 && props.row.terminated == 0" @click="handleRenewal(props)">
+                                        <q-item clickable v-close-popup class="item_list" v-if="permission.includes('renewed') && props.row.authorised == 1 && props.row.approved == 1 && props.row.renewed == 0 && props.row.rejected == 0 && props.row.terminated == 0" @click="handleRenewal(props)">
                                             <q-item-section>
                                                 Renew
                                             </q-item-section>
                                         </q-item>
                                         <q-separator />
-                                        <q-item clickable v-close-popup class="item_list" v-if="permission.includes('rejected') && props.row.rejected == 0" @click="handleReject(props)">
+                                        <q-item clickable v-close-popup class="item_list" v-if="permission.includes('rejected') && props.row.rejected == 0 && props.row.terminated == 0" @click="handleReject(props)">
                                             <q-item-section>
                                                 Reject
                                             </q-item-section>
                                         </q-item>
                                         <q-separator />
-                                        <q-item clickable v-close-popup class="item_list" v-if="permission.includes('terminated') && props.row.terminated == 0" @click="handleTerminate(props)">
+                                        <q-item clickable v-close-popup class="item_list" v-if="permission.includes('terminated') && props.row.terminated == 0 && props.row.rejected == 0" @click="handleTerminate(props)">
                                             <q-item-section>
                                                 Terminate
                                             </q-item-section>
@@ -210,11 +238,8 @@
                             {{formatAmount(col.value, col.data_type, col.data_decimal)}}
                         </q-td>
 
-                        <q-td :class="[!visibleColumns.includes(col.name) && visibleColumns.length != 0 && 'hide_columns']" :style="`text-align: ${col.align}`" v-else-if="col.name == 'set_active' || col.name == 'isapprove' || col.name == 'posted' || col.name == 'pip' || col.name == 'lhdn_validated' || col.name == 'canceled' || col.name == 'dn' || col.name == 'issue_cn' || col.name == 'system_generate' || col.name == 'landed_cost' || col.name == 'nontrade_as_stock' || col.name == 'is_dc' || col.name == 'rep_all_ads' || col.name == 'set_default' || col.name == 'IsExempted' || col.name == 'active' || col.name == 'inactive' || col.name == 'block_po' ||
-                        col.name == 'none_return' || col.name == 'block_order' || col.name == 'rs_manual_soq' || col.name == 'rs_manual_order' || col.name == 'rs_ord_D1' || col.name == 'rs_ord_D2' || col.name == 'rs_ord_D3' || col.name == 'rs_ord_D4' || col.name == 'rs_ord_D5' || col.name == 'rs_ord_D6' || col.name == 'rs_ord_D7' || col.name == 'group_status' || col.name == 'TempItem' || col.name == 'Amendment' || col.name == 'cost_manual'
-                        || col.name == 'Print_Req'  || col.name == 'ishq'  || col.name == 'Send_Req'  || col.name == 'Send_Approved' || col.name == 'Post_Req' || col.name == 'primary_barcode'
-                        || col.name == 'Organic_Certified' || col.name == 'Non_GMO' || col.name == 'No_Colouring' || col.name == 'Gluten_Free' || col.name == 'Plant_Based' || col.name == 'Pesticide_Free' || col.name == 'Direct_from_Farm' || col.name == 'Free_Range' || col.name == 'Lactose_Free' || col.name == 'Keto_Friendly' || col.name == 'Vegan' || col.name == 'Festive' || col.name == 'Non_Halal' || col.name == 'EStore_Tag' || col.name == 'EStore_Available'
-                        || col.name == 'SoldByWeight' || col.name == 'BillStatus' || col.name == 'posted' || col.name == 'Set_Disable' || col.name == 'CancelPromo' || col.name == 'Posted' || col.name == 'cancel'
+                        <q-td :class="[!visibleColumns.includes(col.name) && visibleColumns.length != 0 && 'hide_columns']" :style="`text-align: ${col.align}`" v-else-if="col.name == 'set_active' || col.name == 'isapprove' || col.name == 'posted' || col.name == 'pip' || col.name == 'lhdn_validated' || col.name == 'canceled' || col.name == 'set_default' || col.name == 'active' || col.name == 'inactive'
+                        || col.name == 'ishq' || col.name == 'Posted' || col.name == 'cancel' || col.name == 'p2a_navision'
                         ">
                         <q-toggle
                             :disable="true"
@@ -303,6 +328,34 @@
                                 </q-menu>
                             </q-btn>
 
+                            <q-btn v-if="allow_print_claim" @click.stop="null" color="blue" icon="print" size="10px" square class="action_button">
+                                <q-menu square>
+                                    <q-list dense class="custom_list">
+                                        <q-item clickable v-close-popup class="item_list" @click="handlePrintClaim(props,'store')">
+                                            <q-item-section>
+                                                By Store
+                                            </q-item-section>
+                                        </q-item>
+
+                                        <q-separator />
+
+                                        <q-item clickable v-close-popup class="item_list" @click="handlePrintClaim(props,'subdept')">
+                                            <q-item-section>
+                                                By Subdept
+                                            </q-item-section>
+                                        </q-item>
+
+                                        <q-separator />
+                                        
+                                        <q-item clickable v-close-popup class="item_list" @click="handlePrintClaim(props,'store_subdept')">
+                                            <q-item-section>
+                                                By Store by Subdept
+                                            </q-item-section>
+                                        </q-item>
+                                    </q-list>
+                                </q-menu>
+                            </q-btn>
+
                             <q-btn v-if="allow_upload" @click="handleUpload(props)" @click.stop="null" color="green" icon="file_upload" size="10px" square class="action_button">
                                 <q-tooltip>
                                     Upload
@@ -362,11 +415,8 @@
                             <q-checkbox v-show="props.row.hasOwnProperty('select')" v-model="props.row.select" />
                         </q-td>
 
-                        <q-td :class="[!visibleColumns.includes(col.name) && visibleColumns.length != 0 && 'hide_columns']" :style="`text-align: ${col.align}`" v-else-if="col.name == 'set_active' || col.name == 'isapprove' || col.name == 'posted' || col.name == 'pip' || col.name == 'lhdn_validated' || col.name == 'canceled' || col.name == 'dn' || col.name == 'issue_cn' || col.name == 'system_generate' || col.name == 'landed_cost' || col.name == 'nontrade_as_stock' || col.name == 'is_dc' || col.name == 'rep_all_ads' || col.name == 'set_default' || col.name == 'IsExempted' || col.name == 'active' || col.name == 'inactive' || col.name == 'block_po' ||
-                        col.name == 'none_return' || col.name == 'block_order' || col.name == 'rs_manual_soq' || col.name == 'rs_manual_order' || col.name == 'rs_ord_D1' || col.name == 'rs_ord_D2' || col.name == 'rs_ord_D3' || col.name == 'rs_ord_D4' || col.name == 'rs_ord_D5' || col.name == 'rs_ord_D6' || col.name == 'rs_ord_D7' || col.name == 'group_status' || col.name == 'TempItem' || col.name == 'Amendment' || col.name == 'cost_manual'
-                        || col.name == 'Print_Req'  || col.name == 'ishq'  || col.name == 'Send_Req'  || col.name == 'Send_Approved' || col.name == 'Post_Req' || col.name == 'primary_barcode'
-                        || col.name == 'Organic_Certified' || col.name == 'Non_GMO' || col.name == 'No_Colouring' || col.name == 'Gluten_Free' || col.name == 'Plant_Based' || col.name == 'Pesticide_Free' || col.name == 'Direct_from_Farm' || col.name == 'Free_Range' || col.name == 'Lactose_Free' || col.name == 'Keto_Friendly' || col.name == 'Vegan' || col.name == 'Festive' || col.name == 'Non_Halal' || col.name == 'EStore_Tag' || col.name == 'EStore_Available'
-                        || col.name == 'SoldByWeight' || col.name == 'BillStatus' || col.name == 'posted' || col.name == 'Set_Disable' || col.name == 'CancelPromo' || col.name == 'Posted' || col.name == 'cancel'
+                        <q-td :class="[!visibleColumns.includes(col.name) && visibleColumns.length != 0 && 'hide_columns']" :style="`text-align: ${col.align}`" v-else-if="col.name == 'set_active' || col.name == 'isapprove' || col.name == 'posted' || col.name == 'pip' || col.name == 'lhdn_validated' || col.name == 'canceled' || col.name == 'set_default' || col.name == 'active' || col.name == 'inactive'
+                        || col.name == 'ishq' || col.name == 'Posted' || col.name == 'cancel' || col.name == 'p2a_navision' || col.name == 'approved'
                         ">
                         <q-toggle
                             :disable="true"
@@ -422,6 +472,14 @@
                                 />                                
                             </template>
 
+                            <template v-else-if="col.name == 'created_at' || col.name == 'updated_at' || col.name == 'posted_at'">
+                                {{formatDate(col.value, `${dateFormat} hh:tt:ss`)}}
+                            </template>
+
+                            <template v-else-if="col.data_type == 'date'">
+                                {{formatDate(col.value, dateFormat)}}
+                            </template>
+
                             <template v-else>
                                 {{formatAmount(col.value, col.data_type, col.data_decimal)}}
                             </template>
@@ -453,6 +511,16 @@
                     size="12px"
                     class="round-button-custom"
                 />
+            </template>
+            
+            <template v-slot:bottom-row v-if="bottom_row">
+                <q-tr>
+                    <template v-for="col in bottom_row" :key="col">
+                        <q-td :colspan="col.colspan" :style="col.style">
+                            <span>{{col.data}}</span>
+                        </q-td>
+                    </template>
+                </q-tr>
             </template>
         </q-table>
     </div>
@@ -492,10 +560,10 @@ export default {
             visibleColumns: this.pass_visible_columns
         }
     },
-    props: ['table_column', 'table_data', 'hide_footer', 'row_per_page',"flat_status", "bordered_status","pass_row_key",'pass_visible_columns', 
+    props: ['table_column', 'table_data', 'hide_footer', 'row_per_page',"flat_status", "bordered_status","pass_row_key",'pass_visible_columns', 'bottom_row',
     'trigger_user', 'forceLoading','no_separator','filter_mode_on','column_reordering','row_reordering',
     'allow_add','allow_edit','allow_view','allow_delete', 'allow_select', 'allow_print', 'allow_remove', 'allow_upload','allow_action','allow_cancel',
-    'allow_history','allow_download','allow_print_tta'],
+    'allow_history','allow_download','allow_print_tta','allow_print_claim','custom_pagination','date_format'],
     components: {
         Input,
         Select,
@@ -519,7 +587,17 @@ export default {
             const start = (this.pagination.page - 1) * this.pagination.rowsPerPage + 1;
             const end = Math.min(this.pagination.page * this.pagination.rowsPerPage, this.pagination.rowsNumber);
             return `${start} - ${end} of ${this.pagination.rowsNumber}`;
-        }
+        },
+        dateFormat(){
+            if(this.date_format)
+            {
+                return this.date_format;
+            }
+            else
+            {
+                return localStorage.getItem('preference_setting') ? JSON.parse(localStorage.getItem('preference_setting')).dateFormat : 'YYYY-MM-DD';
+            }
+        },
     },
     methods: {
         handleSelectAll()
@@ -562,6 +640,35 @@ export default {
 
                 return value;
             }
+        },
+        formatDate(date, format)
+        {
+            if(!date)  return;
+
+            var curDate = new Date(date);
+            var day = curDate.getDate();
+            var month = curDate.getMonth() +1;
+            var year = curDate.getFullYear();
+            var hours = curDate.getHours();
+            var minutes = curDate.getMinutes();
+            var seconds = curDate.getSeconds();
+
+            const formatRegex = /dd|mm|yyyy|yy|hh|tt|ss/g;
+
+            const formattedDate = format.toLowerCase().replace(formatRegex, (match) => {
+                switch (match) {
+                    case 'dd': return day;
+                    case 'mm': return month;
+                    case 'yyyy': return year;
+                    case 'yy': return year.slice(-2);
+                    case 'hh': return hours;
+                    case 'tt': return ('0' + minutes).slice(-2);
+                    case 'ss': return ('0' + seconds).slice(-2);
+                    default: return match;
+                }
+            });
+
+            return formattedDate;
         },
         handleClearFilter()
         {
@@ -660,6 +767,12 @@ export default {
             })
         },
         handlePrintTTA(pass_payload,type){
+            pass_payload.type = type;
+            this.$nextTick(()=>{
+                this.$emit('receiveHandlePrint', pass_payload)
+            })
+        },
+        handlePrintClaim(pass_payload,type){
             pass_payload.type = type;
             this.$nextTick(()=>{
                 this.$emit('receiveHandlePrint', pass_payload)
@@ -805,6 +918,14 @@ export default {
         table_data(newVal){
             this.rows = newVal.data.results;
             this.pagination.rowsNumber = newVal.data.count;
+            if(this.custom_pagination)
+            {
+                var offset = newVal.config.params.offset;
+                var limit = newVal.config.params.limit;
+                var page_no = Number(offset/limit) + 1;
+                this.pagination.page = page_no;
+                this.pagination.rowsPerPage = limit == 999999999 ? 0 : limit;
+            }
             this.loading = false;
             this.selectAll = false;
 
@@ -891,7 +1012,7 @@ export default {
 }
 
 .item_list {
-    padding: 0px;
+    padding: 0px 5px;
     border-radius: 0;
     text-align: center;
 }
@@ -992,4 +1113,29 @@ export default {
     min-width: 2em !important;
     min-height: 25px;
 }
+
+/* .table {
+  max-height: 400px;
+}*/
+
+.table thead tr th {
+  position: sticky;
+  z-index: 2;
+}
+
+.table thead tr:last-child th {
+  top: 48px;
+}
+
+.table thead tr:first-child th {
+  top: 0;
+}
+
+.table tbody {
+  scroll-margin-top: 48px;
+}
+
+/* .q-table--loading thead tr:last-child th {
+  top: 0px;
+} */
 </style>

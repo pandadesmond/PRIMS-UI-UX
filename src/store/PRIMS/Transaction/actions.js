@@ -235,6 +235,19 @@ export function trigger_post_cndn ({ commit,state }, payload) {
   return payload.app.$actions({ commit,state }, object_pass);
 }
 
+export function trigger_generate_cndn ({ commit,state }, payload) {
+  var object_pass = {
+      "url": `ts_invoice/generate_cn/`,
+      "update_path": 'update_cndn_note',
+      "type": 'POST',
+      "headers": {},
+      "params": payload.payload.params,
+      "body": payload.payload.pass_json,
+  };
+
+  return payload.app.$actions({ commit,state }, object_pass);
+}
+
 export function trigger_cancel_cndn_bulk ({ commit,state }, payload) {
   var object_pass = {
       "url": `/ts_cndn/cancel/`,

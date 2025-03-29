@@ -1,6 +1,6 @@
 <template>
-    <div class="row" style="align-items: center;">
-        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 col-xs-12">
+    <div class="row items-start">
+        <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12 col-xs-12 q-py-sm">
             <Label :pass_value="label"/>
         </div>
         <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12 col-xs-12">

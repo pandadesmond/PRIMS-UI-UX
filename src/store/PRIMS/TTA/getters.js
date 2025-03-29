@@ -42,3 +42,7 @@ export function get_banner (state) {
 export function get_upload (state) {
   return state.upload
 }
+
+export function get_query (state) {
+  return state.query
+}
